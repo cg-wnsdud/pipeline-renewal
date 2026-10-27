@@ -1,0 +1,11 @@
+{
+ "contract": "vlm-eval-set/1",
+ "region_source_run": "work/runs/stage1-merge-large",
+ "note": "여백 crop 비교(B0 vs B1)용 추가 사례. 여백 규칙 범위 안에 이웃 영역의 정답 문구가 있는 영역(이웃 혼입 위험). 실행 전 고정.",
+ "general": {
+  "f01_p01": {"why": "표·다른 문단과 간격이 여백보다 좁음", "regions": ["f01_p01-v0-L016", "f01_p01-v0-L020", "f01_p01-v0-L023"]},
+  "f12_p01": {"why": "위 문단과 붙어 있음", "regions": ["f12_p01-v0-L007"]},
+  "f12_p02": {"why": "표 후보·다른 안내문과 붙어 있음", "regions": ["f12_p02-v0-L002", "f12_p02-v0-L004"]},
+  "f13_p01": {"why": "오른쪽 표 바로 아래", "regions": ["f13_p01-v0-L021"]}
+ }
+}

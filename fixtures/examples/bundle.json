@@ -1,0 +1,8 @@
+{"manifest_version": 1, "note": "예시: 여러 파일·여러 페이지 묶음(웹 캡처 3개 + PDF 2쪽). 파일 순서 → 페이지 순서 유지",
+ "source_root": "C:/Users/cccjj/cginside/농협프로젝트/test-file",
+ "submissions": [{"submission_id": "ex-bundle-web", "description": "카카오페이통장 웹 탭 3개",
+                  "files": [{"file_id": "f04", "path": "12. 예금성상품-입출식 광고2-1.png"},
+                            {"file_id": "f05", "path": "12. 예금성상품-입출식 광고2-2.png"},
+                            {"file_id": "f06", "path": "12. 예금성상품-입출식 광고2-3.png"}]},
+                 {"submission_id": "ex-bundle-pdf", "description": "저축예금 PDF 2쪽",
+                  "files": [{"file_id": "f07", "path": "12. 예금성상품-입출식 광고5.pdf"}]}]}

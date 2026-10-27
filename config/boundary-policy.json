@@ -1,0 +1,44 @@
+{
+ "contract": "boundary-policy/1",
+ "name": "section-pack",
+ "version": "2",
+ "status": "approved",
+ "approved_by": "사용자(2026-10-26 대화)",
+ "approved_at": "2026-10-26",
+ "decision": "후보 경계 화면 확인 후 승인. 섹션 사이·표–각주·탭(메뉴)–내용·버튼–설명·목록 항목 사이는 잘라도 된다(문구는 영역 단위로 보존, 타일 사이 관계만 끊김). 제목–본문·같은 문장/문단·표 행 사이는 자르지 않는다. 타일 비율 2.5 이하",
+ "allowed_relations": [
+  "independent_sections",
+  "table_and_footnote",
+  "menu_or_tab_and_content",
+  "button_and_description",
+  "list_items"
+ ],
+ "rejected_relations": [
+  "heading_and_body",
+  "same_paragraph_or_sentence",
+  "inside_table",
+  "unknown"
+ ],
+ "target_aspect": 2.5,
+ "scope": {
+  "width_px": [
+   640,
+   700
+  ],
+  "min_aspect": 3.0,
+  "description": "모바일 웹 캡처형 세로 긴 이미지"
+ },
+ "validation": {
+  "status": "passed",
+  "date": "2026-10-26",
+  "method": "docs/09 §2-6: f08·f09·f11 에 승인 계획 없이 적용해 승인 계획과 정답 대조",
+  "evidence": "work/pipeline/auto-boundary-validate/validation.json, stage1/boundary-plans/*.json, stage1/boundary-evidence/*.png",
+  "results": {
+   "f08_p01": "자동 1512·3019·4511(4타일) vs 승인 937·1968·3326·4646: 레이아웃 상자 안 정답 99 vs 101(허용 −2), 경계 가로지르는 정답 줄·표 0, 거부 1곳(4581 제목–본문)",
+   "f09_p01": "자동 1243(표–각주)·2004(각주 목록) vs 승인 1243·2131: 71 vs 68, 표 한 상자 유지",
+   "f11_p01": "자동 1147 = 승인 1147: 43 vs 43"
+  },
+  "accepted_cut_review": "받아들인 경계 4곳을 Claude(AI)가 원본으로 확인: 목록 항목 2, 섹션 사이 1, 부제 문장–일러스트 1(문장은 자르지 않음). 금지 범주 수락 0. 사람 검토 아님",
+  "scope_note": "검증 자료 3페이지(폭 656~669px). 범위 밖 입력은 candidate 로 실행·표시"
+ }
+}

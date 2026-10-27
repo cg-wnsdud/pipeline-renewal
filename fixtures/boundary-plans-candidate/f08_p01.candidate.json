@@ -1,0 +1,248 @@
+{
+ "contract": "boundary-plan/2",
+ "plan_version": "section-pack-2026-10-26",
+ "page_id": "f08_p01",
+ "page_image_sha256": "64527212a1371eaca64c761be12a5b51213a7b64b66891d9f4097b9050fbdaea",
+ "page_size": [
+  667,
+  6130
+ ],
+ "coordinate_system": "page_px_xyxy",
+ "axis": "y",
+ "status": "candidate",
+ "policy": {
+  "name": "section-pack",
+  "version": "1",
+  "target_tile_extent_px": 1668,
+  "target_basis": "폭×2.5(탐색 창 실험의 잠정값). 상한이 아니라 묶음 목표",
+  "oversized_section_rule": "안쪽에 안전 후보가 없는 섹션은 목표보다 길어도 통째로 한 타일",
+  "status": "experimental"
+ },
+ "cuts": [
+  0,
+  937,
+  1968,
+  3326,
+  4646,
+  6130
+ ],
+ "composition": {
+  "status": "composed",
+  "cuts": [
+   0,
+   937,
+   1968,
+   3326,
+   4646,
+   6130
+  ],
+  "tile_lengths": [
+   937,
+   1031,
+   1358,
+   1320,
+   1484
+  ],
+  "target_len": 1668,
+  "oversized_sections": []
+ },
+ "boundaries": [
+  {
+   "position": 937,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c06",
+     "gap_px": 181,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y937.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0001",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "만기금액 알아보기 버튼 상자 뒤 → '미래를 위한 든든한 첫 걸음!' 새 섹션"
+   }
+  },
+  {
+   "position": 1968,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c12",
+     "gap_px": 180,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y1968.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0002",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "가입 절차(계좌개설) 끝 → '청년을 위한 특별한 금융 혜택!'"
+   }
+  },
+  {
+   "position": 3326,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c18",
+     "gap_px": 23,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y3326.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd2-0002",
+     "reason": "위쪽은 일러스트와 텍스트가 포함된 광고/배너 영역이고, 아래쪽은 탭 메뉴와 상세 정보가 시작되는 별개의 섹션입니다.",
+     "source": "새 호출(2026-10-26)"
+    },
+    "ai_review": "우대금리 홍보 그림 끝 → 상품안내 탭 메뉴와 상품 정보 표 시작(탭은 아래 섹션에 속함)"
+   }
+  },
+  {
+   "position": 4646,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c26",
+     "gap_px": 37,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y4646.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0004",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "이자지급 방법 내용 끝 → '판매한도' 항목"
+   }
+  }
+ ],
+ "unused_positions": [
+  {
+   "position": 2656,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c15",
+     "gap_px": 222,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y2656.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd2-0001",
+     "reason": "위쪽은 퍼즐 그래픽과 함께 상품의 특징(정부 기여금, 비과세)을 나타내는 이미지 섹션이고, 아래쪽은 고객 대상과 혜택을 설명하는 텍스트 섹션으로 서로 다른 정보를 담고 있습니다.",
+     "source": "새 호출(2026-10-26)"
+    },
+    "ai_review": "퍼즐 그림(정부기여금·비과세)으로 섹션 끝 → 회색 배경 'NH농협은행 이용 고객이라면 우대금리 혜택까지 더!'"
+   }
+  },
+  {
+   "position": 4117,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c20",
+     "gap_px": 44,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y4117.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0003",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "상품 정보 표 마지막 행(예금종류) 끝 → '적립방법' 항목"
+   }
+  },
+  {
+   "position": 4821,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c28",
+     "gap_px": 40,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y4821.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0005",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "판매한도 설명 끝 → '가입/해지 방법' 항목"
+   }
+  },
+  {
+   "position": 5069,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c30",
+     "gap_px": 110,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y5069.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0006",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "가입/해지 방법 끝 → '상품설명서 및 약관'"
+   }
+  }
+ ],
+ "note": "미검증 후보. run_pipeline --run-candidate-boundaries 로만 실험 실행(CANDIDATE_RUN). validated 아님."
+}

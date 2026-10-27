@@ -1,0 +1,496 @@
+{
+ "page_id": "h01_p01",
+ "ref_size": [
+  1653,
+  2339
+ ],
+ "scaffold_run": "work\\runs\\hwp-ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "h01_p01 지수연동예금 보도자료 HWP → 기존 변환기(HTML/Chromium) PDF → 200dpi. 변환 PDF 디지털 텍스트 대조.",
+  "정답은 이 PC 에서 기존 변환기로 렌더한 화면 기준이다(한컴 원본 화면과 다를 수 있음).",
+  "300DPI 전체 OCR 이 같은 줄을 단어 단위로 나눠 검출함(E1~E63, 모두 기준 줄 안). 중복 처리.",
+  "잔여 잉크 3개 확인: 로고·구분선·삼각형 도형(▲ 는 #28 줄 안). 추가 문구 없음."
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "h01_p01-g0001",
+   "bbox": [
+    362,
+    195,
+    571,
+    238
+   ],
+   "text": "홍보국 협의여부",
+   "status": "pdf",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0002",
+   "bbox": [
+    624,
+    196,
+    775,
+    237
+   ],
+   "text": "심의필 번호",
+   "status": "pdf",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0003",
+   "bbox": [
+    139,
+    198,
+    335,
+    236
+   ],
+   "text": "비예금상품여부",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0004",
+   "bbox": [
+    1218,
+    207,
+    1545,
+    310
+   ],
+   "text": "보도자료",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0005",
+   "bbox": [
+    451,
+    261,
+    487,
+    299
+   ],
+   "text": "여",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0006",
+   "bbox": [
+    218,
+    262,
+    255,
+    300
+   ],
+   "text": "부",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0007",
+   "bbox": [
+    678,
+    278,
+    721,
+    312
+   ],
+   "text": "(~)",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0008",
+   "bbox": [
+    187,
+    311,
+    599,
+    380
+   ],
+   "text": "NH농협은행",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0009",
+   "bbox": [
+    1396,
+    322,
+    1466,
+    360
+   ],
+   "text": "9월",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0010",
+   "bbox": [
+    1460,
+    322,
+    1523,
+    360
+   ],
+   "text": "11일",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0011",
+   "bbox": [
+    1293,
+    323,
+    1396,
+    359
+   ],
+   "text": "2026년",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0012",
+   "bbox": [
+    662,
+    405,
+    1238,
+    442
+   ],
+   "text": "ㆍ자료제공 : 홍 보 부 박종찬 차장",
+   "status": "corrected",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0013",
+   "bbox": [
+    659,
+    443,
+    1251,
+    485
+   ],
+   "text": "ㆍ내용문의 : 개인고객부 이지현 과장",
+   "status": "corrected",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0014",
+   "bbox": [
+    634,
+    654,
+    1011,
+    733
+   ],
+   "text": "NH농협은행,",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0015",
+   "bbox": [
+    202,
+    747,
+    1451,
+    845
+   ],
+   "text": "원금보장형 지수연동예금(ELD) 26-9호 출시",
+   "status": "pdf",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0016",
+   "bbox": [
+    169,
+    905,
+    1452,
+    957
+   ],
+   "text": "만기유지 시 원금 보장 + 높은 기대 수익률 (개인 : 연 최저 3.00%~최고",
+   "status": "pdf",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0017",
+   "bbox": [
+    118,
+    972,
+    1101,
+    1023
+   ],
+   "text": "7.9%(세전)/법인 : 연 최저 2.85%~최고 7.75%(세전))",
+   "status": "pdf",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0018",
+   "bbox": [
+    167,
+    1040,
+    1411,
+    1091
+   ],
+   "text": "KOSPI200 지수 변동에 따라 높은 수익률을 기대할 수 있는 예금상품",
+   "status": "verified",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0019",
+   "bbox": [
+    146,
+    1155,
+    1540,
+    1213
+   ],
+   "text": "□ NH농협은행(은행장 강태영)은 만기유지 시 원금과 최소 약정 이자는 보장",
+   "status": "pdf",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0020",
+   "bbox": [
+    115,
+    1217,
+    1534,
+    1284
+   ],
+   "text": "받으면서 높은 추가 수익률을 기대할 수 있는 「지수연동예금(ELD, Equity-",
+   "status": "corrected",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0021",
+   "bbox": [
+    116,
+    1292,
+    1118,
+    1346
+   ],
+   "text": "Linked Deposit) 26-9호」를 출시한다고 11일 밝혔다.",
+   "status": "pdf",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0022",
+   "bbox": [
+    130,
+    1411,
+    1534,
+    1463
+   ],
+   "text": "□ 이 상품은 코스피 200지수를 기초자산으로 지수변동에 따라 수익률이 결정",
+   "status": "pdf",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0023",
+   "bbox": [
+    118,
+    1481,
+    1360,
+    1528
+   ],
+   "text": "되는 만기 1년짜리 상품으로「안정Ⅰ・수익Ⅰ형」2종으로 구성됐다.",
+   "status": "corrected",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0024",
+   "bbox": [
+    165,
+    1599,
+    1533,
+    1651
+   ],
+   "text": "□ 안정형은 낙아웃 조건이 적용되지 않는 상품이며, 수익형은 만기지수결정일",
+   "status": "corrected",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0025",
+   "bbox": [
+    116,
+    1665,
+    1536,
+    1718
+   ],
+   "text": "까지 기초자산이 일정 수준 이상 상승할 경우 수익률이 조기 확정되는 낙아웃",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0026",
+   "bbox": [
+    116,
+    1732,
+    436,
+    1782
+   ],
+   "text": "조건이 적용된다.",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0027",
+   "bbox": [
+    410,
+    1732,
+    1535,
+    1781
+   ],
+   "text": "▲「KOSPI200 안정Ⅰ형」은 기초자산의 지수변동에 따라",
+   "status": "corrected",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": "줄 앞 '조건이 적용된다.' 는 #27"
+  },
+  {
+   "id": "h01_p01-g0028",
+   "bbox": [
+    112,
+    1794,
+    1463,
+    1854
+   ],
+   "text": "개인 연 3.50%~연 3.65%(법인 연 3.35%~연 3.50%)의 수익을,",
+   "status": "pdf",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0029",
+   "bbox": [
+    128,
+    1863,
+    1534,
+    1916
+   ],
+   "text": "「KOSPI200 수익Ⅰ형」은 개인 연 3.0%~연7.9%(법인 연 2.85%~연",
+   "status": "corrected",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0030",
+   "bbox": [
+    114,
+    1931,
+    1534,
+    1984
+   ],
+   "text": "7.75%) 수익을 제공한다. 수익률은 연, 세전 수익률을 의미한다. 수익1형은 한",
+   "status": "pdf",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p01-g0031",
+   "bbox": [
+    115,
+    1998,
+    1287,
+    2052
+   ],
+   "text": "번이라도 35% 초과 상승 시 최저금리로 만기 수익률이 확정된다.",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [],
+ "absorbed_rows": [
+  {
+   "from": "#25",
+   "bbox": [
+    166,
+    1614,
+    183,
+    1633
+   ],
+   "ocr": ""
+  }
+ ]
+}

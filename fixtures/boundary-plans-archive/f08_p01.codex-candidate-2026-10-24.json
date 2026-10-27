@@ -1,0 +1,72 @@
+{
+ "contract": "boundary-plan/2",
+ "plan_version": "f08-codex-scout-2026-10-24",
+ "page_id": "f08_p01",
+ "page_image_sha256": "64527212a1371eaca64c761be12a5b51213a7b64b66891d9f4097b9050fbdaea",
+ "page_size": [
+  667,
+  6130
+ ],
+ "coordinate_system": "page_px_xyxy",
+ "axis": "y",
+ "status": "candidate",
+ "policy": {
+  "name": "codex-scout-aspect-2.5",
+  "version": "2026-10-24-probe",
+  "max_tile_extent_px": 1668,
+  "max_tile_aspect": 2.5,
+  "status": "experimental",
+  "note": "서버 보장값이 아니라 검증 대상 정책값. 탐색 창 비율 2.5 실험에서 온 값"
+ },
+ "cuts": [
+  0,
+  1668,
+  3336,
+  4903,
+  6130
+ ],
+ "boundaries": [
+  {
+   "position": 1668,
+   "evidence": {
+    "geometry": "탐색 OCR 보호 상자와 교차 없음(boundary-diagnostic.json)",
+    "source": "C:/Users/cccjj/.codex/visualizations/2026/10/23/01a16681-3f5b-7920-b7c1-d99c6b93365e/pipeline-redesign-2026-10-24/evidence/boundary-diagnostic.json"
+   },
+   "semantic_check": {
+    "method": "vlm_candidate_choice",
+    "verified_by": "Codex 실험",
+    "result": "unknown",
+    "note": "설명과 버튼 사이, 버튼 테두리 상단에 걸침(observations.md D). VLM 반복 선택이 1179/1268 로 갈림"
+   }
+  },
+  {
+   "position": 3336,
+   "evidence": {
+    "geometry": "보호 상자와 교차 없음",
+    "source": "C:/Users/cccjj/.codex/visualizations/2026/10/23/01a16681-3f5b-7920-b7c1-d99c6b93365e/pipeline-redesign-2026-10-24/boundary-vlm/section_gap-r1.json"
+   },
+   "semantic_check": {
+    "method": "vlm_candidate_choice",
+    "verified_by": "Codex 실험",
+    "result": "unknown",
+    "note": "VLM 두 번 모두 선택(섹션 공백). VLM 판정은 자동 확정 기준으로 채택되지 않음"
+   }
+  },
+  {
+   "position": 4903,
+   "evidence": {
+    "geometry": "보호 상자와 교차 없음",
+    "source": "C:/Users/cccjj/.codex/visualizations/2026/10/23/01a16681-3f5b-7920-b7c1-d99c6b93365e/pipeline-redesign-2026-10-24/evidence/boundary-details.png"
+   },
+   "semantic_check": {
+    "method": "visual_review_codex",
+    "verified_by": "Codex",
+    "result": "unsafe",
+    "note": "가입/해지 방법 제목과 설명 사이(observations.md D)"
+   }
+  }
+ ],
+ "failure": {
+  "reason": "의미 경계 검증 미통과(boundary-vlm-findings.md). 4903 제목-설명 분리, VLM 이 4728 제목-설명 사이를 반복 safe 판정"
+ }
+}

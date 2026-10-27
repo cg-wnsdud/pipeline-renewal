@@ -1,0 +1,573 @@
+{
+ "page_id": "h01_p03",
+ "ref_size": [
+  1653,
+  2339
+ ],
+ "scaffold_run": "work\\runs\\hwp-ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "h01_p03 상품 필수 고지사항(HWP 변환). 작은 글씨. 변환 PDF 텍스트는 이웃 줄이 섞여 있어 이미지와 맞는 부분만 반영.",
+  "잔여 잉크 6개 확인: 표 테두리·점선 외곽선, 글머리 ○(줄 안). 내용 없는 빈 ○ 줄 1개는 선택 항목으로 추가."
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "h01_p03-g0001",
+   "bbox": [
+    659,
+    302,
+    1014,
+    359
+   ],
+   "text": "상품 필수 고지사항",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0002",
+   "bbox": [
+    148,
+    400,
+    1235,
+    434
+   ],
+   "text": "○ 금융상품을 가입하시기 전에 상품설명서 및 약관을 반드시 읽어보시기 바랍니다.",
+   "status": "corrected",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0003",
+   "bbox": [
+    139,
+    467,
+    1347,
+    500
+   ],
+   "text": "○ 금융소비자 보호에 관한 법률 제19조 제1항에 따라 설명을 받을 수 있는 권리가 있습니다.",
+   "status": "corrected",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0004",
+   "bbox": [
+    138.0,
+    537.0,
+    165.0,
+    565.0
+   ],
+   "text": "○",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "clear",
+   "optional": true,
+   "note": "내용 없는 빈 글머리"
+  },
+  {
+   "id": "h01_p03-g0005",
+   "bbox": [
+    218,
+    611,
+    368,
+    648
+   ],
+   "text": "예금보험공사",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0006",
+   "bbox": [
+    524,
+    644,
+    1451,
+    678
+   ],
+   "text": "이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당“1",
+   "status": "corrected",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0007",
+   "bbox": [
+    165,
+    647,
+    421,
+    705
+   ],
+   "text": "보호금융상품",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0008",
+   "bbox": [
+    526,
+    678,
+    1277,
+    712
+   ],
+   "text": "억원까지” (본 은행의 여타 보호상품과 합산) 보호됩니다.",
+   "status": "corrected",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0009",
+   "bbox": [
+    214,
+    708,
+    374,
+    739
+   ],
+   "text": "1인당 최고 1억원",
+   "status": "corrected",
+   "from": "#8",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0010",
+   "bbox": [
+    154,
+    866,
+    857,
+    900
+   ],
+   "text": "○ 상품별 기초자산가격변동구간 및 수익률범위 (세전)",
+   "status": "corrected",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0011",
+   "bbox": [
+    137,
+    898,
+    1330,
+    935
+   ],
+   "text": "(1) KOSPI200 안정 1형[100~105] : 연3.50%~연3.65%(개인) / 연3.35%~연3.50%(법인)",
+   "status": "corrected",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0012",
+   "bbox": [
+    136,
+    930,
+    1332,
+    969
+   ],
+   "text": "(2) KOSPI200 수익 1형[100~135] : 연3.00%~연7.90%(개인) / 연2.85%~연7.75%(법인)",
+   "status": "corrected",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0013",
+   "bbox": [
+    133,
+    995,
+    627,
+    1034
+   ],
+   "text": "○ 이자 지급 시기 : 만기 일시 지급식",
+   "status": "corrected",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0014",
+   "bbox": [
+    134,
+    1030,
+    1507,
+    1068
+   ],
+   "text": "- 이 예금은 예금 기간 중 지수가 목표지수 변동률을 넘어서(낙아웃) 지급 금리가 확정되더라도 이자는",
+   "status": "corrected",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0015",
+   "bbox": [
+    135,
+    1066,
+    421,
+    1100
+   ],
+   "text": "만기에만 지급됩니다.",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0016",
+   "bbox": [
+    135,
+    1130,
+    374,
+    1167
+   ],
+   "text": "○ 수취 이자 예시",
+   "status": "corrected",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0017",
+   "bbox": [
+    133,
+    1164,
+    1373,
+    1202
+   ],
+   "text": "- 수익 1형(개인)에 1천만원 예금 시(최고금리 7.90%) 최대 예상 수취 이자는 790,000원(세전)",
+   "status": "corrected",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0018",
+   "bbox": [
+    142,
+    1200,
+    1371,
+    1234
+   ],
+   "text": "- 수익 1형(법인)에 1천만원 예금 시(최고금리 7.75%) 최대 예상 수취 이자는 775,000원(세전)",
+   "status": "corrected",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0019",
+   "bbox": [
+    128,
+    1228,
+    1436,
+    1272
+   ],
+   "text": "*수취이자 예시는 정보제공 목적으로 작성되었으며 해당 예시가 미래의 수익을 보장하지 않습니다.",
+   "status": "verified",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0020",
+   "bbox": [
+    137,
+    1301,
+    568,
+    1332
+   ],
+   "text": "○ 원금 또는 이자지급 제한 사유",
+   "status": "corrected",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0021",
+   "bbox": [
+    135,
+    1330,
+    1144,
+    1369
+   ],
+   "text": "(1) 계좌에 압류, 가압류, 질권 설정 등이 등록될 경우 원금 및 이자 지급 제한",
+   "status": "corrected",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0022",
+   "bbox": [
+    136,
+    1365,
+    1060,
+    1402
+   ],
+   "text": "(2) 예금잔액증명서 발급 당일에는 입금, 출금, 이체 등 잔액 변동 불가",
+   "status": "corrected",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0023",
+   "bbox": [
+    134,
+    1429,
+    669,
+    1468
+   ],
+   "text": "○ 중도해지 수수료 및 원금 손실 가능성",
+   "status": "corrected",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0024",
+   "bbox": [
+    140,
+    1465,
+    1205,
+    1501
+   ],
+   "text": "- 만기 전 예금 해지 시 중도해지수수료 적용으로 원금손실이 발생할 수 있습니다.",
+   "status": "corrected",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0025",
+   "bbox": [
+    131,
+    1497,
+    1507,
+    1537
+   ],
+   "text": "- 중도해지 이자가 별도로 없으며, 중도해지 시에는 비용발생에 따른 중도해지수수료 적용으로 원금손실",
+   "status": "corrected",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0026",
+   "bbox": [
+    135,
+    1534,
+    454,
+    1565
+   ],
+   "text": "이 발생할 수 있습니다.",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0027",
+   "bbox": [
+    132,
+    1564,
+    1508,
+    1603
+   ],
+   "text": "- 이 예금은 기초자산의 변동에 따라 일반 정기예금보다 이자율이 낮을 수 있으며, 최저 금리가 보장되지",
+   "status": "corrected",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0028",
+   "bbox": [
+    131,
+    1595,
+    1510,
+    1638
+   ],
+   "text": "않는 수익구조의 경우 이자가 없을 수 있습니다. 또한 만기 전 중도해지 시에는 일부 원금 손실이 발생할",
+   "status": "corrected",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0029",
+   "bbox": [
+    134,
+    1631,
+    305,
+    1669
+   ],
+   "text": "수 있습니다.",
+   "status": "corrected",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0030",
+   "bbox": [
+    153,
+    1709,
+    999,
+    1739
+   ],
+   "text": "※ 모집 기간 중 해지 시 : 모집 기간 중 예치일수에 대해 기본금리 제공",
+   "status": "pdf",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0031",
+   "bbox": [
+    151,
+    1745,
+    537,
+    1772
+   ],
+   "text": "- 원금 * 기본금리(세전) * 예치일수/365",
+   "status": "pdf",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0032",
+   "bbox": [
+    151,
+    1780,
+    561,
+    1804
+   ],
+   "text": "- 기본금리: 개인 연 2.45% 법인 연 2.40%",
+   "status": "pdf",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0033",
+   "bbox": [
+    170,
+    1810,
+    1010,
+    1841
+   ],
+   "text": "(‘26. 09. 03.기준/모집시작일 큰만족실세예금 1년제 기본 금리적용으로 변동가능/세전)",
+   "status": "pdf",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0034",
+   "bbox": [
+    135,
+    1914,
+    791,
+    1955
+   ],
+   "text": "○ 모집기간 : 2026.09.11.(금) ~ 2026.09.18.(금)",
+   "status": "corrected",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0035",
+   "bbox": [
+    171,
+    1952,
+    480,
+    1986
+   ],
+   "text": "○ 만기 : 2027.09.21.(화)",
+   "status": "corrected",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0036",
+   "bbox": [
+    158,
+    1985,
+    563,
+    2019
+   ],
+   "text": "○ 만기 후 이자 : 연 0.1%(세전)",
+   "status": "corrected",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p03-g0037",
+   "bbox": [
+    173,
+    2019,
+    572,
+    2053
+   ],
+   "text": "○ 판매한도 : 안정1형 3,000억원",
+   "status": "corrected",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [],
+ "absorbed_rows": []
+}

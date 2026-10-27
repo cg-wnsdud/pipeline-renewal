@@ -1,0 +1,140 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "layout-result/2",
+ "title": "입력 파일별 파싱 결과(라벨링 전 단계)",
+ "description": "docs/12. 입력 파일 하나 = 문서 하나. 좌표는 원본 페이지 픽셀 xyxy. text 는 VLM 최종 문구, unassigned_texts 는 OCR 원문(final=false).",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["contract", "result_id", "submission_id", "source", "parser_profile", "pages", "regions", "unassigned_texts", "products", "trace_ref"],
+ "properties": {
+  "contract": {"const": "layout-result/2"},
+  "result_id": {"type": "string", "pattern": "^lr2-[0-9a-f]{20}$"},
+  "submission_id": {"type": "string", "minLength": 1},
+  "source": {
+   "type": "object", "additionalProperties": false,
+   "required": ["file_id", "file_name", "input_order", "file_type", "sha256", "page_count"],
+   "properties": {
+    "file_id": {"type": "string", "minLength": 1},
+    "file_name": {"type": ["string", "null"]},
+    "input_order": {"type": "integer", "minimum": 1},
+    "file_type": {"enum": ["image", "pdf", "hwp", "hwpx"]},
+    "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "page_count": {"type": "integer", "minimum": 1}
+   }
+  },
+  "parser_profile": {
+   "type": "object", "additionalProperties": false,
+   "required": ["name", "read_mode", "verify_mode", "table_mode", "assignment_rule", "versions"],
+   "properties": {
+    "name": {"type": "string"},
+    "read_mode": {"enum": ["page-first", "page-first-noocr", "crop"]},
+    "verify_mode": {"type": ["string", "null"]},
+    "table_mode": {"type": ["string", "null"]},
+    "assignment_rule": {"type": "object", "required": ["name", "core_shrink"],
+                        "properties": {"name": {"type": ["string", "null"]}, "core_shrink": {"type": ["number", "null"]}}},
+    "versions": {"type": "object"}
+   }
+  },
+  "pages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/page"}},
+  "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}},
+  "unassigned_texts": {"type": "array", "items": {"$ref": "#/$defs/unassigned"}},
+  "products": {"type": "array", "items": {"$ref": "#/$defs/product"}},
+  "trace_ref": {"type": "object", "required": ["run_dir", "reads", "stage1_records"],
+                "properties": {"run_dir": {"type": "string"}, "reads": {"type": "string"},
+                               "stage1_records": {"type": "array", "items": {"type": "string"}}}}
+ },
+ "$defs": {
+  "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+  "page": {
+   "type": "object", "additionalProperties": false,
+   "required": ["page_id", "page_no", "width", "height", "coordinate_system", "image", "route", "execution_status", "quality_status", "boundary", "issues"],
+   "properties": {
+    "page_id": {"type": "string"}, "page_no": {"type": "integer", "minimum": 1},
+    "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1},
+    "coordinate_system": {"const": "page_px_xyxy"},
+    "image": {"type": "object", "additionalProperties": false, "required": ["sha256", "path"],
+              "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "path": {"type": "string"}}},
+    "route": {"enum": ["whole", "long"]},
+    "execution_status": {"type": "string", "description": "READY | CANDIDATE_RUN(미검증 후보 경계로 실행) | BOUNDARY_PENDING | OCR_FAILED 등"},
+    "quality_status": {"enum": ["not_verified", "candidate_unvalidated", "not_processed"]},
+    "boundary": {"type": ["object", "null"]},
+    "issues": {"type": "array", "items": {"type": "object", "required": ["code", "severity", "message"],
+               "properties": {"code": {"type": "string"}, "severity": {"type": "string"}, "message": {"type": "string"}}}}
+   }
+  },
+  "table": {
+   "type": ["object", "null"], "additionalProperties": false,
+   "required": ["status", "rows"],
+   "properties": {
+    "status": {"enum": ["table", "not_table", "unknown"]},
+    "rows": {"type": ["array", "null"], "items": {"type": "array", "items": {"type": "string"}}},
+    "structure": {"type": "string", "description": "table-cells/1(셀 구조가 원본 결과, rows 는 변환 보기) | rows/legacy"},
+    "n_rows": {"type": ["integer", "null"]}, "n_cols": {"type": ["integer", "null"]},
+    "cells": {"type": ["array", "null"], "items": {"type": "object", "additionalProperties": false,
+              "required": ["row", "col", "rowspan", "colspan", "text"],
+              "properties": {"row": {"type": "integer", "minimum": 0}, "col": {"type": "integer", "minimum": 0},
+                             "rowspan": {"type": "integer", "minimum": 1}, "colspan": {"type": "integer", "minimum": 1},
+                             "text": {"type": "string"}}}}
+   }
+  },
+  "region": {
+   "type": "object", "additionalProperties": false,
+   "required": ["region_id", "page_id", "bbox", "table_candidate", "text", "text_status", "table", "review", "candidate_boundary", "product_assignment", "labeling"],
+   "properties": {
+    "region_id": {"type": "string"}, "page_id": {"type": "string"}, "bbox": {"$ref": "#/$defs/bbox"},
+    "table_candidate": {"type": "boolean"},
+    "text": {"type": ["string", "null"]},
+    "text_status": {"enum": ["read", "no_text", "read_failed", "not_read"]},
+    "table": {"$ref": "#/$defs/table"},
+    "review": {"type": "object", "additionalProperties": false, "required": ["required", "quality_reasons", "context_reasons"],
+               "properties": {"required": {"type": "boolean"}, "quality_reasons": {"type": "array", "items": {"type": "string"}},
+                              "context_reasons": {"type": "array", "items": {"type": "string"}}}},
+    "candidate_boundary": {"type": "boolean"},
+    "product_assignment": {"$ref": "#/$defs/product_assignment"},
+    "labeling": {"$ref": "#/$defs/labeling"}
+   },
+   "allOf": [
+    {"if": {"properties": {"text_status": {"enum": ["read_failed", "not_read"]}}}, "then": {"properties": {"text": {"type": "null"}}},
+     "else": {"properties": {"text": {"type": "string"}}}},
+    {"if": {"properties": {"text_status": {"const": "no_text"}}}, "then": {"properties": {"text": {"const": ""}}}},
+    {"if": {"properties": {"table_candidate": {"const": false}}}, "then": {"properties": {"table": {"type": "null"}}},
+     "else": {"properties": {"table": {"type": "object"}}}}
+   ]
+  },
+  "status": {"enum": ["not_run", "completed", "partial", "failed"]},
+  "product_assignment": {
+   "type": "object", "additionalProperties": false, "required": ["status", "scope", "product_ids"],
+   "properties": {
+    "status": {"$ref": "#/$defs/status"},
+    "scope": {"enum": ["specific", "shared", "unknown", null]},
+    "product_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+   },
+   "allOf": [{"if": {"properties": {"status": {"const": "not_run"}}},
+              "then": {"properties": {"scope": {"const": null}, "product_ids": {"maxItems": 0}}}}]
+  },
+  "labeling": {
+   "type": "object", "additionalProperties": false, "required": ["status", "items"],
+   "properties": {
+    "status": {"$ref": "#/$defs/status"},
+    "items": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["product_id", "label_ids"],
+              "properties": {"product_id": {"type": ["string", "null"]},
+                             "label_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}}}
+   },
+   "allOf": [{"if": {"properties": {"status": {"const": "not_run"}}}, "then": {"properties": {"items": {"maxItems": 0}}}}]
+  },
+  "unassigned": {
+   "type": "object", "additionalProperties": false,
+   "required": ["ocr_id", "page_id", "bbox", "ocr_text", "reason", "candidate_region_ids", "empty_text", "final"],
+   "properties": {
+    "ocr_id": {"type": "string"}, "page_id": {"type": "string"}, "bbox": {"$ref": "#/$defs/bbox"},
+    "ocr_text": {"type": "string"}, "reason": {"type": "string"},
+    "candidate_region_ids": {"type": "array", "items": {"type": "string"}},
+    "empty_text": {"type": "boolean"}, "final": {"const": false}
+   }
+  },
+  "product": {
+   "type": "object", "additionalProperties": false, "required": ["product_id", "name"],
+   "properties": {"product_id": {"type": "string", "minLength": 1}, "name": {"type": ["string", "null"]}}
+  }
+ }
+}

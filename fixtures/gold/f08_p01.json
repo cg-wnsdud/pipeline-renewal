@@ -1,0 +1,1660 @@
+{
+ "page_id": "f08_p01",
+ "ref_size": [
+  667,
+  6130
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f08_p01 청년미래적금 모바일 긴 화면 (667x6130 원본 px).",
+  "잔여 잉크 40개 확인: 아이콘·삽화 조각·버튼 테두리. 은행 건물 아이콘 속 'NH 3' 만 선택 항목 추가.",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f08_p01-g0001",
+   "bbox": [
+    235,
+    0,
+    429,
+    14
+   ],
+   "text": "검증서버(8900)_2026091516",
+   "status": "alt",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0002",
+   "bbox": [
+    304,
+    18,
+    361,
+    59
+   ],
+   "text": "적금",
+   "status": "verified",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0003",
+   "bbox": [
+    36,
+    162,
+    195,
+    188
+   ],
+   "text": "NH청년미래적금",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0004",
+   "bbox": [
+    39,
+    219,
+    566,
+    261
+   ],
+   "text": "정부기여금과 비과세 혜택을 담은",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0005",
+   "bbox": [
+    33,
+    276,
+    197,
+    329
+   ],
+   "text": "청년 적금",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0006",
+   "bbox": [
+    31,
+    386,
+    85,
+    423
+   ],
+   "text": "최고",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0007",
+   "bbox": [
+    153,
+    388,
+    207,
+    425
+   ],
+   "text": "기본",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0008",
+   "bbox": [
+    33,
+    432,
+    113,
+    480
+   ],
+   "text": "8%",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0009",
+   "bbox": [
+    152,
+    432,
+    232,
+    480
+   ],
+   "text": "5%",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0010",
+   "bbox": [
+    36,
+    503,
+    252,
+    529
+   ],
+   "text": "연/세전,2026.09.30 기준",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0011",
+   "bbox": [
+    88,
+    605,
+    194,
+    638
+   ],
+   "text": "가입기간",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0012",
+   "bbox": [
+    191,
+    605,
+    280,
+    638
+   ],
+   "text": "36개월",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0013",
+   "bbox": [
+    197,
+    671,
+    362,
+    702
+   ],
+   "text": "1천원~50만원",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0014",
+   "bbox": [
+    88,
+    673,
+    179,
+    700
+   ],
+   "text": "가입금액",
+   "status": "verified",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0015",
+   "bbox": [
+    118,
+    806,
+    384,
+    837
+   ],
+   "text": "3초만에만기금액알아보기",
+   "status": "verified",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0016",
+   "bbox": [
+    109,
+    1030,
+    563,
+    1085
+   ],
+   "text": "미래를 위한 든든한 첫 걸음!",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0017",
+   "bbox": [
+    194,
+    1100,
+    470,
+    1143
+   ],
+   "text": "NH청년미래적금",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0018",
+   "bbox": [
+    179,
+    1185,
+    487,
+    1211
+   ],
+   "text": "가입 전 진행절차를 확인해 보세요",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0019",
+   "bbox": [
+    222,
+    1270,
+    317,
+    1304
+   ],
+   "text": "가입신청",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0020",
+   "bbox": [
+    220,
+    1316,
+    454,
+    1352
+   ],
+   "text": "기간:10.7(수)~10.16(금)",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0021",
+   "bbox": [
+    223,
+    1355,
+    465,
+    1381
+   ],
+   "text": "시간:평일09:00~18:30",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0022",
+   "bbox": [
+    225,
+    1390,
+    543,
+    1416
+   ],
+   "text": "단,군장병급여육아휴직급여대상자",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0023",
+   "bbox": [
+    223,
+    1425,
+    551,
+    1451
+   ],
+   "text": "는10.14(수)까지가입신 청할수있어",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0024",
+   "bbox": [
+    222,
+    1457,
+    255,
+    1485
+   ],
+   "text": "요.",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0025",
+   "bbox": [
+    222,
+    1536,
+    374,
+    1568
+   ],
+   "text": "가입자격확인",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0026",
+   "bbox": [
+    220,
+    1581,
+    548,
+    1614
+   ],
+   "text": "확인결과는4~6주이내문자로알려",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0027",
+   "bbox": [
+    217,
+    1613,
+    295,
+    1651
+   ],
+   "text": "드려요.",
+   "status": "corrected",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0028",
+   "bbox": [
+    305,
+    1677,
+    472,
+    1707
+   ],
+   "text": "신청내역조회하기",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0029",
+   "bbox": [
+    220,
+    1761,
+    320,
+    1799
+   ],
+   "text": "계좌개설",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0030",
+   "bbox": [
+    143.0,
+    1797.0,
+    170.0,
+    1825.0
+   ],
+   "text": "NH 3",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "tiny",
+   "optional": true,
+   "note": "은행 건물 아이콘 속 글자"
+  },
+  {
+   "id": "f08_p01-g0031",
+   "bbox": [
+    220,
+    1808,
+    460,
+    1844
+   ],
+   "text": "기간: 11.16(월)~11.27(금)",
+   "status": "verified",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0032",
+   "bbox": [
+    225,
+    1847,
+    465,
+    1873
+   ],
+   "text": "시간:평일09:00~18:30",
+   "status": "verified",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0033",
+   "bbox": [
+    94,
+    2067,
+    573,
+    2115
+   ],
+   "text": "청년을 위한 특별한 금융 혜택!",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0034",
+   "bbox": [
+    135,
+    2156,
+    532,
+    2182
+   ],
+   "text": "납입액에 따른 정부기여금 6%,12%지원과",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0035",
+   "bbox": [
+    159,
+    2195,
+    508,
+    2221
+   ],
+   "text": "이자소득 비과세 혜택을 제공해 드려요",
+   "status": "verified",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0036",
+   "bbox": [
+    135,
+    2230,
+    527,
+    2262
+   ],
+   "text": "* 납입한도:월최대50만원/연간600만원",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0037",
+   "bbox": [
+    344,
+    2390,
+    416,
+    2439
+   ],
+   "text": "비과세",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0038",
+   "bbox": [
+    274,
+    2431,
+    332,
+    2478
+   ],
+   "text": "정부",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0039",
+   "bbox": [
+    274,
+    2448,
+    347,
+    2499
+   ],
+   "text": "기여금",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0040",
+   "bbox": [
+    97,
+    2775,
+    567,
+    2817
+   ],
+   "text": "NH농협은행 이용 고객이라면",
+   "status": "verified",
+   "from": "#42",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0041",
+   "bbox": [
+    155,
+    2835,
+    511,
+    2881
+   ],
+   "text": "우대금리 혜택까지 더!",
+   "status": "verified",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0042",
+   "bbox": [
+    179,
+    2921,
+    490,
+    2947
+   ],
+   "text": "급여이체·카드·마이데이터 이용 시",
+   "status": "verified",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0043",
+   "bbox": [
+    186,
+    2958,
+    479,
+    2988
+   ],
+   "text": "추가 우대금리를 받을수있어요",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0044",
+   "bbox": [
+    386,
+    3067,
+    421,
+    3091
+   ],
+   "text": "카드",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0045",
+   "bbox": [
+    325,
+    3097,
+    363,
+    3122
+   ],
+   "text": "마이",
+   "status": "verified",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0046",
+   "bbox": [
+    318,
+    3112,
+    370,
+    3141
+   ],
+   "text": "데이터",
+   "status": "verified",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0047",
+   "bbox": [
+    419,
+    3133,
+    458,
+    3164
+   ],
+   "text": "급여",
+   "status": "verified",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0048",
+   "bbox": [
+    300,
+    3184,
+    388,
+    3235
+   ],
+   "text": "추가금리",
+   "status": "verified",
+   "from": "#50",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0049",
+   "bbox": [
+    54,
+    3344,
+    149,
+    3376
+   ],
+   "text": "상품안내",
+   "status": "verified",
+   "from": "#51",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0050",
+   "bbox": [
+    177,
+    3344,
+    271,
+    3376
+   ],
+   "text": "우대금리",
+   "status": "verified",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0051",
+   "bbox": [
+    299,
+    3344,
+    395,
+    3376
+   ],
+   "text": "금리안내",
+   "status": "verified",
+   "from": "#53",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0052",
+   "bbox": [
+    421,
+    3344,
+    517,
+    3376
+   ],
+   "text": "유의사항",
+   "status": "verified",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0053",
+   "bbox": [
+    543,
+    3344,
+    633,
+    3376
+   ],
+   "text": "기타사항",
+   "status": "corrected",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": "마지막 글자 '항'이 화면 오른쪽 끝에서 잘려 일부만 보임"
+  },
+  {
+   "id": "f08_p01-g0054",
+   "bbox": [
+    289,
+    3476,
+    609,
+    3502
+   ],
+   "text": "신규가입일기준만19세~34세이하",
+   "status": "verified",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0055",
+   "bbox": [
+    287,
+    3503,
+    491,
+    3532
+   ],
+   "text": "(전금융기관1인1계좌)",
+   "status": "verified",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0056",
+   "bbox": [
+    284,
+    3531,
+    600,
+    3563
+   ],
+   "text": "*병역이행기간(최대6년)은 만 나이",
+   "status": "verified",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0057",
+   "bbox": [
+    287,
+    3565,
+    399,
+    3591
+   ],
+   "text": "계산시제외",
+   "status": "verified",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0058",
+   "bbox": [
+    284,
+    3620,
+    372,
+    3652
+   ],
+   "text": "가입절차",
+   "status": "verified",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0059",
+   "bbox": [
+    113,
+    3650,
+    200,
+    3683
+   ],
+   "text": "가입대상",
+   "status": "verified",
+   "from": "#61",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0060",
+   "bbox": [
+    287,
+    3650,
+    603,
+    3680
+   ],
+   "text": "가입신청및계좌개설은각기간영업",
+   "status": "verified",
+   "from": "#62",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0061",
+   "bbox": [
+    289,
+    3683,
+    514,
+    3709
+   ],
+   "text": "일9:00~18:30 이내 가능",
+   "status": "verified",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0062",
+   "bbox": [
+    287,
+    3712,
+    613,
+    3738
+   ],
+   "text": "※비과세소득자(군장병급여,육아휴직",
+   "status": "verified",
+   "from": "#64",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0063",
+   "bbox": [
+    287,
+    3741,
+    606,
+    3767
+   ],
+   "text": "급여 대상자)는별도 가입신청 기간까",
+   "status": "verified",
+   "from": "#65",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0064",
+   "bbox": [
+    287,
+    3771,
+    596,
+    3798
+   ],
+   "text": "지신청가능하며,기간이후신청및",
+   "status": "verified",
+   "from": "#66",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0065",
+   "bbox": [
+    286,
+    3801,
+    597,
+    3827
+   ],
+   "text": "소득서류문자미수신 시 서민금융진",
+   "status": "verified",
+   "from": "#67",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0066",
+   "bbox": [
+    287,
+    3830,
+    509,
+    3856
+   ],
+   "text": "흥원 콜센터 문의 ☎1397",
+   "status": "corrected",
+   "from": "#68",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0067",
+   "bbox": [
+    112,
+    3896,
+    200,
+    3929
+   ],
+   "text": "가입기간",
+   "status": "verified",
+   "from": "#69",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0068",
+   "bbox": [
+    281,
+    3896,
+    360,
+    3929
+   ],
+   "text": "36개월",
+   "status": "verified",
+   "from": "#70",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0069",
+   "bbox": [
+    112,
+    3966,
+    200,
+    3998
+   ],
+   "text": "가입금액",
+   "status": "verified",
+   "from": "#71",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0070",
+   "bbox": [
+    286,
+    3968,
+    578,
+    3997
+   ],
+   "text": "1천원이상~50만원 이하(원 단위)",
+   "status": "verified",
+   "from": "#72",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0071",
+   "bbox": [
+    112,
+    4035,
+    200,
+    4069
+   ],
+   "text": "예금종류",
+   "status": "verified",
+   "from": "#73",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0072",
+   "bbox": [
+    286,
+    4037,
+    424,
+    4064
+   ],
+   "text": "자유로우대적금",
+   "status": "verified",
+   "from": "#74",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0073",
+   "bbox": [
+    33,
+    4141,
+    140,
+    4181
+   ],
+   "text": "적립방법",
+   "status": "verified",
+   "from": "#75",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0074",
+   "bbox": [
+    37,
+    4208,
+    414,
+    4230
+   ],
+   "text": "매월 1천원 이상~50만원 이하 자유적립식",
+   "status": "alt",
+   "from": "#76",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0075",
+   "bbox": [
+    33,
+    4282,
+    189,
+    4319
+   ],
+   "text": "세제혜택안내",
+   "status": "verified",
+   "from": "#77",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0076",
+   "bbox": [
+    36,
+    4346,
+    609,
+    4372
+   ],
+   "text": "조세특례제한법 제91조의22에 따른 비과세상품(상품 계약기가",
+   "status": "verified",
+   "from": "#78",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0077",
+   "bbox": [
+    37,
+    4383,
+    505,
+    4409
+   ],
+   "text": "만료 후 이자는 과세되며,상품의 약관에도 불구하고",
+   "status": "verified",
+   "from": "#79",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0078",
+   "bbox": [
+    37,
+    4420,
+    609,
+    4441
+   ],
+   "text": "조세특례제한법 및 그 시행령과 시행규칙의 변경 시 해당 법령에",
+   "status": "alt",
+   "from": "#80",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0079",
+   "bbox": [
+    29,
+    4448,
+    92,
+    4489
+   ],
+   "text": "따름)",
+   "status": "verified",
+   "from": "#81",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0080",
+   "bbox": [
+    34,
+    4529,
+    194,
+    4565
+   ],
+   "text": "이자지급방법",
+   "status": "verified",
+   "from": "#82",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0081",
+   "bbox": [
+    33,
+    4590,
+    183,
+    4625
+   ],
+   "text": "만기일시지급식",
+   "status": "verified",
+   "from": "#83",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0082",
+   "bbox": [
+    31,
+    4666,
+    141,
+    4705
+   ],
+   "text": "판매한도",
+   "status": "verified",
+   "from": "#84",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0083",
+   "bbox": [
+    36,
+    4732,
+    601,
+    4758
+   ],
+   "text": "별도 판매한도는없으나,정부기여금이 정부예산으로 지급됨에",
+   "status": "verified",
+   "from": "#85",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0084",
+   "bbox": [
+    34,
+    4768,
+    465,
+    4795
+   ],
+   "text": "따라 정부예산 조기 소진 시 판매중단될수있음",
+   "status": "verified",
+   "from": "#86",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0085",
+   "bbox": [
+    33,
+    4841,
+    206,
+    4881
+   ],
+   "text": "가입/해지방법",
+   "status": "verified",
+   "from": "#87",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0086",
+   "bbox": [
+    36,
+    4909,
+    357,
+    4935
+   ],
+   "text": "가입:NH올원뱅크,NH스마트뱅킹",
+   "status": "verified",
+   "from": "#88",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0087",
+   "bbox": [
+    36,
+    4944,
+    475,
+    4970
+   ],
+   "text": "해지: 영업점, 비대면 채널(특별중도해지의 경우,",
+   "status": "alt",
+   "from": "#89",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0088",
+   "bbox": [
+    34,
+    4976,
+    615,
+    5010
+   ],
+   "text": "특별해지사유신고서 및 증빙서류 지참후영업점에서 해지 가능)",
+   "status": "verified",
+   "from": "#90",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0089",
+   "bbox": [
+    40,
+    5124,
+    229,
+    5160
+   ],
+   "text": "상품설명서및 약관",
+   "status": "verified",
+   "from": "#91",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0090",
+   "bbox": [
+    66,
+    5240,
+    162,
+    5278
+   ],
+   "text": "기본약관",
+   "status": "verified",
+   "from": "#93",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0091",
+   "bbox": [
+    65,
+    5351,
+    179,
+    5389
+   ],
+   "text": "상품설명서",
+   "status": "verified",
+   "from": "#95",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0092",
+   "bbox": [
+    67,
+    5463,
+    161,
+    5497
+   ],
+   "text": "상품특약",
+   "status": "verified",
+   "from": "#97",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0093",
+   "bbox": [
+    58,
+    5637,
+    128,
+    5660
+   ],
+   "text": "예금보험공사",
+   "status": "verified",
+   "from": "#99",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0094",
+   "bbox": [
+    37,
+    5650,
+    145,
+    5683
+   ],
+   "text": "보호금융상품",
+   "status": "verified",
+   "from": "#100",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0095",
+   "bbox": [
+    57,
+    5676,
+    128,
+    5698
+   ],
+   "text": "1인당 최고 1억원",
+   "status": "corrected",
+   "from": "#101",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0096",
+   "bbox": [
+    39,
+    5735,
+    600,
+    5756
+   ],
+   "text": "이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당",
+   "status": "verified",
+   "from": "#102",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0097",
+   "bbox": [
+    34,
+    5762,
+    527,
+    5794
+   ],
+   "text": "\"1억원까지\"(본 은행의 여타 보호상품과 합산) 보호됩니다.",
+   "status": "verified",
+   "from": "#103",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0098",
+   "bbox": [
+    36,
+    5851,
+    365,
+    5882
+   ],
+   "text": "2026-3696(심의일: 2026. 06.18.)",
+   "status": "verified",
+   "from": "#104",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0099",
+   "bbox": [
+    37,
+    5886,
+    398,
+    5912
+   ],
+   "text": "유효기간:2026.06.22.~2027.06.17.",
+   "status": "verified",
+   "from": "#105",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0100",
+   "bbox": [
+    585,
+    5992,
+    634,
+    6029
+   ],
+   "text": "캡처",
+   "status": "verified",
+   "from": "#106",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0101",
+   "bbox": [
+    100,
+    6009,
+    170,
+    6058
+   ],
+   "text": "상담",
+   "status": "verified",
+   "from": "#107",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f08_p01-g0102",
+   "bbox": [
+    384,
+    6014,
+    490,
+    6052
+   ],
+   "text": "가입신청",
+   "status": "verified",
+   "from": "#108",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    587,
+    18,
+    630,
+    61
+   ],
+   "note": "닫기(×) 아이콘",
+   "from": "#3",
+   "ocr": "×"
+  },
+  {
+   "bbox": [
+    533,
+    101,
+    631,
+    147
+   ],
+   "note": "하트·공유 아이콘",
+   "from": "#4",
+   "ocr": "2"
+  },
+  {
+   "bbox": [
+    564,
+    815,
+    588,
+    835
+   ],
+   "note": "펼침 꺾쇠 아이콘",
+   "from": "#18",
+   "ocr": "<"
+  },
+  {
+   "bbox": [
+    588,
+    5134,
+    613,
+    5155
+   ],
+   "note": "접기 꺾쇠 아이콘",
+   "from": "#92",
+   "ocr": "^"
+  },
+  {
+   "bbox": [
+    569,
+    5244,
+    596,
+    5276
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#94",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    569,
+    5356,
+    596,
+    5387
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#96",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    572,
+    5468,
+    593,
+    5494
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#98",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    52.0,
+    679.0,
+    77.0,
+    699.0
+   ],
+   "note": "원화 동전 아이콘",
+   "from": "E1:B200",
+   "ocr": "W"
+  },
+  {
+   "bbox": [
+    52.0,
+    679.0,
+    77.0,
+    699.0
+   ],
+   "note": "원화 동전 아이콘",
+   "from": "E2:B300",
+   "ocr": "W"
+  },
+  {
+   "bbox": [
+    165.0,
+    1561.0,
+    199.0,
+    1583.0
+   ],
+   "note": "말풍선 아이콘(점 세 개)",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

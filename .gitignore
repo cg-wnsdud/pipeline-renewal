@@ -1,0 +1,14 @@
+# 가상환경 / 캐시
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 환경설정(접속 정보). 템플릿인 .env.example 만 추적한다
+.env
+.env.*
+!.env.example
+
+# 실험·작업 산출물
+work/
+*.log

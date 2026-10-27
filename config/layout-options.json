@@ -1,0 +1,16 @@
+{
+ "contract": "layout-options/1",
+ "status": "provisional",
+ "layout_options": {"layoutMergeBboxesMode": "large"},
+ "server": "PaddleX 3.6.1 PP-StructureV3 (서버 프로파일 기록, 사용자 제공)",
+ "semantics": "PaddleX 3.6.1 DetPostProcess: 문자열 'large' 는 다른 상자 안에 면적 90% 이상 포함된 상자를 제거한다(formula 예외). 서버 기본 설정의 클래스별 dict(paragraph_title/image/formula/chart 만 large)를 대체한다. 클라이언트 병합이 아니라 서버가 반환한 원시 layout_det_res 를 그대로 쓴다.",
+ "evidence": {
+  "five_page_comparison": "work/compare/detect-5p (base / threshold 0.3 / merge large / merge small)",
+  "sixteen_page_check": "work/compare/detect-16p-large (base vs large)",
+  "result": "16페이지: 정답 줄 미포함 157 동일, 일부 197 동일, 단일 735→749, 복수 14→0, 표 후보 20/20 유지, 상품 혼합 0, 큰 영역 수 동일, OCR 모호 61→1",
+  "rejected": {"small": "바깥 상자 제거로 정답 줄 미포함 증가(f12_p02 0→15, f13 0→11, h01_p03 0→7)",
+               "layoutThreshold 0.3": "웹 누락 감소, 문서형 중첩 증가(h01_p03 페이지 크기 table 0.354)",
+               "class-wise dict": "기본값과 같은 dict 를 보낸 확인 호출(work/runs/verify-threshold-dict)에서 13→10상자로 0.5 미만 제목이 빠짐. 공개 소스의 int 키 조회와 JSON 문자열 키 불일치 가설과 부합하나 실행 컨테이너 코드는 미확인 → 원인 미확정. 서버 확인 전에는 비교 조건으로 쓰지 않음"}
+ },
+ "risk": "페이지 대부분을 덮는 낮은 점수의 컨테이너가 검출되면 안쪽 영역이 모두 제거된다. REGION_COVERS_LARGE_AREA 이슈로 표시한다."
+}

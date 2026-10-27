@@ -1,0 +1,707 @@
+{
+ "page_id": "f12_p01",
+ "ref_size": [
+  1680,
+  1837
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f12_p01 고향사랑기부 PDF 1쪽 (200dpi, 공통 홍보). PDF 디지털 텍스트 대조.",
+  "300DPI·band 조건은 같은 줄을 단어 단위로 나눠 검출함(E1~E38). 기준 줄이 덮으므로 중복 처리.",
+  "기준 OCR(W200)이 손글씨 문구 줄을 놓침. W300/B300 이 일부 검출.",
+  "잔여 잉크 107개: 하트·캐릭터·농장 삽화와 장식. 삽화 영역을 확대 확인했으며 글자 없음.",
+  "인용 부호(“ ”) 장식 글리프는 문구로 세지 않음.",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f12_p01-g0001",
+   "bbox": [
+    876,
+    127,
+    1057,
+    172
+   ],
+   "text": "금융의 모든 순간",
+   "status": "corrected",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0002",
+   "bbox": [
+    1406,
+    135,
+    1561,
+    162
+   ],
+   "text": "NH농협금융",
+   "status": "verified",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0003",
+   "bbox": [
+    1403,
+    171,
+    1559,
+    185
+   ],
+   "text": "준법감시인 심의필 2026-0000",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0004",
+   "bbox": [
+    1408,
+    187,
+    1559,
+    201
+   ],
+   "text": "(2026.00.00.~0000.00.00.)",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0005",
+   "bbox": [
+    269,
+    283,
+    648,
+    345
+   ],
+   "text": "고향사랑기부제란?",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0006",
+   "bbox": [
+    1179,
+    379,
+    1330,
+    470
+   ],
+   "text": "마음을",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0007",
+   "bbox": [
+    994,
+    383,
+    1188,
+    467
+   ],
+   "text": "고향사랑",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0008",
+   "bbox": [
+    1323,
+    385,
+    1425,
+    466
+   ],
+   "text": "담은",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0009",
+   "bbox": [
+    200,
+    386,
+    725,
+    420
+   ],
+   "text": "개인이 자신의 주소지 이외의 지자체(고향 등)에",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0010",
+   "bbox": [
+    199,
+    425,
+    727,
+    462
+   ],
+   "text": "기부하면,지자체는 그 기부금을 주민복리 등에",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0011",
+   "bbox": [
+    200,
+    467,
+    725,
+    502
+   ],
+   "text": "사용하고 기부자에게는 세제혜택과 기부액의",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0012",
+   "bbox": [
+    198,
+    506,
+    730,
+    546
+   ],
+   "text": "일정액을 답례품(지역 농축산물 등)으로 제공할",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0013",
+   "bbox": [
+    884,
+    512,
+    1235,
+    599
+   ],
+   "text": "NH고향사랑",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0014",
+   "bbox": [
+    1341,
+    512,
+    1537,
+    597
+   ],
+   "text": "예·적금",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0015",
+   "bbox": [
+    1209,
+    515,
+    1342,
+    593
+   ],
+   "text": "기부",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0016",
+   "bbox": [
+    198,
+    548,
+    422,
+    586
+   ],
+   "text": "수 있는 제도입니다.",
+   "status": "verified",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0017",
+   "bbox": [
+    200,
+    598,
+    720,
+    621
+   ],
+   "text": "※고향사랑기부금법(법률 제18489호):2021.10.19.제정,2023.1.1.시행",
+   "status": "verified",
+   "from": "#17",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0018",
+   "bbox": [
+    1209,
+    644,
+    1292,
+    676
+   ],
+   "text": "그리운",
+   "status": "verified",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0019",
+   "bbox": [
+    1082,
+    645,
+    1217,
+    676
+   ],
+   "text": "고향을 향한",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0020",
+   "bbox": [
+    1289,
+    645,
+    1347,
+    675
+   ],
+   "text": "마음,",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0021",
+   "bbox": [
+    1277,
+    678,
+    1385,
+    718
+   ],
+   "text": "합니다.",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0022",
+   "bbox": [
+    1045,
+    679,
+    1208,
+    718
+   ],
+   "text": "농협은행이",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0023",
+   "bbox": [
+    1206,
+    679,
+    1275,
+    718
+   ],
+   "text": "함께",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0024",
+   "bbox": [
+    267,
+    694,
+    637,
+    759
+   ],
+   "text": "고향사랑 기부방법",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0025",
+   "bbox": [
+    196,
+    794,
+    471,
+    831
+   ],
+   "text": "① 정부 고향사랑 기부",
+   "status": "pdf",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0026",
+   "bbox": [
+    387,
+    831,
+    633,
+    886
+   ],
+   "text": "고향사랑 e음",
+   "status": "corrected",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": "돋보기 아이콘 제외"
+  },
+  {
+   "id": "f12_p01-g0027",
+   "bbox": [
+    636,
+    838,
+    702,
+    882
+   ],
+   "text": "또는",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0028",
+   "bbox": [
+    230,
+    841,
+    375,
+    879
+   ],
+   "text": "포털사이트",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0029",
+   "bbox": [
+    235,
+    891,
+    692,
+    926
+   ],
+   "text": "https://www.ilovegohyang.go.kr",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0030",
+   "bbox": [
+    200.0,
+    943.0,
+    726.0,
+    977.0
+   ],
+   "text": "② 전국 농협(농협은행 및 농축협) 영업점에서",
+   "status": "corrected",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0031",
+   "bbox": [
+    228,
+    982,
+    493,
+    1023
+   ],
+   "text": "기부하실 수 있습니다.",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0032",
+   "bbox": [
+    265.0,
+    1140.0,
+    680.0,
+    1203.0
+   ],
+   "text": "사랑합니다! 응원합니다!",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0033",
+   "bbox": [
+    352,
+    1222,
+    602,
+    1266
+   ],
+   "text": "NH농협은행",
+   "status": "corrected",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": "로고 마크 제외"
+  },
+  {
+   "id": "f12_p01-g0034",
+   "bbox": [
+    343,
+    1270,
+    585,
+    1297
+   ],
+   "text": "banking.nonghyup.com",
+   "status": "verified",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0035",
+   "bbox": [
+    173,
+    1353,
+    310,
+    1384
+   ],
+   "text": "영업점사용란",
+   "status": "verified",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0036",
+   "bbox": [
+    230,
+    1566,
+    726,
+    1606
+   ],
+   "text": "고객행복센터1661-3000/1522-3000",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0037",
+   "bbox": [
+    205,
+    1627,
+    747,
+    1647
+   ],
+   "text": "※기타 자세한 사항은 가까운 NH농협은행 영업점 또는 고객행복센터(1661-3000,",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f12_p01-g0038",
+   "bbox": [
+    1251,
+    1644,
+    1551,
+    1695
+   ],
+   "text": "NH농협은행",
+   "status": "corrected",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": "로고 마크 제외"
+  },
+  {
+   "id": "f12_p01-g0039",
+   "bbox": [
+    222,
+    1648,
+    654,
+    1668
+   ],
+   "text": "1522-3000)로 문의하시기 바랍니다.제작부서:영업채널전략부",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    1344.6666666666665,
+    547.900580551524,
+    1358.0,
+    565.2307692307692
+   ],
+   "note": "빈 문자열(가운뎃점 주변)",
+   "from": "E34:B300",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    580.6666666666666,
+    837.8479680696662,
+    624.6666666666666,
+    881.1734397677793
+   ],
+   "note": "돋보기 아이콘",
+   "from": "E36:W300",
+   "ocr": "Q"
+  },
+  {
+   "bbox": [
+    579.0,
+    838.0,
+    626.0,
+    879.0
+   ],
+   "note": "돋보기 아이콘",
+   "from": "E37:B200",
+   "ocr": "Q"
+  },
+  {
+   "bbox": [
+    582.0,
+    841.1806966618287,
+    623.3333333333333,
+    880.5068940493469
+   ],
+   "note": "돋보기 아이콘",
+   "from": "E38:B300",
+   "ocr": "Q"
+  },
+  {
+   "bbox": [
+    1118.0,
+    1020.0,
+    1552.0,
+    1227.0
+   ],
+   "note": "삽화",
+   "from": "E40:B200",
+   "ocr": "영"
+  },
+  {
+   "bbox": [
+    929.3333333333333,
+    1104.4662554426704,
+    1005.3333333333333,
+    1167.7880986937591
+   ],
+   "note": "삽화",
+   "from": "E41:B300",
+   "ocr": "A"
+  },
+  {
+   "bbox": [
+    932.0,
+    1107.1324383164006,
+    1003.3333333333333,
+    1165.7884615384614
+   ],
+   "note": "삽화",
+   "from": "E42:W300",
+   "ocr": "A"
+  },
+  {
+   "bbox": [
+    828.6666666666666,
+    1543.0533381712626,
+    946.6666666666666,
+    1755.6814223512336
+   ],
+   "note": "장식 곡선",
+   "from": "E46:B300",
+   "ocr": "1"
+  },
+  {
+   "bbox": [
+    1215.0,
+    459.0,
+    1272.0,
+    517.0
+   ],
+   "note": "하트 장식",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

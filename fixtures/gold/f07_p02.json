@@ -1,0 +1,983 @@
+{
+ "page_id": "f07_p02",
+ "ref_size": [
+  1500,
+  2167
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f07_p02 저축예금 PDF 2쪽 (200dpi). 이미지형 PDF. 상단은 1쪽과 같은 웹 화면 머리글.",
+  "잔여 잉크 5개 확인: 상자·버튼 테두리, 워터마크 조각. 추가 문구 없음.",
+  "2차 점검(정답 통독·조건 간 불일치 재확인)"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f07_p02-g0001",
+   "bbox": [
+    96,
+    29,
+    370,
+    73
+   ],
+   "text": "NHBank금융상품몰",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0002",
+   "bbox": [
+    910,
+    41,
+    1190,
+    61
+   ],
+   "text": "로그인 My금융센터 고객지원 화면크기",
+   "status": "corrected",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": "세로 구분선 제외"
+  },
+  {
+   "id": "f07_p02-g0003",
+   "bbox": [
+    1251,
+    41,
+    1377,
+    62
+   ],
+   "text": "NH Bank 개인",
+   "status": "corrected",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": "드롭다운 아이콘 제외"
+  },
+  {
+   "id": "f07_p02-g0004",
+   "bbox": [
+    395,
+    42,
+    458,
+    67
+   ],
+   "text": "농협은행",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0005",
+   "bbox": [
+    476,
+    42,
+    539,
+    67
+   ],
+   "text": "농·축협",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0006",
+   "bbox": [
+    1195,
+    43,
+    1234,
+    61
+   ],
+   "text": "+-",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0007",
+   "bbox": [
+    787,
+    105,
+    833,
+    135
+   ],
+   "text": "카드",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0008",
+   "bbox": [
+    297,
+    107,
+    340,
+    133
+   ],
+   "text": "신탁",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0009",
+   "bbox": [
+    604,
+    107,
+    647,
+    133
+   ],
+   "text": "외환",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0010",
+   "bbox": [
+    974,
+    107,
+    1031,
+    132
+   ],
+   "text": "공시실",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0011",
+   "bbox": [
+    390,
+    108,
+    462,
+    132
+   ],
+   "text": "퇴직연금",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0012",
+   "bbox": [
+    697,
+    108,
+    739,
+    131
+   ],
+   "text": "보험",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0013",
+   "bbox": [
+    1082,
+    108,
+    1201,
+    131
+   ],
+   "text": "스마트상담센터",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0014",
+   "bbox": [
+    205,
+    109,
+    245,
+    131
+   ],
+   "text": "펀드",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0015",
+   "bbox": [
+    514,
+    109,
+    553,
+    131
+   ],
+   "text": "대출",
+   "status": "verified",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0016",
+   "bbox": [
+    888,
+    110,
+    921,
+    129
+   ],
+   "text": "ISA",
+   "status": "verified",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0017",
+   "bbox": [
+    103,
+    167,
+    293,
+    188
+   ],
+   "text": "농협은행>저축>전체상품",
+   "status": "verified",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0018",
+   "bbox": [
+    98,
+    243,
+    251,
+    294
+   ],
+   "text": "저축예금",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0019",
+   "bbox": [
+    1284,
+    312,
+    1380,
+    340
+   ],
+   "text": "장바구니",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0020",
+   "bbox": [
+    103,
+    315,
+    743,
+    338
+   ],
+   "text": "자금의 일시적 보관 목적으로 개인이 거래할 수 있는 입출금이 자유로운 상품",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0021",
+   "bbox": [
+    640,
+    434,
+    893,
+    457
+   ],
+   "text": "현재 가입 계좌수:8,174,584건",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0022",
+   "bbox": [
+    1099,
+    499,
+    1164,
+    523
+   ],
+   "text": "선호세대",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0023",
+   "bbox": [
+    258,
+    501,
+    322,
+    523
+   ],
+   "text": "가입대상",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0024",
+   "bbox": [
+    412,
+    501,
+    477,
+    523
+   ],
+   "text": "예치방식",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0025",
+   "bbox": [
+    677,
+    501,
+    713,
+    524
+   ],
+   "text": "금리",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0026",
+   "bbox": [
+    899,
+    501,
+    963,
+    523
+   ],
+   "text": "가입기간",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0027",
+   "bbox": [
+    257,
+    532,
+    322,
+    574
+   ],
+   "text": "개인",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0028",
+   "bbox": [
+    567,
+    534,
+    828,
+    566
+   ],
+   "text": "최저 연0.1%~최고 연0.1%",
+   "status": "verified",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0029",
+   "bbox": [
+    871,
+    534,
+    989,
+    574
+   ],
+   "text": "제한없음",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0030",
+   "bbox": [
+    1041,
+    535,
+    1221,
+    571
+   ],
+   "text": "60세이상선호",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0031",
+   "bbox": [
+    373,
+    537,
+    516,
+    572
+   ],
+   "text": "자유입출금",
+   "status": "verified",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0032",
+   "bbox": [
+    647,
+    574,
+    742,
+    598
+   ],
+   "text": "(기준,세전,)",
+   "status": "verified",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0033",
+   "bbox": [
+    900,
+    633,
+    1001,
+    665
+   ],
+   "text": "영업점가입",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0034",
+   "bbox": [
+    478,
+    634,
+    564,
+    667
+   ],
+   "text": "채팅상담",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0035",
+   "bbox": [
+    764,
+    634,
+    850,
+    666
+   ],
+   "text": "전화예약",
+   "status": "verified",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0036",
+   "bbox": [
+    615,
+    636,
+    713,
+    665
+   ],
+   "text": "Email상담",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0037",
+   "bbox": [
+    328,
+    738,
+    513,
+    866
+   ],
+   "text": "수신팀/박경민",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": true,
+   "note": "옅은 사선 워터마크"
+  },
+  {
+   "id": "f07_p02-g0038",
+   "bbox": [
+    1208,
+    822,
+    1394,
+    951
+   ],
+   "text": "농협은행/202",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "clear",
+   "optional": true,
+   "note": "옅은 사선 워터마크"
+  },
+  {
+   "id": "f07_p02-g0039",
+   "bbox": [
+    321,
+    886,
+    416,
+    921
+   ],
+   "text": "금리조회",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0040",
+   "bbox": [
+    502,
+    886,
+    598,
+    922
+   ],
+   "text": "기타사항",
+   "status": "verified",
+   "from": "#42",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0041",
+   "bbox": [
+    142,
+    888,
+    234,
+    921
+   ],
+   "text": "상품설명",
+   "status": "verified",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0042",
+   "bbox": [
+    290,
+    971,
+    343,
+    1004
+   ],
+   "text": "• 가능",
+   "status": "corrected",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0043",
+   "bbox": [
+    95,
+    976,
+    186,
+    1000
+   ],
+   "text": "무통장거래",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0044",
+   "bbox": [
+    95,
+    1039,
+    228,
+    1063
+   ],
+   "text": "휴면예금 및 출연",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0045",
+   "bbox": [
+    296,
+    1040,
+    1315,
+    1062
+   ],
+   "text": "• 이자지급을 포함한 최종거래일 이후 5년 이내 계좌를 해지하지 않을 경우 예금거래기본약관 제9조의2 휴면예금 및 출연에 따라 휴면예금은 “서민금융진흥원",
+   "status": "corrected",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0046",
+   "bbox": [
+    306,
+    1067,
+    969,
+    1086
+   ],
+   "text": "(국번없이 1397)”에 출연될 수 있으며, 이 경우 서민금융진흥원을 통해 휴면예금을 찾으실 수 있습니다.",
+   "status": "corrected",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0047",
+   "bbox": [
+    296,
+    1096,
+    876,
+    1119
+   ],
+   "text": "• 휴면예금은 휴면예금통합조회서비스(www.sleepmoney.or.kr)를 통해 조회가능합니다.",
+   "status": "corrected",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0048",
+   "bbox": [
+    95,
+    1158,
+    202,
+    1182
+   ],
+   "text": "거래중지계좌",
+   "status": "verified",
+   "from": "#50",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0049",
+   "bbox": [
+    297,
+    1161,
+    1137,
+    1181
+   ],
+   "text": "이 예금이 다음 각 호의 1에 해당할 때에는 거래중지계좌로 따로 관리하며, 입출금, 잔액조회, 이관 등의 거래가 제한될 수 있습니다.",
+   "status": "corrected",
+   "from": "#51",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0050",
+   "bbox": [
+    296,
+    1187,
+    731,
+    1207
+   ],
+   "text": "• 1. 예금잔액이 1만원 미만이며, 1년 이상 입출금 거래가 없는 계좌",
+   "status": "corrected",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0051",
+   "bbox": [
+    296,
+    1217,
+    806,
+    1237
+   ],
+   "text": "• 2. 예금잔액이 1만원 이상 5만원 미만이며, 2년 이상 입출금 거래가 없는 계좌",
+   "status": "corrected",
+   "from": "#53",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0052",
+   "bbox": [
+    297,
+    1248,
+    816,
+    1265
+   ],
+   "text": "• 3. 예금잔액이 5만원 이상 10만원 미만이며, 3년 이상 입출금 거래가 없는 계좌",
+   "status": "corrected",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0053",
+   "bbox": [
+    297,
+    1274,
+    842,
+    1294
+   ],
+   "text": "거래를다시 시작하고자하는경우에는 본인 확인 및 금융거래 목적을 확인한후가능",
+   "status": "verified",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0054",
+   "bbox": [
+    93,
+    1332,
+    174,
+    1361
+   ],
+   "text": "원금 또는",
+   "status": "verified",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0055",
+   "bbox": [
+    297,
+    1337,
+    768,
+    1357
+   ],
+   "text": "• 계좌에 압류, 가압류, 질권설정 등이 등록될 경우 원금 및 이자 지급 제한",
+   "status": "corrected",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0056",
+   "bbox": [
+    96,
+    1359,
+    207,
+    1383
+   ],
+   "text": "이자지급 제한",
+   "status": "verified",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0057",
+   "bbox": [
+    297,
+    1366,
+    746,
+    1386
+   ],
+   "text": "• 예금잔액증명서 발급 당일에는 입금 · 출금 · 이체 등 잔액 변동 불가",
+   "status": "corrected",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0058",
+   "bbox": [
+    297,
+    1396,
+    1326,
+    1416
+   ],
+   "text": "• 통장이 ‘전기통신금융사기 피해 방지 및 피해금 환급에 관한 특별법’에서 정의한 피해의심거래계좌 및 사기이용계좌로 이용될 경우 이체, 송금지연, 지급정지 등",
+   "status": "corrected",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0059",
+   "bbox": [
+    306,
+    1423,
+    533,
+    1443
+   ],
+   "text": "의금융거래제한조치를할수있음",
+   "status": "verified",
+   "from": "#61",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0060",
+   "bbox": [
+    296,
+    1479,
+    885,
+    1499
+   ],
+   "text": "※ 금융소비자보호에 관한 법를 제19조제1항에 따른 설명을 받을 수 있는 권리가 있습니다.",
+   "status": "corrected",
+   "from": "#62",
+   "legibility": "clear",
+   "optional": false,
+   "note": "원문 표기 '법를' 그대로"
+  },
+  {
+   "id": "f07_p02-g0061",
+   "bbox": [
+    296,
+    1506,
+    805,
+    1526
+   ],
+   "text": "※상품을 가입하시기 전에 상품설명서 및 약관을 반드시 읽어보시기 바랍니다.",
+   "status": "alt",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f07_p02-g0062",
+   "bbox": [
+    228.0,
+    1517.7665333743464,
+    300.66666666666663,
+    1579.0904337127038
+   ],
+   "text": "경민",
+   "status": "added_from_other_run",
+   "from": "E2:B300",
+   "legibility": "clear",
+   "optional": true,
+   "note": "사선 워터마크 조각"
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    1311,
+    105,
+    1382,
+    134
+   ],
+   "note": "검색·메뉴 아이콘",
+   "from": "#8",
+   "ocr": "Q="
+  },
+  {
+   "bbox": [
+    356,
+    171,
+    373,
+    185
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "#19",
+   "ocr": "V"
+  },
+  {
+   "bbox": [
+    1348.0,
+    164.64134112580746,
+    1371.3333333333333,
+    191.97047062442326
+   ],
+   "note": "인쇄 아이콘",
+   "from": "E1:B300",
+   "ocr": "몸"
+  }
+ ],
+ "absorbed_rows": []
+}

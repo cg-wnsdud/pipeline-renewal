@@ -1,0 +1,3 @@
+{"manifest_version": 1, "note": "예시: 일반 A4 PDF 1페이지", "source_root": "C:/Users/cccjj/cginside/농협프로젝트/test-file",
+ "submissions": [{"submission_id": "ex-normal", "description": "대출 포스터(PDF 1쪽)",
+                  "files": [{"file_id": "f01", "path": "1. 대출성상품-상품명 노출 광고1.pdf"}]}]}

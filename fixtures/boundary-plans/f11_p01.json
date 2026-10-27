@@ -1,0 +1,69 @@
+{
+ "contract": "boundary-plan/2",
+ "plan_version": "section-pack-2026-10-26-user-approved-2026-10-26",
+ "page_id": "f11_p01",
+ "page_image_sha256": "710c96c1d01eafb838365f3532a3825a2fabf3193a0ff9b42347a1ec1f8dd6b9",
+ "page_size": [
+  669,
+  2211
+ ],
+ "coordinate_system": "page_px_xyxy",
+ "axis": "y",
+ "status": "validated",
+ "policy": {
+  "name": "section-pack",
+  "version": "2",
+  "max_tile_aspect": 2.5,
+  "status": "user_approved",
+  "note": "사용자 결정(2026-10-26): 섹션 사이·표–각주·탭–내용·버튼–설명·목록 항목 사이 허용, 제목–본문·같은 문장·표 행 사이 금지. 타일 비율 2.5 이하"
+ },
+ "cuts": [
+  0,
+  1147,
+  2211
+ ],
+ "composition": {
+  "status": "composed",
+  "cuts": [
+   0,
+   1147,
+   2211
+  ],
+  "tile_lengths": [
+   1147,
+   1064
+  ],
+  "target_len": 1672,
+  "oversized_sections": []
+ },
+ "boundaries": [
+  {
+   "position": 1147,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f11_p01-c02",
+     "gap_px": 109,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f11_p01-y1147.png"
+   },
+   "semantic_check": {
+    "method": "human_review",
+    "verified_by": "사용자(2026-10-26 대화: 후보 경계 화면 확인 후 승인, 표–각주 분리 허용)",
+    "result": "safe",
+    "prior_evidence": {
+     "m2": {
+      "relation": "independent_sections",
+      "safe": true,
+      "call_id": "bnd-0020",
+      "source": "work/boundary/exp1/classify.json(재사용)"
+     },
+     "ai_review": "유의사항 목록 끝 → '상품설명서 및 약관'",
+     "ai_result": "candidate_safe"
+    }
+   }
+  }
+ ],
+ "note": "사용자 승인 경계(human_review). 정상 실행 경로(READY)로 타일 OCR·판독한다."
+}

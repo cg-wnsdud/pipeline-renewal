@@ -1,0 +1,160 @@
+{
+ "contract": "boundary-plan/2",
+ "plan_version": "section-pack-2026-10-26-user-approved-2026-10-26",
+ "page_id": "f08_p01",
+ "page_image_sha256": "64527212a1371eaca64c761be12a5b51213a7b64b66891d9f4097b9050fbdaea",
+ "page_size": [
+  667,
+  6130
+ ],
+ "coordinate_system": "page_px_xyxy",
+ "axis": "y",
+ "status": "validated",
+ "policy": {
+  "name": "section-pack",
+  "version": "2",
+  "max_tile_aspect": 2.5,
+  "status": "user_approved",
+  "note": "사용자 결정(2026-10-26): 섹션 사이·표–각주·탭–내용·버튼–설명·목록 항목 사이 허용, 제목–본문·같은 문장·표 행 사이 금지. 타일 비율 2.5 이하"
+ },
+ "cuts": [
+  0,
+  937,
+  1968,
+  3326,
+  4646,
+  6130
+ ],
+ "composition": {
+  "status": "composed",
+  "cuts": [
+   0,
+   937,
+   1968,
+   3326,
+   4646,
+   6130
+  ],
+  "tile_lengths": [
+   937,
+   1031,
+   1358,
+   1320,
+   1484
+  ],
+  "target_len": 1668,
+  "oversized_sections": []
+ },
+ "boundaries": [
+  {
+   "position": 937,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c06",
+     "gap_px": 181,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y937.png"
+   },
+   "semantic_check": {
+    "method": "human_review",
+    "verified_by": "사용자(2026-10-26 대화: 후보 경계 화면 확인 후 승인, 표–각주 분리 허용)",
+    "result": "safe",
+    "prior_evidence": {
+     "m2": {
+      "relation": "independent_sections",
+      "safe": true,
+      "call_id": "bnd-0001",
+      "source": "work/boundary/exp1/classify.json(재사용)"
+     },
+     "ai_review": "만기금액 알아보기 버튼 상자 뒤 → '미래를 위한 든든한 첫 걸음!' 새 섹션",
+     "ai_result": "candidate_safe"
+    }
+   }
+  },
+  {
+   "position": 1968,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c12",
+     "gap_px": 180,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y1968.png"
+   },
+   "semantic_check": {
+    "method": "human_review",
+    "verified_by": "사용자(2026-10-26 대화: 후보 경계 화면 확인 후 승인, 표–각주 분리 허용)",
+    "result": "safe",
+    "prior_evidence": {
+     "m2": {
+      "relation": "independent_sections",
+      "safe": true,
+      "call_id": "bnd-0002",
+      "source": "work/boundary/exp1/classify.json(재사용)"
+     },
+     "ai_review": "가입 절차(계좌개설) 끝 → '청년을 위한 특별한 금융 혜택!'",
+     "ai_result": "candidate_safe"
+    }
+   }
+  },
+  {
+   "position": 3326,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c18",
+     "gap_px": 23,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y3326.png"
+   },
+   "semantic_check": {
+    "method": "human_review",
+    "verified_by": "사용자(2026-10-26 대화: 후보 경계 화면 확인 후 승인, 표–각주 분리 허용)",
+    "result": "safe",
+    "prior_evidence": {
+     "m2": {
+      "relation": "independent_sections",
+      "safe": true,
+      "call_id": "bnd2-0002",
+      "reason": "위쪽은 일러스트와 텍스트가 포함된 광고/배너 영역이고, 아래쪽은 탭 메뉴와 상세 정보가 시작되는 별개의 섹션입니다.",
+      "source": "새 호출(2026-10-26)"
+     },
+     "ai_review": "우대금리 홍보 그림 끝 → 상품안내 탭 메뉴와 상품 정보 표 시작(탭은 아래 섹션에 속함)",
+     "ai_result": "candidate_safe"
+    }
+   }
+  },
+  {
+   "position": 4646,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f08_p01-c26",
+     "gap_px": 37,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f08_p01-y4646.png"
+   },
+   "semantic_check": {
+    "method": "human_review",
+    "verified_by": "사용자(2026-10-26 대화: 후보 경계 화면 확인 후 승인, 표–각주 분리 허용)",
+    "result": "safe",
+    "prior_evidence": {
+     "m2": {
+      "relation": "independent_sections",
+      "safe": true,
+      "call_id": "bnd-0004",
+      "source": "work/boundary/exp1/classify.json(재사용)"
+     },
+     "ai_review": "이자지급 방법 내용 끝 → '판매한도' 항목",
+     "ai_result": "candidate_safe"
+    }
+   }
+  }
+ ],
+ "note": "사용자 승인 경계(human_review). 정상 실행 경로(READY)로 타일 OCR·판독한다."
+}

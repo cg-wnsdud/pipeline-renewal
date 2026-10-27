@@ -1,0 +1,9 @@
+{
+ "manifest_version": 1,
+ "note": "제공된 HWP 1개. HWPX 샘플은 추후 제공 예정이므로 포함하지 않는다.",
+ "source_root": "C:/Users/cccjj/cginside/농협프로젝트",
+ "submissions": [
+  {"submission_id": "h01", "description": "지수연동예금 광고3 (HWP)", "files": [
+   {"file_id": "h01", "path": "3. 예금성상품-지수연동예금(광고3).hwp"}]}
+ ]
+}

@@ -1,0 +1,1255 @@
+{
+ "page_id": "f03_p01",
+ "ref_size": [
+  1794,
+  1528
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f03_p01 ISA 신탁형 웹 캡처 (이미지 원본 px).",
+  "잔여 잉크 15개 확인: 상단 메뉴 3개(보험·카드·ISA)를 모든 OCR 조건이 놓침. 나머지는 도형·아이콘.",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f03_p01-g0001",
+   "bbox": [
+    372,
+    32,
+    592,
+    60
+   ],
+   "text": "NHBank 금융상품몰",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0002",
+   "bbox": [
+    1033,
+    34,
+    1417,
+    54
+   ],
+   "text": "로그인 My금융센터 고객지원 화면크기 + - NH Bank 개인",
+   "status": "corrected",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": "구분선·드롭다운 아이콘 제외"
+  },
+  {
+   "id": "f03_p01-g0003",
+   "bbox": [
+    678,
+    36,
+    732,
+    58
+   ],
+   "text": "농·축협",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0004",
+   "bbox": [
+    612,
+    37,
+    668,
+    58
+   ],
+   "text": "농협은행",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0005",
+   "bbox": [
+    783,
+    88,
+    833,
+    113
+   ],
+   "text": "외환",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0006",
+   "bbox": [
+    1081,
+    88,
+    1137,
+    113
+   ],
+   "text": "공시실",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0007",
+   "bbox": [
+    380,
+    89,
+    419,
+    112
+   ],
+   "text": "저축",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0008",
+   "bbox": [
+    458,
+    89,
+    495,
+    112
+   ],
+   "text": "펀드",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0009",
+   "bbox": [
+    533,
+    89,
+    571,
+    112
+   ],
+   "text": "신탁",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0010",
+   "bbox": [
+    707,
+    89,
+    748,
+    112
+   ],
+   "text": "대출",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0011",
+   "bbox": [
+    1173,
+    89,
+    1275,
+    112
+   ],
+   "text": "스마트상담센터",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0012",
+   "bbox": [
+    609,
+    90,
+    671,
+    111
+   ],
+   "text": "퇴직연금",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0013",
+   "bbox": [
+    866.0,
+    95.0,
+    892.0,
+    110.0
+   ],
+   "text": "보험",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0014",
+   "bbox": [
+    942.0,
+    95.0,
+    968.0,
+    110.0
+   ],
+   "text": "카드",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0015",
+   "bbox": [
+    1020.0,
+    97.0,
+    1042.0,
+    108.0
+   ],
+   "text": "ISA",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0016",
+   "bbox": [
+    606,
+    138,
+    689,
+    156
+   ],
+   "text": "신탁형 ISA상품",
+   "status": "corrected",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0017",
+   "bbox": [
+    376,
+    140,
+    535,
+    154
+   ],
+   "text": "농협은행 > ISA > 신탁형 ISA",
+   "status": "corrected",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0018",
+   "bbox": [
+    835,
+    208,
+    931,
+    226
+   ],
+   "text": "편입상품에 따라",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0019",
+   "bbox": [
+    374,
+    211,
+    483,
+    239
+   ],
+   "text": "신탁형 ISA",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0020",
+   "bbox": [
+    734,
+    215,
+    771,
+    238
+   ],
+   "text": "원금",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0021",
+   "bbox": [
+    826,
+    231,
+    941,
+    252
+   ],
+   "text": "원금보장여부가",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0022",
+   "bbox": [
+    722,
+    233,
+    780,
+    262
+   ],
+   "text": "비보장",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0023",
+   "bbox": [
+    824,
+    258,
+    941,
+    278
+   ],
+   "text": "달라질 수 있습니다.",
+   "status": "corrected",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0024",
+   "bbox": [
+    733,
+    260,
+    771,
+    283
+   ],
+   "text": "상품",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0025",
+   "bbox": [
+    397,
+    276,
+    473,
+    296
+   ],
+   "text": "신탁형ISA",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0026",
+   "bbox": [
+    509,
+    277,
+    657,
+    293
+   ],
+   "text": "ISA 편입상품 금리 조회",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0027",
+   "bbox": [
+    376,
+    342,
+    628,
+    362
+   ],
+   "text": "개인종합자산관리계좌(ISA)개요",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0028",
+   "bbox": [
+    490,
+    396,
+    525,
+    419
+   ],
+   "text": "구분",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0029",
+   "bbox": [
+    1010,
+    396,
+    1044,
+    419
+   ],
+   "text": "내용",
+   "status": "verified",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0030",
+   "bbox": [
+    479,
+    451,
+    535,
+    473
+   ],
+   "text": "상품특징",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0031",
+   "bbox": [
+    654,
+    452,
+    993,
+    470
+   ],
+   "text": "투자자가 투자종목 및 수량 등을 지정하여 구체적 상품운용지시",
+   "status": "corrected",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0032",
+   "bbox": [
+    654,
+    502,
+    1190,
+    520
+   ],
+   "text": "위탁자별 신탁재산을 각각 구분하여 관리 · 운용 및 계산하는 상품으로 위탁자별 운용방법, 신탁기간,",
+   "status": "corrected",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0033",
+   "bbox": [
+    480,
+    511,
+    536,
+    533
+   ],
+   "text": "운용방법",
+   "status": "verified",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0034",
+   "bbox": [
+    656,
+    525,
+    1022,
+    539
+   ],
+   "text": "신탁보수 및 이익계산방법 등은 개인종합자산관리계좌약관에서 정함",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0035",
+   "bbox": [
+    479,
+    572,
+    536,
+    593
+   ],
+   "text": "신탁금액",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0036",
+   "bbox": [
+    654,
+    573,
+    1251,
+    591
+   ],
+   "text": "최저신탁금액은 개인종합자산관리계좌약관에서 정하며 연간한도 2천만원, 총한도 1억원 내에서 추가 납입 가능",
+   "status": "corrected",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0037",
+   "bbox": [
+    655,
+    625,
+    1317,
+    642
+   ],
+   "text": "중도해지를 신청하는경우라도운용중인신탁재산의종류에 따라중도해지가제한될수있으며,중도해지가가능한경우에도",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0038",
+   "bbox": [
+    477,
+    631,
+    535,
+    656
+   ],
+   "text": "중도해지",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0039",
+   "bbox": [
+    655,
+    646,
+    1187,
+    663
+   ],
+   "text": "신탁재산의 처분과정에서일부손실이발생할수있으므로중도해지시에는수탁자와사전협의필요",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0040",
+   "bbox": [
+    654,
+    691,
+    819,
+    708
+   ],
+   "text": "-예금, 적금,예탁금 : 연0.1%",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0041",
+   "bbox": [
+    653,
+    711,
+    794,
+    728
+   ],
+   "text": "-집합투자증권: 연0.2%",
+   "status": "verified",
+   "from": "#42",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0042",
+   "bbox": [
+    462,
+    712,
+    553,
+    730
+   ],
+   "text": "운용상품별 보수",
+   "status": "verified",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0043",
+   "bbox": [
+    655,
+    732,
+    990,
+    749
+   ],
+   "text": "-파생결합증권 : ELB 연 0.1% ~0.3%, ELS 연 0.5% ~0.7%",
+   "status": "verified",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0044",
+   "bbox": [
+    372,
+    798,
+    409,
+    823
+   ],
+   "text": "기타",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0045",
+   "bbox": [
+    375,
+    837,
+    1116,
+    851
+   ],
+   "text": "※ 투자자는 이 계좌에 대하여 은행으로부터 충분한 설명을 받을 권리가 있으며, 가입 전 상품설명서 및 약관을 반드시 읽어보시기 바랍니다.",
+   "status": "corrected",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0046",
+   "bbox": [
+    375,
+    858,
+    872,
+    871
+   ],
+   "text": "※ 이 계좌 내 투자성 상품은 원금손실이 발생할 수 있으며, 그 손실은 투자자에게 귀속됩니다.",
+   "status": "corrected",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0047",
+   "bbox": [
+    375,
+    878,
+    761,
+    892
+   ],
+   "text": "※ 과세기준 및 과세방법은 향후 세법개정 등에 따라 변동될 수 있습니다.",
+   "status": "corrected",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0048",
+   "bbox": [
+    374,
+    897,
+    934,
+    914
+   ],
+   "text": "※ 중도해지시 또는 국세청 부적격 통보시 과세특례를 적용받은 소득세액에 상당하는 세액이 추징됩니다.",
+   "status": "corrected",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0049",
+   "bbox": [
+    373,
+    917,
+    1264,
+    935
+   ],
+   "text": "※ 상기 신탁상품은 특정금전신탁계약으로서 위탁자가 지정한 운용 방법 및 세부운용 지시대로 운용되며, 상품별 운용방법은 해당 상품별 약관 및 세부내용에 따릅니다.",
+   "status": "corrected",
+   "from": "#50",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0050",
+   "bbox": [
+    375,
+    941,
+    1140,
+    955
+   ],
+   "text": "※ 다만, 운용할 수 없는 잔액과 신탁금의 반환요청이 없는 경우에는 위탁자가 지정한 운용방법과 관계법령 등에서 정한 방법에 따라 운용합니다.",
+   "status": "corrected",
+   "from": "#51",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0051",
+   "bbox": [
+    373,
+    959,
+    1007,
+    977
+   ],
+   "text": "※ 이 계좌 편입 농 · 축협 예탁금은 '예금보험공사' 및 '상호금융예금자보호기금'으로부터 예금자보호가 되지 않습니다.",
+   "status": "corrected",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0052",
+   "bbox": [
+    374,
+    981,
+    1360,
+    998
+   ],
+   "text": "※ 이 개인종합자산관리계좌(ISA)는 예금자보호법에 따라 예금보호 대상으로 운용되는 금융상품에 한하여 1인당 “1억원까지”(운용되는 금융상품 판매회사별 보호상품 합산) 보호됩니다.",
+   "status": "corrected",
+   "from": "#53",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0053",
+   "bbox": [
+    374,
+    1011,
+    688,
+    1027
+   ],
+   "text": "준법감시인 심의필2026-4847(2026.09.01.~2027.08.31.)",
+   "status": "verified",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0054",
+   "bbox": [
+    373,
+    1062,
+    494,
+    1085
+   ],
+   "text": "서식자료다운로드",
+   "status": "verified",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0055",
+   "bbox": [
+    462,
+    1110,
+    519,
+    1131
+   ],
+   "text": "기본약관",
+   "status": "verified",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0056",
+   "bbox": [
+    1330,
+    1113,
+    1402,
+    1131
+   ],
+   "text": "다운로드",
+   "status": "verified",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0057",
+   "bbox": [
+    623,
+    1114,
+    1022,
+    1128
+   ],
+   "text": "금전거래신탁기본약관, 자동계좌이체약관,인터넷연결계좌서비스이용약관",
+   "status": "verified",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0058",
+   "bbox": [
+    460,
+    1157,
+    520,
+    1181
+   ],
+   "text": "상품특약",
+   "status": "verified",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0059",
+   "bbox": [
+    1329,
+    1160,
+    1401,
+    1181
+   ],
+   "text": "다운로드",
+   "status": "verified",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0060",
+   "bbox": [
+    622,
+    1161,
+    774,
+    1178
+   ],
+   "text": "개인종합자산관리계좌(ISA)",
+   "status": "corrected",
+   "from": "#61",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0061",
+   "bbox": [
+    857,
+    1259,
+    948,
+    1283
+   ],
+   "text": "채팅상담",
+   "status": "verified",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0062",
+   "bbox": [
+    742,
+    1260,
+    804,
+    1282
+   ],
+   "text": "전화상담",
+   "status": "verified",
+   "from": "#64",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0063",
+   "bbox": [
+    405,
+    1261,
+    474,
+    1282
+   ],
+   "text": "상품공시실",
+   "status": "verified",
+   "from": "#65",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0064",
+   "bbox": [
+    559,
+    1261,
+    661,
+    1281
+   ],
+   "text": "서식/약관자료실",
+   "status": "verified",
+   "from": "#66",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0065",
+   "bbox": [
+    1003,
+    1261,
+    1100,
+    1279
+   ],
+   "text": "이메일상담",
+   "status": "verified",
+   "from": "#67",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0066",
+   "bbox": [
+    1256,
+    1337,
+    1364,
+    1356
+   ],
+   "text": "계열사/관련사이트",
+   "status": "verified",
+   "from": "#71",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0067",
+   "bbox": [
+    376,
+    1340,
+    946,
+    1354
+   ],
+   "text": "보안센터 전자민원접수 개인정보처리(취급)방침 보호금융상품등록부 금융소비자정보포털파인",
+   "status": "corrected",
+   "from": "#72",
+   "legibility": "clear",
+   "optional": false,
+   "note": "세로 구분선 제외"
+  },
+  {
+   "id": "f03_p01-g0068",
+   "bbox": [
+    1166,
+    1387,
+    1371,
+    1405
+   ],
+   "text": "상담시간:평일09시~18시(공휴일제외)",
+   "status": "verified",
+   "from": "#74",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0069",
+   "bbox": [
+    813,
+    1388,
+    983,
+    1402
+   ],
+   "text": "공용 :1588-2100/1544-2100",
+   "status": "verified",
+   "from": "#75",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0070",
+   "bbox": [
+    376,
+    1389,
+    641,
+    1403
+   ],
+   "text": "고객행복센터 대표번호:1661-3000, 1522-3000",
+   "status": "verified",
+   "from": "#76",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0071",
+   "bbox": [
+    661,
+    1389,
+    794,
+    1403
+   ],
+   "text": "해외:82-2-3704-1004",
+   "status": "verified",
+   "from": "#77",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0072",
+   "bbox": [
+    992,
+    1390,
+    1146,
+    1403
+   ],
+   "text": "카드전용상담:1644-4000",
+   "status": "verified",
+   "from": "#78",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0073",
+   "bbox": [
+    376,
+    1418,
+    560,
+    1434
+   ],
+   "text": "Copyright NH Bank. All Rights Reserved.",
+   "status": "corrected",
+   "from": "#79",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0074",
+   "bbox": [
+    427,
+    1462,
+    504,
+    1483
+   ],
+   "text": "금융의 모든 순간",
+   "status": "corrected",
+   "from": "#80",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f03_p01-g0075",
+   "bbox": [
+    382.0,
+    1466.0,
+    414.0,
+    1488.0
+   ],
+   "text": "WA",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "tiny",
+   "optional": true,
+   "note": "웹 접근성 인증마크 속 글자"
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    1360,
+    86,
+    1425,
+    115
+   ],
+   "note": "검색·메뉴 아이콘",
+   "from": "#5",
+   "ocr": "Q="
+  },
+  {
+   "bbox": [
+    1390,
+    133,
+    1419,
+    162
+   ],
+   "note": "인쇄 아이콘",
+   "from": "#14",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    704,
+    141,
+    721,
+    154
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "#17",
+   "ocr": "¸"
+  },
+  {
+   "bbox": [
+    574,
+    142,
+    595,
+    154
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "#18",
+   "ocr": "¸"
+  },
+  {
+   "bbox": [
+    715,
+    1259,
+    746,
+    1284
+   ],
+   "note": "전화 아이콘",
+   "from": "#62",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    380,
+    1264,
+    397,
+    1278
+   ],
+   "note": "공시실 아이콘",
+   "from": "#68",
+   "ocr": "o"
+  },
+  {
+   "bbox": [
+    533,
+    1264,
+    554,
+    1280
+   ],
+   "note": "서식 아이콘",
+   "from": "#69",
+   "ocr": "F"
+  },
+  {
+   "bbox": [
+    1172,
+    1336,
+    1194,
+    1359
+   ],
+   "note": "페이스북 아이콘",
+   "from": "#70",
+   "ocr": "f"
+  },
+  {
+   "bbox": [
+    1390,
+    1342,
+    1406,
+    1354
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "#73",
+   "ocr": "V"
+  },
+  {
+   "bbox": [
+    1205.0,
+    1334.0,
+    1233.0,
+    1359.0
+   ],
+   "note": "인스타그램 아이콘",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

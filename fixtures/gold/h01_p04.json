@@ -1,0 +1,132 @@
+{
+ "page_id": "h01_p04",
+ "ref_size": [
+  1653,
+  2339
+ ],
+ "scaffold_run": "work\\runs\\hwp-ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "h01_p04 보도자료 이미지(HWP 변환). 사진 속 글자 + 사진 위 캡션.",
+  "변환 렌더에서 사진이 캡션 '[보도자료 이미지]' 의 아래 절반을 덮음. 문서 원문은 변환 PDF 텍스트 '[보도자료 이미지]'.",
+  "잔여 잉크 16개 확인: 사진 인물·배경·패널. 추가 문구 없음."
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "h01_p04-g0001",
+   "bbox": [
+    125.05424499511719,
+    182.18075561523438,
+    358.4976806640625,
+    209.91360473632812
+   ],
+   "text": "[보도자료 이미지]",
+   "status": "corrected",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": "사진이 글자 아래쪽을 덮어 '료'가 일부만 보임(변환 렌더 겹침)"
+  },
+  {
+   "id": "h01_p04-g0002",
+   "bbox": [
+    772.0,
+    676.0,
+    979.0,
+    718.0
+   ],
+   "text": "NH농협은행,",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p04-g0003",
+   "bbox": [
+    747.0,
+    732.0,
+    994.0,
+    788.0
+   ],
+   "text": "원금보장형",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p04-g0004",
+   "bbox": [
+    651.0,
+    793.0,
+    1087.0,
+    847.0
+   ],
+   "text": "지수연동예금(ELD)",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p04-g0005",
+   "bbox": [
+    733.0,
+    855.0,
+    1018.0,
+    910.0
+   ],
+   "text": "26-9호 출시",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p04-g0006",
+   "bbox": [
+    1291.0,
+    1031.0,
+    1498.0,
+    1068.0
+   ],
+   "text": "NH농협은행",
+   "status": "corrected",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": "로고 마크 제외"
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    166.0,
+    194.0,
+    359.0,
+    213.0
+   ],
+   "note": "#1 줄의 가려진 아랫부분(빈 문자열)",
+   "from": "#2",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1085.55223880597,
+    249.36887115165334,
+    1622.327148043566,
+    882.7924743443557
+   ],
+   "note": "사진(빈 문자열)",
+   "from": "E1:W300",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

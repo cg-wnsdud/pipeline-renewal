@@ -1,0 +1,431 @@
+{
+ "page_id": "f10_p01",
+ "ref_size": [
+  675,
+  1531
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f10_p01 청년미래적금 모바일 탭3 (675x1531 원본 px).",
+  "잔여 잉크 10개 확인: 상자·버튼 테두리, 아이콘. 상단 접기 꺾쇠는 글자 아님. 추가 문구 없음.",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f10_p01-g0001",
+   "bbox": [
+    238,
+    0,
+    436,
+    16
+   ],
+   "text": "검증서버(8900)_2026091516",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0002",
+   "bbox": [
+    312,
+    23,
+    363,
+    55
+   ],
+   "text": "적금",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0003",
+   "bbox": [
+    34,
+    102,
+    124,
+    135
+   ],
+   "text": "상품안내",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0004",
+   "bbox": [
+    525,
+    102,
+    620,
+    135
+   ],
+   "text": "기타사항",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0005",
+   "bbox": [
+    153,
+    104,
+    246,
+    133
+   ],
+   "text": "우대금리",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0006",
+   "bbox": [
+    276,
+    104,
+    371,
+    133
+   ],
+   "text": "금리안내",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0007",
+   "bbox": [
+    402,
+    104,
+    495,
+    133
+   ],
+   "text": "유의사항",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0008",
+   "bbox": [
+    71,
+    242,
+    222,
+    273
+   ],
+   "text": "2026.09.30",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0009",
+   "bbox": [
+    310,
+    345,
+    364,
+    377
+   ],
+   "text": "조회",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0010",
+   "bbox": [
+    46,
+    520,
+    231,
+    545
+   ],
+   "text": "상품설명서 및 약관",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0011",
+   "bbox": [
+    70,
+    636,
+    160,
+    665
+   ],
+   "text": "기본약관",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0012",
+   "bbox": [
+    71,
+    748,
+    179,
+    777
+   ],
+   "text": "상품설명서",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0013",
+   "bbox": [
+    71,
+    860,
+    160,
+    890
+   ],
+   "text": "상품특약",
+   "status": "verified",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0014",
+   "bbox": [
+    62,
+    1036,
+    123,
+    1052
+   ],
+   "text": "예금보험공사",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0015",
+   "bbox": [
+    42,
+    1050,
+    145,
+    1075
+   ],
+   "text": "보호금융상품",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0016",
+   "bbox": [
+    60,
+    1076,
+    127,
+    1091
+   ],
+   "text": "1인당 최고 1억원",
+   "status": "corrected",
+   "from": "#21",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0017",
+   "bbox": [
+    39,
+    1130,
+    607,
+    1156
+   ],
+   "text": "이 예금은 예금자보호법에 따라원금과 소정의 이자를 합하여1인당",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0018",
+   "bbox": [
+    37,
+    1163,
+    532,
+    1190
+   ],
+   "text": "\"1억원까지\"(본 은행의 여타 보호상품과 합산) 보호됩니다.",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0019",
+   "bbox": [
+    39,
+    1254,
+    366,
+    1276
+   ],
+   "text": "2026-3696(심의일:2026.06.18.)",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0020",
+   "bbox": [
+    39,
+    1288,
+    402,
+    1310
+   ],
+   "text": "유효기간:2026.06.22.~2027.06.17.",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0021",
+   "bbox": [
+    595,
+    1398,
+    640,
+    1427
+   ],
+   "text": "캡처",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0022",
+   "bbox": [
+    106,
+    1413,
+    168,
+    1454
+   ],
+   "text": "상담",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f10_p01-g0023",
+   "bbox": [
+    388,
+    1413,
+    496,
+    1455
+   ],
+   "text": "가입신청",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    593,
+    17,
+    638,
+    63
+   ],
+   "note": "닫기(×) 아이콘",
+   "from": "#2",
+   "ocr": "×"
+  },
+  {
+   "bbox": [
+    565,
+    236,
+    613,
+    282
+   ],
+   "note": "달력 아이콘(OCR 빈 문자열)",
+   "from": "#9",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    580,
+    637,
+    603,
+    667
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#14",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    580,
+    748,
+    603,
+    777
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#16",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    584,
+    865,
+    600,
+    885
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#18",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    591.0,
+    519.0,
+    626.0,
+    551.0
+   ],
+   "note": "접기 꺾쇠 아이콘",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

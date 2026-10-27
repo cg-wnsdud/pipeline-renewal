@@ -1,0 +1,1437 @@
+{
+ "page_id": "f09_p01",
+ "ref_size": [
+  656,
+  3172
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f09_p01 청년미래적금 모바일 탭2 (656x3172 원본 px). 우대금리 표 글자 높이 약 10px.",
+  "우대금리 표: OCR 이 줄을 단어 조각으로 나누고 일부 구간을 놓침. 화면 줄 단위 정답으로 작성.",
+  "잔여 잉크 15개 확인: 표 줄 구간(수동 줄로 덮음)·아이콘·버튼. 추가 문구 없음.",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f09_p01-g0001",
+   "bbox": [
+    232,
+    0,
+    423,
+    15
+   ],
+   "text": "검증서버(8900)_2026091516",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0002",
+   "bbox": [
+    301,
+    21,
+    355,
+    55
+   ],
+   "text": "적금",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0003",
+   "bbox": [
+    32,
+    99,
+    120,
+    131
+   ],
+   "text": "상품안내",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0004",
+   "bbox": [
+    509,
+    99,
+    603,
+    131
+   ],
+   "text": "기타사항",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0005",
+   "bbox": [
+    148,
+    101,
+    241,
+    129
+   ],
+   "text": "우대금리",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0006",
+   "bbox": [
+    390,
+    102,
+    481,
+    128
+   ],
+   "text": "유의사항",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0007",
+   "bbox": [
+    269,
+    104,
+    358,
+    126
+   ],
+   "text": "금리안내",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0008",
+   "bbox": [
+    66,
+    237,
+    154,
+    268
+   ],
+   "text": "우대금리",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0009",
+   "bbox": [
+    375,
+    237,
+    589,
+    274
+   ],
+   "text": "최대연3.0%p",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0010",
+   "bbox": [
+    39.0,
+    337.0,
+    406.0,
+    356.0
+   ],
+   "text": "우대조건 충족하는 경우 만기해지 시 적용",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0011",
+   "bbox": [
+    476,
+    417,
+    585,
+    448
+   ],
+   "text": "이자율(%p)",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0012",
+   "bbox": [
+    183,
+    422,
+    299,
+    441
+   ],
+   "text": "우대항목 내용",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0013",
+   "bbox": [
+    58,
+    485,
+    423,
+    505
+   ],
+   "text": "① [소득] 가입 월부터 만기 전전월 말까지 당",
+   "status": "corrected",
+   "from": "#16",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0014",
+   "bbox": [
+    54.0,
+    513.0,
+    425.0,
+    539.0
+   ],
+   "text": "행 입출식 통장으로 급여이체주1) 또는 가맹점",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0015",
+   "bbox": [
+    514,
+    513,
+    548,
+    539
+   ],
+   "text": "1.0",
+   "status": "verified",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0016",
+   "bbox": [
+    148,
+    547,
+    333,
+    565
+   ],
+   "text": "대금 18개월 이상 입금",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0017",
+   "bbox": [
+    60.0,
+    616.0,
+    425.0,
+    634.0
+   ],
+   "text": "② [카드] 가입 월부터 만기 전전월 말까지 평",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0018",
+   "bbox": [
+    64.0,
+    645.0,
+    425.0,
+    662.0
+   ],
+   "text": "균 월 20만원 이상의 당행 NH카드(신용/체",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0019",
+   "bbox": [
+    514,
+    646,
+    548,
+    667
+   ],
+   "text": "0.7",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0020",
+   "bbox": [
+    168,
+    670,
+    310,
+    700
+   ],
+   "text": "크) 이용 실적주2)",
+   "status": "corrected",
+   "from": "#26",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0021",
+   "bbox": [
+    60.0,
+    748.0,
+    425.0,
+    768.0
+   ],
+   "text": "③ [자산형성] 가입 직전 1년간주3) 당행 예적",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0022",
+   "bbox": [
+    512,
+    773,
+    550,
+    798
+   ],
+   "text": "0.3",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0023",
+   "bbox": [
+    57.0,
+    778.0,
+    425.0,
+    798.0
+   ],
+   "text": "금(청약포함) 미보유 또는 청년도약계좌 연계",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0024",
+   "bbox": [
+    185,
+    808,
+    293,
+    826
+   ],
+   "text": "가입(당·타행)",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0025",
+   "bbox": [
+    62.0,
+    877.0,
+    425.0,
+    894.0
+   ],
+   "text": "④ 만기 전전월말까지 당행 「NH마이데이터」",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0026",
+   "bbox": [
+    61.0,
+    905.0,
+    425.0,
+    923.0
+   ],
+   "text": "서비스 가입 및 2개 업권 이상의 기관 자산연",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0027",
+   "bbox": [
+    513,
+    906,
+    549,
+    928
+   ],
+   "text": "0.3",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0028",
+   "bbox": [
+    142,
+    935,
+    337,
+    957
+   ],
+   "text": "결 유지 18개월 이상주4)",
+   "status": "corrected",
+   "from": "#43",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0029",
+   "bbox": [
+    62.0,
+    1005.0,
+    414.0,
+    1028.0
+   ],
+   "text": "⑤ [재무상담] 만기일이 속하는 월의 3개월",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0030",
+   "bbox": [
+    512,
+    1033,
+    551,
+    1062
+   ],
+   "text": "0.2",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0031",
+   "bbox": [
+    67,
+    1036,
+    412,
+    1054
+   ],
+   "text": "전 말일까지 서민금융진흥원에서 제공하는",
+   "status": "verified",
+   "from": "#47",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0032",
+   "bbox": [
+    147.0,
+    1063.0,
+    334.0,
+    1089.0
+   ],
+   "text": "청년재무상담 이수주5)",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0033",
+   "bbox": [
+    58.0,
+    1136.0,
+    422.0,
+    1157.0
+   ],
+   "text": "⑥ [소득+우대금리] 신청시점 확인된 개인소",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0034",
+   "bbox": [
+    512,
+    1150,
+    550,
+    1176
+   ],
+   "text": "0.5",
+   "status": "verified",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0035",
+   "bbox": [
+    125,
+    1163,
+    357,
+    1192
+   ],
+   "text": "득금액주6)의 소득요건 충족",
+   "status": "verified",
+   "from": "#53",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0036",
+   "bbox": [
+    38,
+    1271,
+    598,
+    1291
+   ],
+   "text": "주1)급여이체는 농협은행 하나로가족고객제도에서 정하는 급여이체 기준",
+   "status": "verified",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0037",
+   "bbox": [
+    37,
+    1301,
+    299,
+    1323
+   ],
+   "text": "준용하며, 비연속적인 경우도 포함",
+   "status": "corrected",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0038",
+   "bbox": [
+    37,
+    1352,
+    609,
+    1373
+   ],
+   "text": "주2) 당행 NH카드(채움, 신용/체크) 카드 승인 기준, 35개월 기준 평균금액",
+   "status": "corrected",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0039",
+   "bbox": [
+    35,
+    1381,
+    119,
+    1409
+   ],
+   "text": "(BC 제외)",
+   "status": "corrected",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0040",
+   "bbox": [
+    37,
+    1432,
+    351,
+    1457
+   ],
+   "text": "주3)신규일 전일-1년~신규일 전일까지",
+   "status": "verified",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0041",
+   "bbox": [
+    37,
+    1484,
+    552,
+    1506
+   ],
+   "text": "주4)적금 가입 전 자산연결 완료된 경우 및 비연속적인 경우도 포함",
+   "status": "verified",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0042",
+   "bbox": [
+    37,
+    1514,
+    267,
+    1538
+   ],
+   "text": "(개월수는 가입월부터 체크됨)",
+   "status": "verified",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0043",
+   "bbox": [
+    36,
+    1544,
+    597,
+    1569
+   ],
+   "text": "‘자산연결’이란 NH농협은행, NH농협카드를 제외한 타 (금융)기관 연결한",
+   "status": "corrected",
+   "from": "#61",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0044",
+   "bbox": [
+    34,
+    1573,
+    116,
+    1602
+   ],
+   "text": "것을 의미",
+   "status": "corrected",
+   "from": "#62",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0045",
+   "bbox": [
+    36,
+    1607,
+    452,
+    1632
+   ],
+   "text": "아래 9개 업권 중 2개 이상 업권(업권당 1개 기관 이상)",
+   "status": "verified",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0046",
+   "bbox": [
+    36,
+    1639,
+    544,
+    1664
+   ],
+   "text": "- 은행(농협은행 제외), 카드(농협카드 제외), 증권, 보험, 전자금융,",
+   "status": "corrected",
+   "from": "#64",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0047",
+   "bbox": [
+    37,
+    1670,
+    325,
+    1694
+   ],
+   "text": "할부금융, 통신, 공공, 서민금융진흥원",
+   "status": "corrected",
+   "from": "#65",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0048",
+   "bbox": [
+    36,
+    1700,
+    614,
+    1725
+   ],
+   "text": "- 자산연결은 비대면(올원뱅크, 스마트뱅킹, NH pay), 농협은행 영업점에서",
+   "status": "corrected",
+   "from": "#66",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0049",
+   "bbox": [
+    32,
+    1728,
+    77,
+    1760
+   ],
+   "text": "가능",
+   "status": "verified",
+   "from": "#67",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0050",
+   "bbox": [
+    38,
+    1783,
+    282,
+    1805
+   ],
+   "text": "주5)청년 모두를 위한 재무상담",
+   "status": "verified",
+   "from": "#68",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0051",
+   "bbox": [
+    37,
+    1813,
+    419,
+    1835
+   ],
+   "text": "-26.7.6.부터 청년모두를위한 재무상담 웹페이지",
+   "status": "verified",
+   "from": "#69",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0052",
+   "bbox": [
+    38,
+    1846,
+    608,
+    1867
+   ],
+   "text": "(www.kinfa.or.kr/fill4young)에서 신청 가능하며 7.16.부터 재무상담 진행",
+   "status": "verified",
+   "from": "#70",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0053",
+   "bbox": [
+    37,
+    1874,
+    576,
+    1899
+   ],
+   "text": "- (서민금융진흥원) 찾아가는 재무상담, 온라인 재무상담 (은행) 금융권",
+   "status": "corrected",
+   "from": "#71",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0054",
+   "bbox": [
+    36,
+    1904,
+    612,
+    1930
+   ],
+   "text": "재무상담(영업점 내방)중 하나를 이수한 경우 우대금리 반영(최종 우대금리",
+   "status": "verified",
+   "from": "#72",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0055",
+   "bbox": [
+    37,
+    1938,
+    334,
+    1958
+   ],
+   "text": "충족 여부는 서민금융진흥원에서 판단)",
+   "status": "verified",
+   "from": "#73",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0056",
+   "bbox": [
+    37,
+    1968,
+    442,
+    1990
+   ],
+   "text": "-7.16.이전 재무상담을 진행한 경우 우대금리 미적용",
+   "status": "verified",
+   "from": "#74",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0057",
+   "bbox": [
+    38,
+    2019,
+    585,
+    2041
+   ],
+   "text": "주6) 총급여 3,600만원 이하, 종합소득2,600만원 이하,우대금리 충족",
+   "status": "verified",
+   "from": "#75",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0058",
+   "bbox": [
+    37,
+    2049,
+    256,
+    2071
+   ],
+   "text": "여부는 서민금융진흥원판단",
+   "status": "verified",
+   "from": "#76",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0059",
+   "bbox": [
+    44,
+    2192,
+    225,
+    2216
+   ],
+   "text": "상품설명서 및 약관",
+   "status": "verified",
+   "from": "#77",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0060",
+   "bbox": [
+    67,
+    2304,
+    155,
+    2333
+   ],
+   "text": "기본약관",
+   "status": "verified",
+   "from": "#79",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0061",
+   "bbox": [
+    69,
+    2414,
+    174,
+    2442
+   ],
+   "text": "상품설명서",
+   "status": "verified",
+   "from": "#81",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0062",
+   "bbox": [
+    68,
+    2523,
+    155,
+    2552
+   ],
+   "text": "상품특약",
+   "status": "verified",
+   "from": "#83",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0063",
+   "bbox": [
+    62,
+    2694,
+    121,
+    2709
+   ],
+   "text": "예금보험공사",
+   "status": "verified",
+   "from": "#84",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0064",
+   "bbox": [
+    41,
+    2709,
+    140,
+    2731
+   ],
+   "text": "보호금융상품",
+   "status": "verified",
+   "from": "#85",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0065",
+   "bbox": [
+    57,
+    2732,
+    123,
+    2747
+   ],
+   "text": "1인당 최고 1억원",
+   "status": "corrected",
+   "from": "#86",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0066",
+   "bbox": [
+    37,
+    2784,
+    592,
+    2810
+   ],
+   "text": "이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여1인당",
+   "status": "verified",
+   "from": "#87",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0067",
+   "bbox": [
+    36,
+    2817,
+    517,
+    2843
+   ],
+   "text": "\"1억원까지\"(본 은행의 여타 보호상품과 합산) 보호됩니다.",
+   "status": "verified",
+   "from": "#88",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0068",
+   "bbox": [
+    37,
+    2903,
+    357,
+    2927
+   ],
+   "text": "2026-3696(심의일:2026.06.18.)",
+   "status": "verified",
+   "from": "#89",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0069",
+   "bbox": [
+    38,
+    2938,
+    390,
+    2959
+   ],
+   "text": "유효기간:2026.06.22.~2027.06.17.",
+   "status": "verified",
+   "from": "#90",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0070",
+   "bbox": [
+    578,
+    3043,
+    622,
+    3071
+   ],
+   "text": "캡처",
+   "status": "verified",
+   "from": "#91",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0071",
+   "bbox": [
+    378,
+    3057,
+    481,
+    3097
+   ],
+   "text": "가입신청",
+   "status": "verified",
+   "from": "#92",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f09_p01-g0072",
+   "bbox": [
+    103,
+    3058,
+    165,
+    3099
+   ],
+   "text": "상담",
+   "status": "verified",
+   "from": "#93",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    576,
+    16,
+    621,
+    61
+   ],
+   "note": "닫기(×) 아이콘",
+   "from": "#2",
+   "ocr": "×"
+  },
+  {
+   "bbox": [
+    578,
+    2195,
+    605,
+    2217
+   ],
+   "note": "접기 꺾쇠 아이콘",
+   "from": "#78",
+   "ocr": "^"
+  },
+  {
+   "bbox": [
+    562,
+    2305,
+    588,
+    2337
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#80",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    565,
+    2417,
+    585,
+    2437
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#82",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    561.0,
+    2521.0,
+    590.0,
+    2554.0
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": [
+  {
+   "from": "#11",
+   "bbox": [
+    39,
+    337,
+    205,
+    355
+   ],
+   "ocr": "우대조건 충족하는"
+  },
+  {
+   "from": "#12",
+   "bbox": [
+    208,
+    341,
+    250,
+    351
+   ],
+   "ocr": "격은"
+  },
+  {
+   "from": "#13",
+   "bbox": [
+    253,
+    341,
+    334,
+    350
+   ],
+   "ocr": "마기해지"
+  },
+  {
+   "from": "#18",
+   "bbox": [
+    55,
+    517,
+    295,
+    538
+   ],
+   "ocr": "행입출식 통장으로 급여이체"
+  },
+  {
+   "from": "#20",
+   "bbox": [
+    80,
+    618,
+    180,
+    633
+   ],
+   "ocr": "[카드]가입"
+  },
+  {
+   "from": "#21",
+   "bbox": [
+    177,
+    619,
+    238,
+    631
+   ],
+   "ocr": "월부터"
+  },
+  {
+   "from": "#22",
+   "bbox": [
+    283,
+    619,
+    399,
+    631
+   ],
+   "ocr": "전전월 막까지"
+  },
+  {
+   "from": "#23",
+   "bbox": [
+    62,
+    620,
+    81,
+    630
+   ],
+   "ocr": "2"
+  },
+  {
+   "from": "#24",
+   "bbox": [
+    238,
+    620,
+    274,
+    630
+   ],
+   "ocr": "마2"
+  },
+  {
+   "from": "#27",
+   "bbox": [
+    220,
+    751,
+    253,
+    764
+   ],
+   "ocr": "지저"
+  },
+  {
+   "from": "#28",
+   "bbox": [
+    385,
+    751,
+    421,
+    764
+   ],
+   "ocr": "예전"
+  },
+  {
+   "from": "#29",
+   "bbox": [
+    61,
+    752,
+    172,
+    767
+   ],
+   "ocr": "3[자산형성]"
+  },
+  {
+   "from": "#30",
+   "bbox": [
+    174,
+    752,
+    210,
+    765
+   ],
+   "ocr": "가오"
+  },
+  {
+   "from": "#32",
+   "bbox": [
+    58,
+    780,
+    165,
+    796
+   ],
+   "ocr": "금(청약포함)"
+  },
+  {
+   "from": "#33",
+   "bbox": [
+    166,
+    780,
+    265,
+    796
+   ],
+   "ocr": "미보유 또는"
+  },
+  {
+   "from": "#34",
+   "bbox": [
+    383,
+    782,
+    421,
+    791
+   ],
+   "ocr": "요거"
+  },
+  {
+   "from": "#36",
+   "bbox": [
+    123,
+    880,
+    234,
+    891
+   ],
+   "ocr": "전전원막까지"
+  },
+  {
+   "from": "#37",
+   "bbox": [
+    63,
+    881,
+    84,
+    891
+   ],
+   "ocr": "4"
+  },
+  {
+   "from": "#38",
+   "bbox": [
+    82,
+    881,
+    120,
+    890
+   ],
+   "ocr": "마기"
+  },
+  {
+   "from": "#40",
+   "bbox": [
+    62,
+    908,
+    118,
+    921
+   ],
+   "ocr": "서비스"
+  },
+  {
+   "from": "#41",
+   "bbox": [
+    120,
+    908,
+    260,
+    921
+   ],
+   "ocr": "가입 및 2개 업권"
+  },
+  {
+   "from": "#42",
+   "bbox": [
+    264,
+    910,
+    357,
+    919
+   ],
+   "ocr": "이산의기공"
+  },
+  {
+   "from": "#44",
+   "bbox": [
+    66,
+    1006,
+    323,
+    1027
+   ],
+   "ocr": "⑤[재무상담]만기일이 속하는"
+  },
+  {
+   "from": "#45",
+   "bbox": [
+    320,
+    1009,
+    413,
+    1022
+   ],
+   "ocr": "월의 3개월"
+  },
+  {
+   "from": "#48",
+   "bbox": [
+    149,
+    1066,
+    301,
+    1088
+   ],
+   "ocr": "청년재무상담 이수"
+  },
+  {
+   "from": "#49",
+   "bbox": [
+    303,
+    1066,
+    332,
+    1080
+   ],
+   "ocr": "주5"
+  },
+  {
+   "from": "#50",
+   "bbox": [
+    60,
+    1137,
+    366,
+    1156
+   ],
+   "ocr": "6[소득+우대금리] 신청시점 확인된"
+  },
+  {
+   "from": "#51",
+   "bbox": [
+    362,
+    1139,
+    420,
+    1153
+   ],
+   "ocr": "개인소"
+  }
+ ]
+}

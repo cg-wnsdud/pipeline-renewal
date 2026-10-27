@@ -1,0 +1,109 @@
+{
+ "page_id": "h01_p02",
+ "ref_size": [
+  1653,
+  2339
+ ],
+ "scaffold_run": "work\\runs\\hwp-ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "h01_p02 지수연동예금 보도자료 2쪽(HWP 변환). 변환 PDF 디지털 텍스트 대조.",
+  "300DPI·band OCR 이 같은 줄을 단어 단위로 나눠 검출함. 중복 처리.",
+  "잔여 잉크 0개."
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "h01_p02-g0001",
+   "bbox": [
+    123,
+    181,
+    1535,
+    231
+   ],
+   "text": "□ 모집 기간은 9월 11일부터 9월 18일까지이며, 전국 영업점과 NH올원뱅크",
+   "status": "pdf",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p02-g0002",
+   "bbox": [
+    120,
+    250,
+    1534,
+    297
+   ],
+   "text": "및 NH스마트뱅킹에서 가입할 수 있다. 판매 한도 소진 시 조기 모집 마감될 수",
+   "status": "pdf",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p02-g0003",
+   "bbox": [
+    113,
+    308,
+    220,
+    373
+   ],
+   "text": "있다.",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p02-g0004",
+   "bbox": [
+    164,
+    436,
+    1531,
+    484
+   ],
+   "text": "□ 지수연동예금은 만기해지 시 원금 보장 및 이자 지급이 되며, 중도해지 시",
+   "status": "corrected",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p02-g0005",
+   "bbox": [
+    119,
+    501,
+    1534,
+    554
+   ],
+   "text": "기간에 따른 중도해지수수료가 발생해 원금 손실이 발생할 수 있으므로 가입",
+   "status": "pdf",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "h01_p02-g0006",
+   "bbox": [
+    118,
+    569,
+    924,
+    620
+   ],
+   "text": "전 상품에 대한 충분한 이해가 필요하다. 끝.",
+   "status": "pdf",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [],
+ "absorbed_rows": []
+}

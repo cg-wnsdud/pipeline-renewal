@@ -1,0 +1,1478 @@
+{
+ "page_id": "f06_p01",
+ "ref_size": [
+  1058,
+  2204
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f06_p01 카카오페이통장 웹 탭3 (이미지 원본 px).",
+  "기준 OCR(W200)이 상단 메뉴 '카드', 'ISA' 를 놓쳤고 band 조건이 검출함.",
+  "잔여 잉크 17개 확인: 스크롤바·버튼·탭 테두리·아이콘. 인증마크 WA 만 선택 항목 추가.",
+  "2차 점검(정답 통독·조건 간 불일치 재확인)",
+  "3차 점검(VLM 결과와 다른 정답 줄을 이미지로 재판정. 모델 출력에 맞추지 않고 이미지 기준)"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f06_p01-g0001",
+   "bbox": [
+    36,
+    31,
+    241,
+    59
+   ],
+   "text": "NH Bank금융상품몰",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0002",
+   "bbox": [
+    656,
+    32,
+    1017,
+    52
+   ],
+   "text": "로그인 My금융센터 고객지원 화면크기 + - NH Bank 개인",
+   "status": "corrected",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": "구분선·드롭다운 아이콘 제외"
+  },
+  {
+   "id": "f06_p01-g0003",
+   "bbox": [
+    323,
+    35,
+    375,
+    57
+   ],
+   "text": "농·축협",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0004",
+   "bbox": [
+    261,
+    36,
+    315,
+    57
+   ],
+   "text": "농협은행",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0005",
+   "bbox": [
+    350,
+    84,
+    391,
+    111
+   ],
+   "text": "대출",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0006",
+   "bbox": [
+    421,
+    84,
+    462,
+    111
+   ],
+   "text": "외환",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0007",
+   "bbox": [
+    553.0,
+    84.0,
+    617.0,
+    111.0
+   ],
+   "text": "카드",
+   "status": "added_from_other_run",
+   "from": "E1:B200",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0008",
+   "bbox": [
+    624.0,
+    84.0,
+    674.0,
+    111.0
+   ],
+   "text": "ISA",
+   "status": "added_from_other_run",
+   "from": "E3:B200",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0009",
+   "bbox": [
+    257,
+    85,
+    317,
+    111
+   ],
+   "text": "퇴직연금",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0010",
+   "bbox": [
+    488,
+    85,
+    534,
+    111
+   ],
+   "text": "보험",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0011",
+   "bbox": [
+    704,
+    85,
+    755,
+    112
+   ],
+   "text": "공시실",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0012",
+   "bbox": [
+    788,
+    85,
+    885,
+    110
+   ],
+   "text": "스마트상담센터",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0013",
+   "bbox": [
+    44,
+    86,
+    80,
+    110
+   ],
+   "text": "저축",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0014",
+   "bbox": [
+    115,
+    86,
+    151,
+    110
+   ],
+   "text": "펀드",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0015",
+   "bbox": [
+    187,
+    86,
+    222,
+    111
+   ],
+   "text": "신탁",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0016",
+   "bbox": [
+    37,
+    134,
+    187,
+    154
+   ],
+   "text": "농협은행>저축>전체상품",
+   "status": "verified",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0017",
+   "bbox": [
+    36,
+    196,
+    301,
+    236
+   ],
+   "text": "NH x 카카오페이통장",
+   "status": "corrected",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0018",
+   "bbox": [
+    963,
+    249,
+    1023,
+    274
+   ],
+   "text": "장바구니",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0019",
+   "bbox": [
+    38,
+    250,
+    311,
+    272
+   ],
+   "text": "카카오페이결제시우대금리 최대1.0%p",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0020",
+   "bbox": [
+    459,
+    347,
+    638,
+    364
+   ],
+   "text": "현재가입계좌수: 187,149건",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0021",
+   "bbox": [
+    144,
+    398,
+    197,
+    420
+   ],
+   "text": "가입대상",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0022",
+   "bbox": [
+    261,
+    398,
+    316,
+    419
+   ],
+   "text": "예치방식",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0023",
+   "bbox": [
+    500,
+    398,
+    531,
+    419
+   ],
+   "text": "금리",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0024",
+   "bbox": [
+    703,
+    398,
+    756,
+    420
+   ],
+   "text": "가입기간",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0025",
+   "bbox": [
+    837,
+    398,
+    890,
+    420
+   ],
+   "text": "선호세대",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0026",
+   "bbox": [
+    380,
+    424,
+    648,
+    458
+   ],
+   "text": "최저연0.10%~최고연1.0%",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0027",
+   "bbox": [
+    145,
+    426,
+    196,
+    458
+   ],
+   "text": "개인",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0028",
+   "bbox": [
+    683,
+    426,
+    775,
+    459
+   ],
+   "text": "제한없음",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0029",
+   "bbox": [
+    813,
+    427,
+    911,
+    456
+   ],
+   "text": "30대선호",
+   "status": "verified",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0030",
+   "bbox": [
+    233,
+    428,
+    344,
+    456
+   ],
+   "text": "자유입출금",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0031",
+   "bbox": [
+    478,
+    459,
+    551,
+    477
+   ],
+   "text": "(기준,세전,)",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0032",
+   "bbox": [
+    317,
+    505,
+    389,
+    534
+   ],
+   "text": "채팅상담",
+   "status": "verified",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0033",
+   "bbox": [
+    640,
+    505,
+    740,
+    535
+   ],
+   "text": "스마트폰가입",
+   "status": "verified",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0034",
+   "bbox": [
+    423,
+    507,
+    503,
+    532
+   ],
+   "text": "Email상담",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0035",
+   "bbox": [
+    539,
+    507,
+    606,
+    533
+   ],
+   "text": "전화예약",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0036",
+   "bbox": [
+    343,
+    706,
+    416,
+    738
+   ],
+   "text": "기타사항",
+   "status": "verified",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0037",
+   "bbox": [
+    72,
+    709,
+    145,
+    738
+   ],
+   "text": "상품설명",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0038",
+   "bbox": [
+    208,
+    710,
+    281,
+    736
+   ],
+   "text": "금리조회",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0039",
+   "bbox": [
+    35,
+    772,
+    97,
+    801
+   ],
+   "text": "우대조건",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0040",
+   "bbox": [
+    186,
+    776,
+    241,
+    798
+   ],
+   "text": "①내용",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0041",
+   "bbox": [
+    194,
+    801,
+    699,
+    818
+   ],
+   "text": "- 카카오페이 이용 시 최소 충전단위 없이 필요한 금액만큼 실시간 출금을 통해 송금 및 결제 서비스 제공",
+   "status": "corrected",
+   "from": "#42",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0042",
+   "bbox": [
+    187,
+    824,
+    258,
+    841
+   ],
+   "text": "② 적용기준",
+   "status": "verified",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0043",
+   "bbox": [
+    195,
+    846,
+    607,
+    863
+   ],
+   "text": "-카카오페이에이예금을등록하고카카오페이 간편송금및결제 서비스이용시적용",
+   "status": "verified",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0044",
+   "bbox": [
+    37,
+    894,
+    135,
+    915
+   ],
+   "text": "추가우대서비스",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0045",
+   "bbox": [
+    187,
+    895,
+    257,
+    913
+   ],
+   "text": "①우대조건",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0046",
+   "bbox": [
+    195,
+    919,
+    469,
+    936
+   ],
+   "text": "-전월말기준아래조건내용중하나이상충족시면제",
+   "status": "verified",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0047",
+   "bbox": [
+    556,
+    963,
+    607,
+    985
+   ],
+   "text": "조건내용",
+   "status": "verified",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0048",
+   "bbox": [
+    206,
+    1010,
+    473,
+    1027
+   ],
+   "text": "이 예금에서 카카오페이 실적주1)이 월 2회 이상 있는 경우",
+   "status": "corrected",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": "주1) 위첨자"
+  },
+  {
+   "id": "f06_p01-g0049",
+   "bbox": [
+    206,
+    1052,
+    535,
+    1069
+   ],
+   "text": "올원뱅크 회원주2)으로서 이 예금의 월 평균 잔액이 50만원 이상인 경우",
+   "status": "corrected",
+   "from": "#50",
+   "legibility": "clear",
+   "optional": false,
+   "note": "주2) 위첨자"
+  },
+  {
+   "id": "f06_p01-g0050",
+   "bbox": [
+    196,
+    1103,
+    550,
+    1120
+   ],
+   "text": "주1)카카오페이(카카오머니) 요청에 의한 해당 월 펌뱅킹 출금 횟수 기준",
+   "status": "corrected",
+   "from": "#51",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0051",
+   "bbox": [
+    196,
+    1124,
+    584,
+    1141
+   ],
+   "text": "주2) 올원뱅크 가입 후 해당 월 로그인 실적 1회 이상(월말기준 유효회원에 한함)",
+   "status": "verified",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0052",
+   "bbox": [
+    186,
+    1145,
+    259,
+    1166
+   ],
+   "text": "②우대기간",
+   "status": "verified",
+   "from": "#53",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0053",
+   "bbox": [
+    195,
+    1170,
+    541,
+    1187
+   ],
+   "text": "-이번달11일부터다음달10일까지이예금을통한거래시전자금융",
+   "status": "verified",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0054",
+   "bbox": [
+    197,
+    1193,
+    748,
+    1207
+   ],
+   "text": "수수료 면제 서비스 제공(단,신규일로부터 다음다음달 10일까지 우대조건 충족여부와 관계없이 금융수수료 면제)",
+   "status": "verified",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0055",
+   "bbox": [
+    188,
+    1214,
+    373,
+    1231
+   ],
+   "text": "· ③ 우대내용 : 전자금융 수수료 면제",
+   "status": "corrected",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0056",
+   "bbox": [
+    194,
+    1236,
+    430,
+    1255
+   ],
+   "text": "-농협은행 인터넷/스마트뱅킹 타행이체 수수료",
+   "status": "verified",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0057",
+   "bbox": [
+    195,
+    1259,
+    439,
+    1276
+   ],
+   "text": "- 농협은행 CD/ATM기기를 통한 현금인출 수수료",
+   "status": "corrected",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0058",
+   "bbox": [
+    182,
+    1301,
+    226,
+    1329
+   ],
+   "text": "·가능",
+   "status": "verified",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0059",
+   "bbox": [
+    37,
+    1305,
+    108,
+    1327
+   ],
+   "text": "무통장거래",
+   "status": "corrected",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0060",
+   "bbox": [
+    183,
+    1350,
+    227,
+    1377
+   ],
+   "text": "가능",
+   "status": "verified",
+   "from": "#61",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0061",
+   "bbox": [
+    35,
+    1352,
+    96,
+    1377
+   ],
+   "text": "자동이체",
+   "status": "verified",
+   "from": "#62",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0062",
+   "bbox": [
+    35,
+    1401,
+    96,
+    1426
+   ],
+   "text": "상품전환",
+   "status": "verified",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0063",
+   "bbox": [
+    185,
+    1401,
+    225,
+    1425
+   ],
+   "text": "불가",
+   "status": "verified",
+   "from": "#64",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0064",
+   "bbox": [
+    187,
+    1450,
+    829,
+    1470
+   ],
+   "text": "·이예금이다음각 호의1에해당할때에는 거래중지계좌로 따로관리하며, 입출금, 잔액조회, 이관등의 거래가제한될수 있습니다.",
+   "status": "alt",
+   "from": "#65",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0065",
+   "bbox": [
+    38,
+    1451,
+    120,
+    1472
+   ],
+   "text": "거래중지계좌",
+   "status": "verified",
+   "from": "#66",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0066",
+   "bbox": [
+    189,
+    1474,
+    516,
+    1491
+   ],
+   "text": "-1.예금잔액이1만원미만이며,1년 이상입출금 거래가없는계좌",
+   "status": "verified",
+   "from": "#67",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0067",
+   "bbox": [
+    187,
+    1495,
+    574,
+    1516
+   ],
+   "text": "-2.예금잔액이 1만원 이상 5만원 미만이며,2년 이상입출금거래가없는 계좌",
+   "status": "verified",
+   "from": "#68",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0068",
+   "bbox": [
+    190,
+    1522,
+    578,
+    1536
+   ],
+   "text": "-3.예금잔액이 5만원 이상 10만원 미만이며,3년 이상 입출금 거래가 없는 계좌",
+   "status": "verified",
+   "from": "#69",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0069",
+   "bbox": [
+    38,
+    1567,
+    140,
+    1588
+   ],
+   "text": "휴면예금 및 출연",
+   "status": "verified",
+   "from": "#70",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0070",
+   "bbox": [
+    187,
+    1567,
+    964,
+    1586
+   ],
+   "text": "· 이자지급을 포함한 최종거래일로부터 5년 이상 경과하는 경우 예금거래기본약관에 따라 휴면예금이 되어 서민금융진흥원으로 출연되며, 휴면예금은 휴면예금",
+   "status": "corrected",
+   "from": "#71",
+   "legibility": "small",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0071",
+   "bbox": [
+    196,
+    1590,
+    398,
+    1607
+   ],
+   "text": "통합조회서비스를 통해 조회 가능합니다.",
+   "status": "corrected",
+   "from": "#72",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0072",
+   "bbox": [
+    35,
+    1634,
+    140,
+    1660
+   ],
+   "text": "양도및 질권설정",
+   "status": "verified",
+   "from": "#73",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0073",
+   "bbox": [
+    183,
+    1636,
+    226,
+    1658
+   ],
+   "text": "불가",
+   "status": "verified",
+   "from": "#74",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0074",
+   "bbox": [
+    495,
+    1791,
+    563,
+    1817
+   ],
+   "text": "목록으로",
+   "status": "verified",
+   "from": "#75",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0075",
+   "bbox": [
+    356,
+    1942,
+    445,
+    1970
+   ],
+   "text": "전화상담",
+   "status": "verified",
+   "from": "#76",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0076",
+   "bbox": [
+    37,
+    1944,
+    132,
+    1968
+   ],
+   "text": "상품공시실",
+   "status": "verified",
+   "from": "#77",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0077",
+   "bbox": [
+    513,
+    1945,
+    575,
+    1966
+   ],
+   "text": "채팅상담",
+   "status": "verified",
+   "from": "#78",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0078",
+   "bbox": [
+    183,
+    1946,
+    307,
+    1967
+   ],
+   "text": "서식/약관자료실",
+   "status": "verified",
+   "from": "#79",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0079",
+   "bbox": [
+    651,
+    1947,
+    720,
+    1965
+   ],
+   "text": "이메일상담",
+   "status": "verified",
+   "from": "#81",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0080",
+   "bbox": [
+    867,
+    2019,
+    969,
+    2039
+   ],
+   "text": "계열사/관련사이트",
+   "status": "verified",
+   "from": "#83",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0081",
+   "bbox": [
+    38,
+    2020,
+    576,
+    2037
+   ],
+   "text": "보안센터 전자민원접수 개인정보처리(취급)방침 보호금융상품등록부 금융소비자정보포털파인",
+   "status": "corrected",
+   "from": "#84",
+   "legibility": "clear",
+   "optional": false,
+   "note": "세로 구분선 제외"
+  },
+  {
+   "id": "f06_p01-g0082",
+   "bbox": [
+    782,
+    2068,
+    974,
+    2085
+   ],
+   "text": "상담시간:평일09시~18시(공휴일제외)",
+   "status": "verified",
+   "from": "#85",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0083",
+   "bbox": [
+    40,
+    2069,
+    288,
+    2083
+   ],
+   "text": "고객행복센터 대표번호 : 1661-3000, 1522-3000",
+   "status": "corrected",
+   "from": "#86",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0084",
+   "bbox": [
+    308,
+    2070,
+    431,
+    2084
+   ],
+   "text": "해외:82-2-3704-1004",
+   "status": "verified",
+   "from": "#87",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0085",
+   "bbox": [
+    451,
+    2070,
+    608,
+    2084
+   ],
+   "text": "공용: 1588-2100/1544-2100",
+   "status": "verified",
+   "from": "#88",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0086",
+   "bbox": [
+    628,
+    2070,
+    763,
+    2084
+   ],
+   "text": "카드전용상담:1644-4000",
+   "status": "verified",
+   "from": "#89",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0087",
+   "bbox": [
+    38,
+    2097,
+    212,
+    2115
+   ],
+   "text": "Copyright NH Bank. All Rights Reserved.",
+   "status": "corrected",
+   "from": "#90",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0088",
+   "bbox": [
+    87,
+    2140,
+    160,
+    2163
+   ],
+   "text": "금융의 모든 순간",
+   "status": "corrected",
+   "from": "#91",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f06_p01-g0089",
+   "bbox": [
+    45.0,
+    2145.0,
+    74.0,
+    2167.0
+   ],
+   "text": "WA",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "tiny",
+   "optional": true,
+   "note": "웹 접근성 인증마크 속 글자"
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    966,
+    85,
+    1023,
+    111
+   ],
+   "note": "검색·메뉴 아이콘",
+   "from": "#11",
+   "ocr": "Q="
+  },
+  {
+   "bbox": [
+    992,
+    130,
+    1020,
+    160
+   ],
+   "note": "인쇄 아이콘",
+   "from": "#15",
+   "ocr": "몸"
+  },
+  {
+   "bbox": [
+    230,
+    138,
+    246,
+    152
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "#17",
+   "ocr": "¸"
+  },
+  {
+   "bbox": [
+    496,
+    1947,
+    523,
+    1965
+   ],
+   "note": "채팅 아이콘",
+   "from": "#80",
+   "ocr": "무"
+  },
+  {
+   "bbox": [
+    631,
+    1949,
+    652,
+    1963
+   ],
+   "note": "메일 아이콘",
+   "from": "#82",
+   "ocr": "M"
+  },
+  {
+   "bbox": [
+    360.0,
+    1946.0,
+    388.0,
+    1967.0
+   ],
+   "note": "전화 아이콘",
+   "from": "E5:B200",
+   "ocr": "S"
+  },
+  {
+   "bbox": [
+    360.0,
+    1946.0,
+    388.0,
+    1967.0
+   ],
+   "note": "전화 아이콘",
+   "from": "E6:B300",
+   "ocr": "S"
+  },
+  {
+   "bbox": [
+    41.0,
+    1948.0,
+    63.0,
+    1965.0
+   ],
+   "note": "공시실 아이콘",
+   "from": "E7:B200",
+   "ocr": "p"
+  },
+  {
+   "bbox": [
+    41.0,
+    1948.0,
+    63.0,
+    1965.0
+   ],
+   "note": "공시실 아이콘",
+   "from": "E8:B300",
+   "ocr": "p"
+  },
+  {
+   "bbox": [
+    993.0,
+    2026.0,
+    1005.0,
+    2035.0
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "E9:B200",
+   "ocr": "√"
+  },
+  {
+   "bbox": [
+    993.0,
+    2026.0,
+    1005.0,
+    2035.0
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "E10:B300",
+   "ocr": "√"
+  }
+ ],
+ "absorbed_rows": []
+}

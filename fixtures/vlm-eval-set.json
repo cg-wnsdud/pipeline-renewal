@@ -1,0 +1,42 @@
+{
+ "contract": "vlm-eval-set/1",
+ "region_source_run": "work/runs/stage1-merge-large",
+ "note": "VLM 결과를 보기 전에 고정한 평가 목록. 일반 영역 29개(A/B 비교 동일 대상) + OCR 표 후보 20개 전부.",
+ "general": {
+  "f01_p01": {"why": "A4 1654x2339(서버 리사이즈 약 0.82배 추정). 큰 제목, 작은 준법 문구, 숫자 밀집 문단, 그림 속 글자, 하단 미세 약관",
+   "regions": ["f01_p01-v0-L002", "f01_p01-v0-L004", "f01_p01-v0-L005", "f01_p01-v0-L007", "f01_p01-v0-L008",
+               "f01_p01-v0-L014", "f01_p01-v0-L026", "f01_p01-v0-L027"]},
+  "f05_p01": {"why": "웹 캡처 1058x1839. 어두운 배경 히어로(그림 분류), 제목, 작은 부제",
+   "regions": ["f05_p01-v0-L001", "f05_p01-v0-L002", "f05_p01-v0-L003"]},
+  "f13_p01": {"why": "2881x5120(서버 리사이즈 약 0.42배 추정). 좌우 두 상품 정보, 하단 안내, 작은 배지",
+   "regions": ["f13_p01-v0-L002", "f13_p01-v0-L008", "f13_p01-v0-L010", "f13_p01-v0-L011", "f13_p01-v0-L012",
+               "f13_p01-v0-L017", "f13_p01-v0-L020"]},
+  "f12_p01": {"why": "손글씨 '사랑합니다! 응원합니다!'(정답 수동 추가 줄, OCR 미검출)와 작은 안내. 손글씨는 f12_p02 가 아니라 f12_p01 에 있음",
+   "regions": ["f12_p01-v0-L010", "f12_p01-v0-L009"]},
+  "f12_p02": {"why": "좌우 상품의 비표 항목-값 목록(표 후보 아님), 우대 목록, 작은 예금자보호 문구",
+   "regions": ["f12_p02-v0-L017", "f12_p02-v0-L021", "f12_p02-v0-L023", "f12_p02-v0-L008"]},
+  "h01_p01": {"why": "HWP 변환 A4. 긴 문단과 작은 머리 문구",
+   "regions": ["h01_p01-v0-L000", "h01_p01-v0-L006"]},
+  "h01_p03": {"why": "HWP 변환 A4. 숫자 범위 문단, 예금자보호 문구, 매우 작은 배지 글자",
+   "regions": ["h01_p03-v0-L005", "h01_p03-v0-L008", "h01_p03-v0-L010"]}
+ },
+ "table_labels": {
+  "reviewer": "Claude 시각 검토(work/vlm/labels/table-candidates-*.png), VLM 실행 전 고정. 사람 검토 아님.",
+  "labels": {
+   "f01_p01-v0-L000": {"is_table": true}, "f01_p01-v0-L006": {"is_table": true},
+   "f02_p01-v0-L000": {"is_table": true}, "f02_p01-v0-L001": {"is_table": true}, "f02_p01-v0-L002": {"is_table": true},
+   "f03_p01-v0-L000": {"is_table": true}, "f03_p01-v0-L001": {"is_table": true, "note": "항목-값 + 다운로드 버튼"},
+   "f04_p01-v0-L000": {"is_table": true, "note": "항목-값 + 다운로드 버튼"},
+   "f04_p01-v0-L003": {"is_table": true, "borderline": true, "note": "탭 포함 상품설명 패널(항목-값 2열)"},
+   "f05_p01-v0-L000": {"is_table": true},
+   "f06_p01-v0-L003": {"is_table": true, "borderline": true, "note": "탭 포함 기타사항 패널(항목-값 2열)"},
+   "f07_p01-v0-L000": {"is_table": true, "note": "항목-값 + 다운로드 버튼"},
+   "f07_p01-v0-L004": {"is_table": true, "borderline": true, "note": "탭 포함 상품설명 패널(항목-값 2열)"},
+   "f07_p01-v0-L006": {"is_table": false, "note": "상단 내비게이션 메뉴"},
+   "f07_p02-v0-L001": {"is_table": true, "borderline": true, "note": "탭 포함 기타사항 패널(항목-값 2열)"},
+   "f07_p02-v0-L004": {"is_table": false, "note": "상단 내비게이션 메뉴"},
+   "f12_p02-v0-L006": {"is_table": true}, "f12_p02-v0-L016": {"is_table": true},
+   "f13_p01-v0-L000": {"is_table": true}, "f13_p01-v0-L001": {"is_table": true}
+  }
+ }
+}

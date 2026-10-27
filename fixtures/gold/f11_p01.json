@@ -1,0 +1,751 @@
+{
+ "page_id": "f11_p01",
+ "ref_size": [
+  669,
+  2211
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f11_p01 청년미래적금 모바일 탭4 (669x2211 원본 px).",
+  "잔여 잉크 10개 확인: 아이콘·버튼 테두리. 추가 문구 없음.",
+  "2차 점검(정답 통독·조건 간 불일치 재확인)",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f11_p01-g0001",
+   "bbox": [
+    236,
+    0,
+    433,
+    17
+   ],
+   "text": "검증서버(8900)_2026091516",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0002",
+   "bbox": [
+    307,
+    21,
+    362,
+    57
+   ],
+   "text": "적금",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0003",
+   "bbox": [
+    151,
+    102,
+    245,
+    134
+   ],
+   "text": "우대금리",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0004",
+   "bbox": [
+    272,
+    102,
+    369,
+    134
+   ],
+   "text": "금리안내",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0005",
+   "bbox": [
+    396,
+    102,
+    492,
+    135
+   ],
+   "text": "유의사항",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0006",
+   "bbox": [
+    520,
+    102,
+    614,
+    135
+   ],
+   "text": "기타사항",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0007",
+   "bbox": [
+    35,
+    103,
+    124,
+    133
+   ],
+   "text": "상품안내",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0008",
+   "bbox": [
+    45,
+    216,
+    607,
+    244
+   ],
+   "text": "· 이 상품은 정부 정책상품으로 취급기관을 통틀어 1인 1계좌만",
+   "status": "corrected",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0009",
+   "bbox": [
+    37,
+    253,
+    194,
+    281
+   ],
+   "text": "가입 가능합니다.",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0010",
+   "bbox": [
+    41,
+    288,
+    603,
+    317
+   ],
+   "text": "·현재 청년도약계좌 또는 청년희망적금을 가입 유지하고 있는",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0011",
+   "bbox": [
+    37,
+    325,
+    265,
+    355
+   ],
+   "text": "경우 가입할수 없습니다.",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0012",
+   "bbox": [
+    44,
+    365,
+    598,
+    389
+   ],
+   "text": "·단,청년도약계좌-청년미래적금 연계가입 진행 시에 한하여,",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0013",
+   "bbox": [
+    39,
+    401,
+    626,
+    425
+   ],
+   "text": "청년도약계좌를 보유한 경우 청년미래적금에 가입할 수 있습니다.",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0014",
+   "bbox": [
+    43,
+    437,
+    547,
+    462
+   ],
+   "text": "·청년도약계좌를 보유한 경우,반드시 연계가입 기간 내",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0015",
+   "bbox": [
+    39,
+    475,
+    603,
+    497
+   ],
+   "text": "가입금액 0원으로 NH청년미래적금을 개설한 후 청년도약계좌",
+   "status": "corrected",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0016",
+   "bbox": [
+    38,
+    511,
+    544,
+    535
+   ],
+   "text": "특별중도해지를 완료해야 NH청년미래적금에 입금할 수",
+   "status": "verified",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0017",
+   "bbox": [
+    36,
+    545,
+    128,
+    575
+   ],
+   "text": "있습니다.",
+   "status": "verified",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0018",
+   "bbox": [
+    40,
+    583,
+    628,
+    609
+   ],
+   "text": "·만기 전 해지할 경우 계약한 이자율보다 낮은 중도해지이자율이",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0019",
+   "bbox": [
+    36,
+    619,
+    148,
+    647
+   ],
+   "text": "적용됩니다.",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0020",
+   "bbox": [
+    42,
+    656,
+    607,
+    683
+   ],
+   "text": "·이 적금의 만기일 이전 중도해지한 경우 정부기여금을 받으실",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0021",
+   "bbox": [
+    40,
+    695,
+    444,
+    717
+   ],
+   "text": "수 없으며 비과세 혜택을 받으실 수 없습니다.",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0022",
+   "bbox": [
+    41,
+    731,
+    583,
+    755
+   ],
+   "text": "·정부기여금은 가입대상의 요건을 갖춘 사람으로서 다음 중",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0023",
+   "bbox": [
+    38,
+    766,
+    511,
+    791
+   ],
+   "text": "하나에 해당하는 가입자에게 서민금융진흥원이 지급",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0024",
+   "bbox": [
+    37,
+    802,
+    400,
+    828
+   ],
+   "text": "①이적금의 만기일 이후해지한 가입자",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0025",
+   "bbox": [
+    39,
+    840,
+    487,
+    865
+   ],
+   "text": "②이 적금의 계약기간 중 특별중도해지 한 가입자",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0026",
+   "bbox": [
+    44,
+    876,
+    541,
+    901
+   ],
+   "text": "·금융소득종합과세 대상자로 확인 시 납입 중지됩니다.",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0027",
+   "bbox": [
+    43,
+    913,
+    611,
+    937
+   ],
+   "text": "· 정부기여금은「공공재정 부정청구 금지 및 부정이익 환수 등에",
+   "status": "corrected",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0028",
+   "bbox": [
+    38,
+    949,
+    602,
+    974
+   ],
+   "text": "관한 법률」에 따른 부정이익으로 확인되는 경우 환수 등의 제재",
+   "status": "corrected",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0029",
+   "bbox": [
+    36,
+    984,
+    149,
+    1012
+   ],
+   "text": "가능합니다.",
+   "status": "verified",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0030",
+   "bbox": [
+    43,
+    1022,
+    606,
+    1046
+   ],
+   "text": "· 상품 가입 전「NH청년미래적금」상품설명서 및 특약을 반드시",
+   "status": "corrected",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0031",
+   "bbox": [
+    38,
+    1059,
+    235,
+    1084
+   ],
+   "text": "읽어보시기 바랍니다.",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0032",
+   "bbox": [
+    45,
+    1207,
+    228,
+    1233
+   ],
+   "text": "상품설명서 및 약관",
+   "status": "verified",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0033",
+   "bbox": [
+    69,
+    1323,
+    159,
+    1352
+   ],
+   "text": "기본약관",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0034",
+   "bbox": [
+    70,
+    1435,
+    177,
+    1464
+   ],
+   "text": "상품설명서",
+   "status": "verified",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0035",
+   "bbox": [
+    69,
+    1543,
+    159,
+    1576
+   ],
+   "text": "상품특약",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0036",
+   "bbox": [
+    62,
+    1719,
+    123,
+    1736
+   ],
+   "text": "예금보험공사",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0037",
+   "bbox": [
+    40,
+    1732,
+    144,
+    1760
+   ],
+   "text": "보호금융상품",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0038",
+   "bbox": [
+    59,
+    1758,
+    127,
+    1774
+   ],
+   "text": "1인당 최고 1억원",
+   "status": "corrected",
+   "from": "#42",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0039",
+   "bbox": [
+    38,
+    1814,
+    604,
+    1838
+   ],
+   "text": "이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당",
+   "status": "verified",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0040",
+   "bbox": [
+    36,
+    1845,
+    527,
+    1873
+   ],
+   "text": "\"1억원까지\"(본 은행의 여타 보호상품과 합산) 보호됩니다.",
+   "status": "verified",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0041",
+   "bbox": [
+    38,
+    1935,
+    364,
+    1959
+   ],
+   "text": "2026-3696(심의일:2026.06.18.)",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0042",
+   "bbox": [
+    39,
+    1970,
+    397,
+    1991
+   ],
+   "text": "유효기간:2026.06.22.~2027.06.17.",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0043",
+   "bbox": [
+    591,
+    2079,
+    634,
+    2108
+   ],
+   "text": "캡처",
+   "status": "verified",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0044",
+   "bbox": [
+    384,
+    2094,
+    492,
+    2136
+   ],
+   "text": "가입신청",
+   "status": "verified",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f11_p01-g0045",
+   "bbox": [
+    105,
+    2095,
+    166,
+    2136
+   ],
+   "text": "상담",
+   "status": "verified",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    588,
+    19,
+    631,
+    60
+   ],
+   "note": "닫기(×) 아이콘",
+   "from": "#2",
+   "ocr": "×"
+  },
+  {
+   "bbox": [
+    589,
+    1212,
+    618,
+    1234
+   ],
+   "note": "접기 꺾쇠 아이콘",
+   "from": "#34",
+   "ocr": "^"
+  },
+  {
+   "bbox": [
+    575,
+    1326,
+    599,
+    1353
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#36",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    575,
+    1436,
+    599,
+    1466
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "#38",
+   "ocr": ">"
+  },
+  {
+   "bbox": [
+    572.0,
+    1543.0,
+    601.0,
+    1577.0
+   ],
+   "note": "이동 꺾쇠 아이콘",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

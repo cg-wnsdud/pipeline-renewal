@@ -1,0 +1,1405 @@
+{
+ "page_id": "f01_p01",
+ "ref_size": [
+  1654,
+  2339
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f01_p01 대출 포스터 (PDF 200dpi). PDF 디지털 텍스트와 이미지 대조.",
+  "잔여 잉크 19개 확인: 삽화·구름·별·표 도형. 미검출 문구 없음.",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f01_p01-g0001",
+   "bbox": [
+    67,
+    36,
+    306,
+    93
+   ],
+   "text": "금융의 모든 순간",
+   "status": "corrected",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0002",
+   "bbox": [
+    1353,
+    39,
+    1591,
+    77
+   ],
+   "text": "NH농협금융",
+   "status": "verified",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0003",
+   "bbox": [
+    1375,
+    86,
+    1588,
+    107
+   ],
+   "text": "준법감시인 심의필 2026-0000",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0004",
+   "bbox": [
+    1401,
+    110,
+    1587,
+    127
+   ],
+   "text": "(2026.00.00.~2027.00.00.)",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0005",
+   "bbox": [
+    116,
+    156,
+    356,
+    234
+   ],
+   "text": "외감기업",
+   "status": "verified",
+   "from": "#5",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0006",
+   "bbox": [
+    365,
+    156,
+    490,
+    234
+   ],
+   "text": "이상",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0007",
+   "bbox": [
+    496,
+    156,
+    677,
+    234
+   ],
+   "text": "기업에",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0008",
+   "bbox": [
+    115,
+    237,
+    297,
+    314
+   ],
+   "text": "한도와",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0009",
+   "bbox": [
+    304,
+    238,
+    489,
+    315
+   ],
+   "text": "금리를",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0010",
+   "bbox": [
+    497,
+    238,
+    854,
+    314
+   ],
+   "text": "우대해드리는",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0011",
+   "bbox": [
+    113,
+    318,
+    1023,
+    462
+   ],
+   "text": "NH더퍼스트기업대출",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0012",
+   "bbox": [
+    1344,
+    319,
+    1369,
+    331
+   ],
+   "text": "BANK",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "tiny",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0013",
+   "bbox": [
+    324,
+    551,
+    443,
+    591
+   ],
+   "text": "대출대상",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0014",
+   "bbox": [
+    550,
+    554,
+    972,
+    585
+   ],
+   "text": "● 외부회계감사를 필한 외감기업 이상 기업",
+   "status": "pdf",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0015",
+   "bbox": [
+    326,
+    609,
+    442,
+    645
+   ],
+   "text": "대출한도",
+   "status": "verified",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0016",
+   "bbox": [
+    550,
+    611,
+    1471,
+    645
+   ],
+   "text": "● 기타부동산 담보인정비율 상향적용 가능 최대 90%(※ 기업신용등급, 담보, 업종 등에 따라 차등 적용)",
+   "status": "pdf",
+   "from": "#17",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0017",
+   "bbox": [
+    618,
+    671,
+    712,
+    706
+   ],
+   "text": "자금용도",
+   "status": "verified",
+   "from": "#18",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0018",
+   "bbox": [
+    1346,
+    671,
+    1436,
+    704
+   ],
+   "text": "대출기간",
+   "status": "verified",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0019",
+   "bbox": [
+    956,
+    672,
+    1046,
+    704
+   ],
+   "text": "상환방식",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0020",
+   "bbox": [
+    1351,
+    708,
+    1433,
+    740
+   ],
+   "text": "1년이내",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0021",
+   "bbox": [
+    855,
+    709,
+    1149,
+    739
+   ],
+   "text": "일시상환/혼합상환/마이너스통장",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0022",
+   "bbox": [
+    622,
+    724,
+    710,
+    756
+   ],
+   "text": "운전자금",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0023",
+   "bbox": [
+    1350,
+    742,
+    1434,
+    774
+   ],
+   "text": "5년 이내",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0024",
+   "bbox": [
+    959,
+    743,
+    1045,
+    772
+   ],
+   "text": "할부상환",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0025",
+   "bbox": [
+    326,
+    758,
+    442,
+    794
+   ],
+   "text": "대출기간",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0026",
+   "bbox": [
+    1350,
+    776,
+    1434,
+    808
+   ],
+   "text": "3년 이내",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0027",
+   "bbox": [
+    918,
+    780,
+    1086,
+    804
+   ],
+   "text": "일시상환/혼합상환",
+   "status": "verified",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0028",
+   "bbox": [
+    623,
+    794,
+    709,
+    823
+   ],
+   "text": "시설자금",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0029",
+   "bbox": [
+    958,
+    809,
+    1046,
+    841
+   ],
+   "text": "할부상환",
+   "status": "verified",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0030",
+   "bbox": [
+    1253,
+    813,
+    1532,
+    837
+   ],
+   "text": "신용(5년 이내)/담보(20년 이내)",
+   "status": "verified",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0031",
+   "bbox": [
+    554,
+    850,
+    1207,
+    873
+   ],
+   "text": "※할부상환대출은 대출기간의 1/3이내에서 거치 가능(신용대출 1년 이내,담보대출 5년 이내)",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0032",
+   "bbox": [
+    544,
+    897,
+    1099,
+    963
+   ],
+   "text": "최저연3.41%~최고연5.71%",
+   "status": "verified",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0033",
+   "bbox": [
+    553,
+    967,
+    1566,
+    992
+   ],
+   "text": "[2026.09.30.현재 당행 기준금리(3개월변동)연 3.21%,가산금리 2.50%,기업신용등급 1등급,시설자금 1년 일시상환,대출금액 10억원,",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0034",
+   "bbox": [
+    326,
+    981,
+    441,
+    1017
+   ],
+   "text": "대출금리",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0035",
+   "bbox": [
+    553,
+    995,
+    868,
+    1020
+   ],
+   "text": "공장담보,우대금리 최고2.30%p 적용시]",
+   "status": "verified",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0036",
+   "bbox": [
+    553,
+    1028,
+    1562,
+    1051
+   ],
+   "text": "※가산금리는 기업신용등급,당행 거래조건에 따라 변동될 수 있음 ※기준금리는 기준일 현재의 적용금리로 대출실행일 기준금리에 따라 변동될 수 있음",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0037",
+   "bbox": [
+    553,
+    1053,
+    1104,
+    1076
+   ],
+   "text": "※당행 기준금리 : NH BANK금융상품몰-공시실-대출-대출금리에서 확인 가능",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0038",
+   "bbox": [
+    547,
+    1113,
+    819,
+    1176
+   ],
+   "text": "최대2.30%p",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0039",
+   "bbox": [
+    554,
+    1180,
+    1568,
+    1204
+   ],
+   "text": "[2026.09.30.현재 외국환(3개월)10천불 이상 0.20%p,입출금이 자유로운 예금 평잔(3개월)500만원 이상0.30%p,우량담보우대(보증",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0040",
+   "bbox": [
+    323,
+    1191,
+    443,
+    1234
+   ],
+   "text": "우대금리",
+   "status": "verified",
+   "from": "#42",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0041",
+   "bbox": [
+    553,
+    1209,
+    1566,
+    1232
+   ],
+   "text": "비율80%이상 or LTV60%이하) 0.20%p, 우량산업(업종)우대 0.20%p, 전략산업(업종) 우대 0.20%p, 중소법인 0.30%p, NH더퍼스트기업",
+   "status": "verified",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0042",
+   "bbox": [
+    552,
+    1236,
+    1566,
+    1261
+   ],
+   "text": "통장 보유 0.20%p,우량등급여신우대(1~4B등급)(신규대출)(MOR및신규COFIX)0.50%p,최초신규우대 0.50%p, TCB기술등급 T1~T3",
+   "status": "verified",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0043",
+   "bbox": [
+    553,
+    1265,
+    998,
+    1289
+   ],
+   "text": "0.30%p, 모범납세자0.20%p, 일자리 창출기업0.10%p등)",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0044",
+   "bbox": [
+    553,
+    1295,
+    780,
+    1317
+   ],
+   "text": "※거래실적 등에 따라 차등 적용",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0045",
+   "bbox": [
+    833,
+    1297,
+    1275,
+    1317
+   ],
+   "text": "※고객별 실제 우대금리는 대출신청 영업점에서 상담하여 확인",
+   "status": "verified",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0046",
+   "bbox": [
+    551,
+    1350,
+    1291,
+    1377
+   ],
+   "text": "● 중도상환해약금 : 중도상환원금X적용요율X(대출기간-경과일수)÷대출기간",
+   "status": "pdf",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0047",
+   "bbox": [
+    726,
+    1380,
+    1215,
+    1403
+   ],
+   "text": "※대출기간이 3년을 초과하는 경우에는 3년을 대출기간으로 봄",
+   "status": "verified",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0048",
+   "bbox": [
+    1218,
+    1406,
+    1308,
+    1439
+   ],
+   "text": "고정금리",
+   "status": "verified",
+   "from": "#50",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0049",
+   "bbox": [
+    921,
+    1407,
+    975,
+    1442
+   ],
+   "text": "구분",
+   "status": "verified",
+   "from": "#51",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0050",
+   "bbox": [
+    1416,
+    1407,
+    1508,
+    1440
+   ],
+   "text": "변동금리",
+   "status": "verified",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0051",
+   "bbox": [
+    895,
+    1445,
+    1003,
+    1473
+   ],
+   "text": "부동산/동산",
+   "status": "verified",
+   "from": "#53",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0052",
+   "bbox": [
+    1230,
+    1445,
+    1297,
+    1474
+   ],
+   "text": "0.69%",
+   "status": "verified",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0053",
+   "bbox": [
+    1428,
+    1447,
+    1495,
+    1473
+   ],
+   "text": "0.55%",
+   "status": "verified",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0054",
+   "bbox": [
+    1427,
+    1475,
+    1496,
+    1504
+   ],
+   "text": "0.09%",
+   "status": "verified",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0055",
+   "bbox": [
+    896,
+    1477,
+    1000,
+    1502
+   ],
+   "text": "보증서/기타",
+   "status": "verified",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0056",
+   "bbox": [
+    1231,
+    1477,
+    1295,
+    1503
+   ],
+   "text": "0.10%",
+   "status": "verified",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0057",
+   "bbox": [
+    323,
+    1505,
+    443,
+    1544
+   ],
+   "text": "부대비용",
+   "status": "verified",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0058",
+   "bbox": [
+    925,
+    1506,
+    971,
+    1538
+   ],
+   "text": "신용",
+   "status": "verified",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0059",
+   "bbox": [
+    1230,
+    1507,
+    1297,
+    1536
+   ],
+   "text": "0.85%",
+   "status": "verified",
+   "from": "#61",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0060",
+   "bbox": [
+    1428,
+    1507,
+    1495,
+    1536
+   ],
+   "text": "0.21%",
+   "status": "verified",
+   "from": "#62",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0061",
+   "bbox": [
+    552,
+    1544,
+    1569,
+    1574
+   ],
+   "text": "● 수입인지대금:대출금액 5천만원 이하 비과세, 5천만원 초과 1억원 이하 7만원, 1억원 초과 10억원 이하 15만원,",
+   "status": "pdf",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0062",
+   "bbox": [
+    705,
+    1576,
+    1165,
+    1603
+   ],
+   "text": "10억원 초과 35만원(고객과 은행이 각 50%씩 부담)",
+   "status": "verified",
+   "from": "#64",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0063",
+   "bbox": [
+    552,
+    1612,
+    950,
+    1639
+   ],
+   "text": "● 근저당설정비 및 감정평가비용 은행부담",
+   "status": "pdf",
+   "from": "#65",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0064",
+   "bbox": [
+    549,
+    1646,
+    1383,
+    1666
+   ],
+   "text": "※단,국민주택채권 매입 또는 할인비용,담보권말소(감액)비용,화재보험 가입비용,보증서담보시 보증료 고객부담",
+   "status": "verified",
+   "from": "#66",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0065",
+   "bbox": [
+    552,
+    1676,
+    1570,
+    1703
+   ],
+   "text": "● 한도대출(마이너스통장)에 한해 한도약정수수료(0.3%) 또는 한도미사용수수료(한도사용율에 따라 0~0.5%) 중 택 1(고객부담)",
+   "status": "pdf",
+   "from": "#67",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0066",
+   "bbox": [
+    550,
+    1733,
+    1420,
+    1763
+   ],
+   "text": "● 만기일시상환 : 대출 원금은 만기에 일시상환, 이자는 일정주기(매1개월 등)단위로 ‘후취’ 납부",
+   "status": "pdf",
+   "from": "#68",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0067",
+   "bbox": [
+    551,
+    1767,
+    1562,
+    1797
+   ],
+   "text": "● 원금균등할부상환 : 대출 원금을 대출 개월수만큼 균등하게 분할하고 이자를 더하여 일정주기(매1개월 등)단위로 ‘후취’ 납부",
+   "status": "pdf",
+   "from": "#69",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0068",
+   "bbox": [
+    551,
+    1802,
+    1566,
+    1832
+   ],
+   "text": "● 원리금균등할부상환 : 대출 원금과 이자의 합계 금액을 대출기간 동안 균등하게 분할하여 일정주기(매1개월 등)단위로 ‘후취’ 납부",
+   "status": "pdf",
+   "from": "#70",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0069",
+   "bbox": [
+    303,
+    1807,
+    465,
+    1845
+   ],
+   "text": "원금 및 이자",
+   "status": "verified",
+   "from": "#71",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0070",
+   "bbox": [
+    551,
+    1837,
+    1423,
+    1867
+   ],
+   "text": "● 혼합상환 : 대출 원금 중 일정비율은 만기일시상환하고, 그 외 대출 원금은 분할상환하는 방식",
+   "status": "pdf",
+   "from": "#72",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0071",
+   "bbox": [
+    326,
+    1845,
+    440,
+    1881
+   ],
+   "text": "상환방법",
+   "status": "verified",
+   "from": "#73",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0072",
+   "bbox": [
+    550,
+    1871,
+    1518,
+    1902
+   ],
+   "text": "● 한도대출(마이너스통장) : 대출 원금은 만기에 일시상환, 이자는 일정주기(매1개월 등)단위로 ‘후취’ 납부",
+   "status": "pdf",
+   "from": "#74",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0073",
+   "bbox": [
+    803,
+    1901,
+    1227,
+    1933
+   ],
+   "text": "(대출한도 내에서 자유롭게 대출과 상환 가능)",
+   "status": "verified",
+   "from": "#75",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0074",
+   "bbox": [
+    981,
+    1939,
+    1529,
+    1963
+   ],
+   "text": "※가입상품별로 상이할 수 있으므로,가입시 작성하는 계약서류의 세부내용 참고",
+   "status": "verified",
+   "from": "#76",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0075",
+   "bbox": [
+    551,
+    1940,
+    943,
+    1961
+   ],
+   "text": "※대출실행일/별도지정일에 지정계좌에서 자동이체 처리",
+   "status": "verified",
+   "from": "#77",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0076",
+   "bbox": [
+    239,
+    2010,
+    1570,
+    2034
+   ],
+   "text": "■대출신청인이 신용관리대상자(신용회복지원 또는 배드뱅크 포함)이거나 당행의 신용평가 결과 등에 따라 대출이 일부 제한될 수 있으며, 대출한도는 신청인의 소득, 부채, 신용도",
+   "status": "pdf",
+   "from": "#78",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0077",
+   "bbox": [
+    248,
+    2038,
+    472,
+    2059
+   ],
+   "text": "등에 따라 달라질 수 있습니다.",
+   "status": "verified",
+   "from": "#79",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0078",
+   "bbox": [
+    239,
+    2066,
+    1270,
+    2089
+   ],
+   "text": "■정부정책, 금융시장 환경변화 및 신청인의 신용평가 결과 등에 따라 대출자격, 대출한도, 대출금리 등 대출 조건이 변경될 수 있습니다.",
+   "status": "pdf",
+   "from": "#80",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0079",
+   "bbox": [
+    237,
+    2091,
+    1392,
+    2116
+   ],
+   "text": "■ 상환능력에 비해 대출금액이 과도할 경우 개인신용평점이 하락할 수 있으며, 개인신용평점 하락으로 금융거래와 관련된 불이익이 발생할 수 있습니다.",
+   "status": "pdf",
+   "from": "#81",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0080",
+   "bbox": [
+    238,
+    2118,
+    1206,
+    2143
+   ],
+   "text": "■일정 기간 납부해야 할 원리금이 연체될 경우 대출 기한이 도래하기 전에 모든 원리금을 변제해야 할 의무가 발생할 수 있습니다.",
+   "status": "pdf",
+   "from": "#82",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0081",
+   "bbox": [
+    238,
+    2145,
+    1040,
+    2170
+   ],
+   "text": "■이자납입 지연 시 대출이자율+연3%p의 연체이자율이 적용되며, 최고 연15%의 연체이자가 발생됩니다.",
+   "status": "pdf",
+   "from": "#83",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0082",
+   "bbox": [
+    237,
+    2173,
+    1084,
+    2196
+   ],
+   "text": "■ 금융소비자는 금융소비자 보호에 관한 법률 제19조제1항에 따라 충분한 설명을 받을 수 있는 권리가 있습니다.",
+   "status": "pdf",
+   "from": "#84",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0083",
+   "bbox": [
+    241,
+    2200,
+    1561,
+    2224
+   ],
+   "text": "■ 금융상품을 가입하시기 전에 상품설명서 및 약관을 반드시 읽어보시고 기타 자세한 내용은 가까운 NH농협은행 영업점 또는 고객행복센터(1661-3000, 1522-3000)로 문의하시기",
+   "status": "pdf",
+   "from": "#85",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0084",
+   "bbox": [
+    247,
+    2228,
+    792,
+    2251
+   ],
+   "text": "바랍니다.[상품담당부서:기업성장지원부/제작부서:영업채널전략부]",
+   "status": "verified",
+   "from": "#86",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f01_p01-g0085",
+   "bbox": [
+    1165,
+    2250,
+    1570,
+    2315
+   ],
+   "text": "NH농협은행",
+   "status": "corrected",
+   "from": "#87",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    1207,
+    294,
+    1244,
+    305
+   ],
+   "note": "그림 속 건물 창문",
+   "from": "#11",
+   "ocr": "OOOD"
+  },
+  {
+   "bbox": [
+    81,
+    876,
+    147,
+    1898
+   ],
+   "note": "녹색 세로 막대",
+   "from": "#33",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1399.3333333333333,
+    122.95176677638611,
+    1587.3333333333333,
+    128.018244013683
+   ],
+   "note": "같은 줄(#4)의 일부 재검출",
+   "from": "E1:B300",
+   "ocr": "20스0.00.00. 스02>·00:00.>"
+  },
+  {
+   "bbox": [
+    1401.0,
+    123.28024291992188,
+    1587.0,
+    127.0
+   ],
+   "note": "같은 줄(#4)의 일부 재검출",
+   "from": "E2:B200",
+   "ocr": "....ㅇ...ㅇ:-..7..이.ㅇ.."
+  },
+  {
+   "bbox": [
+    1020.6666666666666,
+    318.712086659065,
+    1029.3333333333333,
+    460.0655644241733
+   ],
+   "note": "제목 글자 가장자리",
+   "from": "E3:W300",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1021.1290690104166,
+    318.712086659065,
+    1030.0,
+    461.3990877993158
+   ],
+   "note": "제목 글자 가장자리",
+   "from": "E4:B300",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    555.3333333333333,
+    855.4552451539338,
+    572.6666666666666,
+    870.1240022805017
+   ],
+   "note": "#32 줄 앞부분의 분리 검출(#32 에 포함)",
+   "from": "E5:W300",
+   "ocr": "※"
+  },
+  {
+   "bbox": [
+    1156.0,
+    2240.9860319270238,
+    1567.8401692708333,
+    2251.8119562512247
+   ],
+   "note": "장식",
+   "from": "E6:W300",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1200.0,
+    300.0,
+    1250.0,
+    322.0
+   ],
+   "note": "삽화 건물 창문",
+   "from": "manual",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1316.0,
+    186.0,
+    1345.0,
+    206.0
+   ],
+   "note": "삽화 건물 창문",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

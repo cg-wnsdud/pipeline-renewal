@@ -1,0 +1,34 @@
+{
+ "contract": "routing-policy/1",
+ "status": "provisional",
+ "long_aspect_min": 3.0,
+ "long_aspect_min_basis": "현재 fixture 의 비율 분포 빈 구간(f02 2.275 ~ f11 3.305) 안에 둔 잠정 분기값. 이 구간 안의 어떤 값도 같은 분류를 만든다. 기존 실험의 2.0/2.5 를 옮긴 값이 아니며 R2(긴 입력 경계) 검증 전 운영값이 아니다. f02/f06/f10(2.08~2.27)과 f11(3.31)은 분기 경계 비교 대상으로 남는다.",
+ "shape_labels": {
+  "square_max_aspect": 1.15,
+  "a4_aspect_range": [
+   1.38,
+   1.46
+  ],
+  "note": "보고용 형태 이름. 형태 이름은 경로를 바꾸지 않는다. square/a4 는 long_aspect_min 과 무관하게 whole 로 고정된다(회귀 조건)."
+ },
+ "long_route": {
+  "requires": "status=validated 인 boundary-plan/1 문서(긴 이미지 경계 탐색·검증 담당 작업의 산출물)",
+  "without_plan": "BOUNDARY_PENDING: OCR 을 실행하지 않고 영역을 만들지 않는다. 균등 분할·임의 타일을 결과로 내지 않는다.",
+  "hold_reason": "페이지 전체·폭×4·4000px 입력은 레이아웃 검출이 탐색 창(폭×2.5)보다 나빠 불허(docs/05); 폭×2.5 이하 타일은 검증된 경계가 필요하나 자동 경계 방법이 기준 미통과(docs/03 D)",
+  "input_size_evidence": {
+   "doc": "docs/05-long-input-plan.md",
+   "date": "2026-10-25",
+   "tested_pages": [
+    "f08_p01 667x6130",
+    "f09_p01 656x3172",
+    "f11_p01 669x2211"
+   ],
+   "passed_max": "폭×2.5 탐색 창(S25)만 기준 통과. W4·WMAX·WHOLE 은 세 페이지 모두 레이아웃 상자 안 정답 줄이 S25 보다 5~97줄 적음",
+   "status": "observed_on_3_pages"
+  }
+ },
+ "not_used_for_routing": [
+  "VLM 이미지 처리기 픽셀 예산(2,580,480px). VLM 입력에만 해당한다.",
+  "OCR 서버 text_det_params(limit_side_len/max_side_limit). 호출마다 기록하는 해상도 조건이며 분할 조건이 아니다."
+ ]
+}

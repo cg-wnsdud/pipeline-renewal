@@ -1,0 +1,119 @@
+{
+ "contract": "boundary-plan/2",
+ "plan_version": "section-pack-2026-10-26-f09-alt-table-footnote",
+ "page_id": "f09_p01",
+ "page_image_sha256": "eb34df41286b71cc1c28032003fbc83b55b07bb403ad2c7a1ca89da59baaf323",
+ "page_size": [
+  656,
+  3172
+ ],
+ "coordinate_system": "page_px_xyxy",
+ "axis": "y",
+ "status": "candidate",
+ "policy": {
+  "name": "section-pack",
+  "version": "1",
+  "target_tile_extent_px": 1640,
+  "target_basis": "폭×2.5(탐색 창 실험의 잠정값). 상한이 아니라 묶음 목표",
+  "oversized_section_rule": "안쪽에 안전 후보가 없는 섹션은 목표보다 길어도 통째로 한 타일",
+  "status": "experimental"
+ },
+ "cuts": [
+  0,
+  1243,
+  2131,
+  3172
+ ],
+ "composition": {
+  "status": "manual_alternative",
+  "cuts": [
+   0,
+   1243,
+   2131,
+   3172
+  ],
+  "tile_lengths": [
+   1243,
+   888,
+   1041
+  ],
+  "note": "사전 규칙(docs/08)의 예외 비교안. 섹션 [0,2131] 통째 입력(A)의 레이아웃 누락(정답 58줄 중 상자 안 33) 때문에 표|각주 사이를 나눈 대안을 OCR 2회로 실측(58/58). 운영 규칙 아님"
+ },
+ "boundaries": [
+  {
+   "position": 1243,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f09_p01-c04",
+     "gap_px": 44,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f09_p01-y1243.png",
+    "layout_measure": "work/long/f09-alt(OCR 2회): 섹션 정답 58줄 상자 안 58(A 는 33)"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_risk_table_footnote",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0016",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "우대금리 표 마지막 행(⑥) → 표의 각주 주1)~주6) 블록. 문장·표 행을 자르지 않지만 표와 각주가 다른 타일로 나뉜다(과거 unsafe 범주 table_footnote). 사용자 판단 대상"
+   }
+  },
+  {
+   "position": 2131,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f09_p01-c10",
+     "gap_px": 111,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f09_p01-y2131.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0014",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "각주 주6 끝 → '상품설명서 및 약관'. 위쪽 0~2131 은 탭·우대금리 상자·우대조건 표·각주가 이어진 한 섹션"
+   }
+  }
+ ],
+ "unused_positions": [
+  {
+   "position": 2873,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f09_p01-c16",
+     "gap_px": 50,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f09_p01-y2873.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0015",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "예금자보호 안내 문장 끝 → 심의필 번호"
+   }
+  }
+ ],
+ "note": "비교용 대안(사용자 판단 대상). 기본 후보 계획은 fixtures/boundary-plans-candidate/f09_p01.candidate.json(A). validated 아님."
+}

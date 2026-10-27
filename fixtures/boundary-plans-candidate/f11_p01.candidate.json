@@ -1,0 +1,93 @@
+{
+ "contract": "boundary-plan/2",
+ "plan_version": "section-pack-2026-10-26",
+ "page_id": "f11_p01",
+ "page_image_sha256": "710c96c1d01eafb838365f3532a3825a2fabf3193a0ff9b42347a1ec1f8dd6b9",
+ "page_size": [
+  669,
+  2211
+ ],
+ "coordinate_system": "page_px_xyxy",
+ "axis": "y",
+ "status": "candidate",
+ "policy": {
+  "name": "section-pack",
+  "version": "1",
+  "target_tile_extent_px": 1672,
+  "target_basis": "폭×2.5(탐색 창 실험의 잠정값). 상한이 아니라 묶음 목표",
+  "oversized_section_rule": "안쪽에 안전 후보가 없는 섹션은 목표보다 길어도 통째로 한 타일",
+  "status": "experimental"
+ },
+ "cuts": [
+  0,
+  1147,
+  2211
+ ],
+ "composition": {
+  "status": "composed",
+  "cuts": [
+   0,
+   1147,
+   2211
+  ],
+  "tile_lengths": [
+   1147,
+   1064
+  ],
+  "target_len": 1672,
+  "oversized_sections": []
+ },
+ "boundaries": [
+  {
+   "position": 1147,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f11_p01-c02",
+     "gap_px": 109,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f11_p01-y1147.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0020",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "유의사항 목록 끝 → '상품설명서 및 약관'"
+   }
+  }
+ ],
+ "unused_positions": [
+  {
+   "position": 1903,
+   "usable": true,
+   "evidence": {
+    "geometry": {
+     "scout_candidate_id": "f11_p01-c08",
+     "gap_px": 51,
+     "crossing_scout_boxes": 0
+    },
+    "context_image": "work/long/candidates/f11_p01-y1903.png"
+   },
+   "semantic_check": {
+    "method": "vlm_relation+ai_visual_review",
+    "result": "candidate_safe",
+    "verified_by": "VLM 관계 판정(M2) + Claude(AI) 시각 검토 — 사람 검토 아님",
+    "m2": {
+     "relation": "independent_sections",
+     "safe": true,
+     "call_id": "bnd-0021",
+     "source": "work/boundary/exp1/classify.json(재사용)"
+    },
+    "ai_review": "예금자보호 안내 문장 끝 → 심의필 번호"
+   }
+  }
+ ],
+ "note": "미검증 후보. run_pipeline --run-candidate-boundaries 로만 실험 실행(CANDIDATE_RUN). validated 아님."
+}

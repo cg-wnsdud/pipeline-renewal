@@ -1,0 +1,3288 @@
+{
+ "page_id": "f02_p01",
+ "ref_size": [
+  1794,
+  4081
+ ],
+ "scaffold_run": "work\\runs\\ocr-whole-d200",
+ "method": "대조 시트·마스크 페이지를 이미지로 직접 확인. OCR/PDF 텍스트는 후보로만 사용.",
+ "review_notes": [
+  "f02_p01 ISA 일반 웹 캡처 (이미지 원본 px). 작은 글자 다수. 시트 15장 + 추가 검출 + 마스크 확인.",
+  "잔여 잉크 33개 확인: 도형·점선·아이콘·줄 가장자리. 인증마크 속 WA 만 선택 항목으로 추가.",
+  "2차 점검(정답 통독·조건 간 불일치 재확인)",
+  "추가 OCR 조건(band·면적 예산)의 spurious 출력 확인 결과",
+  "3차 점검(VLM 결과와 다른 정답 줄을 이미지로 재판정. 같은 페이지의 확실한 \"정\"·\"징\" 글자와 비교)"
+ ],
+ "unreviewed_extras": 0,
+ "lines": [
+  {
+   "id": "f02_p01-g0001",
+   "bbox": [
+    371.0,
+    30.0,
+    591.0,
+    61.0
+   ],
+   "text": "NHBank 금융상품몰",
+   "status": "verified",
+   "from": "#1",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0002",
+   "bbox": [
+    1034.0,
+    36.0,
+    1416.0,
+    53.0
+   ],
+   "text": "로그인 My금융센터 고객지원 화면크기 + - NH Bank 개인",
+   "status": "corrected",
+   "from": "#2",
+   "legibility": "clear",
+   "optional": false,
+   "note": "구분선·드롭다운 아이콘 제외"
+  },
+  {
+   "id": "f02_p01-g0003",
+   "bbox": [
+    613.0,
+    37.0,
+    668.0,
+    58.0
+   ],
+   "text": "농협은행",
+   "status": "verified",
+   "from": "#3",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0004",
+   "bbox": [
+    678.0,
+    37.0,
+    732.0,
+    58.0
+   ],
+   "text": "농·축협",
+   "status": "verified",
+   "from": "#4",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0005",
+   "bbox": [
+    606.0,
+    86.0,
+    672.0,
+    115.0
+   ],
+   "text": "퇴직연금",
+   "status": "verified",
+   "from": "#6",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0006",
+   "bbox": [
+    914.0,
+    87.0,
+    975.0,
+    113.0
+   ],
+   "text": "카드",
+   "status": "verified",
+   "from": "#7",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0007",
+   "bbox": [
+    782.0,
+    88.0,
+    823.0,
+    112.0
+   ],
+   "text": "외환",
+   "status": "verified",
+   "from": "#8",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0008",
+   "bbox": [
+    858.0,
+    88.0,
+    901.0,
+    112.0
+   ],
+   "text": "보험",
+   "status": "verified",
+   "from": "#9",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0009",
+   "bbox": [
+    1085.0,
+    88.0,
+    1138.0,
+    114.0
+   ],
+   "text": "공시실",
+   "status": "verified",
+   "from": "#10",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0010",
+   "bbox": [
+    1173.0,
+    88.0,
+    1275.0,
+    113.0
+   ],
+   "text": "스마트상담센터",
+   "status": "verified",
+   "from": "#11",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0011",
+   "bbox": [
+    381.0,
+    89.0,
+    419.0,
+    113.0
+   ],
+   "text": "저축",
+   "status": "verified",
+   "from": "#12",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0012",
+   "bbox": [
+    457.0,
+    89.0,
+    494.0,
+    113.0
+   ],
+   "text": "펀드",
+   "status": "verified",
+   "from": "#13",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0013",
+   "bbox": [
+    534.0,
+    89.0,
+    571.0,
+    113.0
+   ],
+   "text": "신탁",
+   "status": "verified",
+   "from": "#14",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0014",
+   "bbox": [
+    707.0,
+    89.0,
+    746.0,
+    113.0
+   ],
+   "text": "대출",
+   "status": "verified",
+   "from": "#15",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0015",
+   "bbox": [
+    1009.0,
+    89.0,
+    1048.0,
+    112.0
+   ],
+   "text": "ISA",
+   "status": "verified",
+   "from": "#16",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0016",
+   "bbox": [
+    374.0,
+    137.0,
+    654.0,
+    156.0
+   ],
+   "text": "농협은행 > ISA > 개인종합자산관리계좌(ISA)소개",
+   "status": "corrected",
+   "from": "#19",
+   "legibility": "clear",
+   "optional": false,
+   "note": "드롭다운 아이콘 제외"
+  },
+  {
+   "id": "f02_p01-g0017",
+   "bbox": [
+    835.0,
+    208.0,
+    931.0,
+    226.0
+   ],
+   "text": "편입상품에 따라",
+   "status": "verified",
+   "from": "#20",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0018",
+   "bbox": [
+    374.0,
+    211.0,
+    683.0,
+    239.0
+   ],
+   "text": "개인종합자산관리계좌(ISA)소개",
+   "status": "verified",
+   "from": "#21",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0019",
+   "bbox": [
+    735.0,
+    214.0,
+    771.0,
+    238.0
+   ],
+   "text": "원금",
+   "status": "verified",
+   "from": "#22",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0020",
+   "bbox": [
+    826.0,
+    232.0,
+    942.0,
+    252.0
+   ],
+   "text": "원금보장여부가",
+   "status": "verified",
+   "from": "#23",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0021",
+   "bbox": [
+    726.0,
+    237.0,
+    779.0,
+    260.0
+   ],
+   "text": "비보장",
+   "status": "verified",
+   "from": "#24",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0022",
+   "bbox": [
+    825.0,
+    258.0,
+    941.0,
+    275.0
+   ],
+   "text": "달라질 수 있습니다.",
+   "status": "verified",
+   "from": "#25",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0023",
+   "bbox": [
+    734.0,
+    259.0,
+    771.0,
+    283.0
+   ],
+   "text": "상품",
+   "status": "verified",
+   "from": "#26",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0024",
+   "bbox": [
+    375.0,
+    264.0,
+    650.0,
+    285.0
+   ],
+   "text": "개인종합자산관리계좌란 무엇인가?",
+   "status": "verified",
+   "from": "#27",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0025",
+   "bbox": [
+    376.0,
+    306.0,
+    1110.0,
+    320.0
+   ],
+   "text": "한 계좌에서 예금, 펀드, 파생결합증권 등 여러 금융상품에 분산투자하며 일정 한도 내 세제혜택을 부여하는 자산관리 계좌입니다.",
+   "status": "corrected",
+   "from": "#28",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0026",
+   "bbox": [
+    375.0,
+    379.0,
+    594.0,
+    399.0
+   ],
+   "text": "개인종합자산관리(ISA) 개요",
+   "status": "verified",
+   "from": "#29",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0027",
+   "bbox": [
+    559.0,
+    429.0,
+    679.0,
+    448.0
+   ],
+   "text": "-19세 이상인거주자",
+   "status": "verified",
+   "from": "#30",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0028",
+   "bbox": [
+    561.0,
+    453.0,
+    956.0,
+    467.0
+   ],
+   "text": "- 15세이상~19세미만인 거주자로서 직전 과세기간에 근로소득이 있는 자",
+   "status": "corrected",
+   "from": "#31",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0029",
+   "bbox": [
+    431.0,
+    460.0,
+    488.0,
+    483.0
+   ],
+   "text": "가입대상",
+   "status": "verified",
+   "from": "#32",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0030",
+   "bbox": [
+    561.0,
+    474.0,
+    759.0,
+    489.0
+   ],
+   "text": "-전금융기관1인1계좌만개설가능",
+   "status": "verified",
+   "from": "#33",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0031",
+   "bbox": [
+    560.0,
+    494.0,
+    856.0,
+    511.0
+   ],
+   "text": "※ 직전 3개년도 내 금융소득종합과세대상자가 아닐 것",
+   "status": "corrected",
+   "from": "#34",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0032",
+   "bbox": [
+    562.0,
+    542.0,
+    931.0,
+    556.0
+   ],
+   "text": "연간 2천만원,총한도 1억원(단,전년도 미납금액만큼 추가납입 가능)",
+   "status": "verified",
+   "from": "#35",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0033",
+   "bbox": [
+    431.0,
+    547.0,
+    489.0,
+    572.0
+   ],
+   "text": "납입한도",
+   "status": "verified",
+   "from": "#36",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0034",
+   "bbox": [
+    562.0,
+    562.0,
+    965.0,
+    576.0
+   ],
+   "text": "※ 기가입한 재형저축 및 소득공제 장기펀드가 있는 경우 납입한도에서 차감",
+   "status": "corrected",
+   "from": "#37",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0035",
+   "bbox": [
+    420.0,
+    608.0,
+    500.0,
+    632.0
+   ],
+   "text": "투자가능상품",
+   "status": "verified",
+   "from": "#38",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0036",
+   "bbox": [
+    560.0,
+    611.0,
+    678.0,
+    628.0
+   ],
+   "text": "예금,예탁금, 펀드등",
+   "status": "verified",
+   "from": "#39",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0037",
+   "bbox": [
+    556.0,
+    660.0,
+    589.0,
+    686.0
+   ],
+   "text": "3년",
+   "status": "verified",
+   "from": "#40",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0038",
+   "bbox": [
+    420.0,
+    661.0,
+    500.0,
+    686.0
+   ],
+   "text": "의무가입기간",
+   "status": "verified",
+   "from": "#41",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0039",
+   "bbox": [
+    561.0,
+    716.0,
+    1258.0,
+    730.0
+   ],
+   "text": "계좌가입기간(가입일~계약해지일)에 계좌에서 발생한 이익과 손실을 통산하여 순소득에 대해 다음과같이 비과세·분리과세 혜택",
+   "status": "verified",
+   "from": "#42",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0040",
+   "bbox": [
+    561.0,
+    737.0,
+    1392.0,
+    751.0
+   ],
+   "text": "- ① 가입일 또는 연장일에 직전과세기간 총급여액 5,000만원 이하, 종합소득금액 3,800만원 이하인 자 및 종합소득금액 3,800만원 이하인 농어민 : 400만",
+   "status": "corrected",
+   "from": "#43",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0041",
+   "bbox": [
+    568.0,
+    756.0,
+    648.0,
+    774.0
+   ],
+   "text": "원까지 비과세",
+   "status": "verified",
+   "from": "#44",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0042",
+   "bbox": [
+    431.0,
+    764.0,
+    488.0,
+    787.0
+   ],
+   "text": "세제혜택",
+   "status": "verified",
+   "from": "#45",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0043",
+   "bbox": [
+    560.0,
+    777.0,
+    866.0,
+    795.0
+   ],
+   "text": "-②①을 제외한 가입 요건충족자: 200만원까지 비과세",
+   "status": "verified",
+   "from": "#46",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0044",
+   "bbox": [
+    561.0,
+    800.0,
+    856.0,
+    814.0
+   ],
+   "text": "-③400만원(200만원)초과 순소득:9.9%*분리과세",
+   "status": "verified",
+   "from": "#47",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0045",
+   "bbox": [
+    569.0,
+    820.0,
+    906.0,
+    835.0
+   ],
+   "text": "(* 지방소득세 포함, 농특세 배제. 주식거래에 따른 거래세 부과)",
+   "status": "corrected",
+   "from": "#48",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0046",
+   "bbox": [
+    560.0,
+    864.0,
+    846.0,
+    883.0
+   ],
+   "text": "-가입자의사망,해외이주:기간제한없이신청가능",
+   "status": "verified",
+   "from": "#49",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0047",
+   "bbox": [
+    422.0,
+    876.0,
+    497.0,
+    894.0
+   ],
+   "text": "특별중도해지",
+   "status": "verified",
+   "from": "#50",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0048",
+   "bbox": [
+    559.0,
+    886.0,
+    1333.0,
+    903.0
+   ],
+   "text": "-천재지변, 퇴직,폐업, 3개월이상의입원 또는요양을요하는상해·질병, 저축취급기관의영업정지·파산: 사유발생일로부터6개월이내 신청",
+   "status": "verified",
+   "from": "#51",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0049",
+   "bbox": [
+    422.0,
+    934.0,
+    499.0,
+    955.0
+   ],
+   "text": "일반중도해지",
+   "status": "verified",
+   "from": "#52",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0050",
+   "bbox": [
+    562.0,
+    938.0,
+    807.0,
+    952.0
+   ],
+   "text": "가능:의무가입기간 내해지시일반과세적용",
+   "status": "verified",
+   "from": "#53",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0051",
+   "bbox": [
+    372.0,
+    1024.0,
+    498.0,
+    1050.0
+   ],
+   "text": "ISA투자포인트",
+   "status": "verified",
+   "from": "#54",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0052",
+   "bbox": [
+    377.0,
+    1068.0,
+    724.0,
+    1082.0
+   ],
+   "text": "일반 투자보다 유리한 세제혜택(손익통산&비과세+분리과세)",
+   "status": "verified",
+   "from": "#55",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0053",
+   "bbox": [
+    374.0,
+    1097.0,
+    458.0,
+    1115.0
+   ],
+   "text": "손익통산이란?",
+   "status": "verified",
+   "from": "#56",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0054",
+   "bbox": [
+    373.0,
+    1115.0,
+    1000.0,
+    1137.0
+   ],
+   "text": "ISA계좌를 통해 금융상품에 가입 · 운용하는 경우 예금,펀드 등 계좌내 편입한 모든 금융상품에서 발생한 이익(+)에서",
+   "status": "corrected",
+   "from": "#57",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0055",
+   "bbox": [
+    374.0,
+    1138.0,
+    703.0,
+    1156.0
+   ],
+   "text": "손실(-)을 차감한 순이익을 기준으로 과세하는 것을 말합니다.",
+   "status": "corrected",
+   "from": "#58",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0056",
+   "bbox": [
+    375.0,
+    1195.0,
+    465.0,
+    1213.0
+   ],
+   "text": "과세기준차이",
+   "status": "verified",
+   "from": "#59",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0057",
+   "bbox": [
+    415.0,
+    1268.0,
+    559.0,
+    1282.0
+   ],
+   "text": "두개의 금융상품에 투자해",
+   "status": "verified",
+   "from": "#60",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0058",
+   "bbox": [
+    911.0,
+    1287.0,
+    1052.0,
+    1301.0
+   ],
+   "text": "상품 A투자 300만원 이익",
+   "status": "verified",
+   "from": "#62",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0059",
+   "bbox": [
+    414.0,
+    1288.0,
+    608.0,
+    1305.0
+   ],
+   "text": "300만원 이익, 90만원 손실이 발생.",
+   "status": "corrected",
+   "from": "#63",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0060",
+   "bbox": [
+    1280.0,
+    1300.0,
+    1335.0,
+    1321.0
+   ],
+   "text": "과세기준",
+   "status": "verified",
+   "from": "#64",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0061",
+   "bbox": [
+    412.0,
+    1307.0,
+    527.0,
+    1325.0
+   ],
+   "text": "ISA로투자했을경우",
+   "status": "verified",
+   "from": "#65",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0062",
+   "bbox": [
+    1277.0,
+    1319.0,
+    1341.0,
+    1342.0
+   ],
+   "text": "300만원",
+   "status": "verified",
+   "from": "#66",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0063",
+   "bbox": [
+    729.0,
+    1320.0,
+    823.0,
+    1339.0
+   ],
+   "text": "개별상품투자",
+   "status": "verified",
+   "from": "#67",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0064",
+   "bbox": [
+    413.0,
+    1327.0,
+    559.0,
+    1347.0
+   ],
+   "text": "개별상품 투자했을 때보다",
+   "status": "verified",
+   "from": "#68",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0065",
+   "bbox": [
+    703.0,
+    1344.0,
+    847.0,
+    1358.0
+   ],
+   "text": "손익을 구분하여 이익에과세",
+   "status": "verified",
+   "from": "#69",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0066",
+   "bbox": [
+    915.0,
+    1346.0,
+    1047.0,
+    1360.0
+   ],
+   "text": "상품 B투자 90만원손실",
+   "status": "verified",
+   "from": "#70",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0067",
+   "bbox": [
+    415.0,
+    1351.0,
+    573.0,
+    1365.0
+   ],
+   "text": "과세기준이 90만원 적습니다.",
+   "status": "corrected",
+   "from": "#71",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0068",
+   "bbox": [
+    909.0,
+    1442.0,
+    1052.0,
+    1461.0
+   ],
+   "text": "상품A투자300만원이익",
+   "status": "verified",
+   "from": "#72",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0069",
+   "bbox": [
+    748.0,
+    1446.0,
+    787.0,
+    1465.0
+   ],
+   "text": "ISA",
+   "status": "corrected",
+   "from": "#73",
+   "legibility": "clear",
+   "optional": false,
+   "note": "화살표 아이콘 제외"
+  },
+  {
+   "id": "f02_p01-g0070",
+   "bbox": [
+    1142.0,
+    1453.0,
+    1195.0,
+    1471.0
+   ],
+   "text": "손익통산",
+   "status": "verified",
+   "from": "#74",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0071",
+   "bbox": [
+    1281.0,
+    1460.0,
+    1334.0,
+    1478.0
+   ],
+   "text": "과세기준",
+   "status": "verified",
+   "from": "#75",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0072",
+   "bbox": [
+    1135.0,
+    1470.0,
+    1202.0,
+    1492.0
+   ],
+   "text": "210만원",
+   "status": "verified",
+   "from": "#76",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0073",
+   "bbox": [
+    1275.0,
+    1475.0,
+    1343.0,
+    1501.0
+   ],
+   "text": "210만원",
+   "status": "verified",
+   "from": "#77",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0074",
+   "bbox": [
+    714.0,
+    1479.0,
+    833.0,
+    1500.0
+   ],
+   "text": "ISA계좌 내 투자",
+   "status": "verified",
+   "from": "#78",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0075",
+   "bbox": [
+    1143.0,
+    1494.0,
+    1193.0,
+    1512.0
+   ],
+   "text": "(순이익)",
+   "status": "verified",
+   "from": "#79",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0076",
+   "bbox": [
+    706.0,
+    1502.0,
+    841.0,
+    1520.0
+   ],
+   "text": "손익통산 후순이익에과세",
+   "status": "verified",
+   "from": "#80",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0077",
+   "bbox": [
+    915.0,
+    1505.0,
+    1047.0,
+    1519.0
+   ],
+   "text": "상품B투자90만원손실",
+   "status": "verified",
+   "from": "#81",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0078",
+   "bbox": [
+    373.0,
+    1617.0,
+    439.0,
+    1640.0
+   ],
+   "text": "세금차이",
+   "status": "verified",
+   "from": "#82",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0079",
+   "bbox": [
+    414.0,
+    1692.0,
+    559.0,
+    1709.0
+   ],
+   "text": "두개의 금융상품에 투자해",
+   "status": "verified",
+   "from": "#83",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0080",
+   "bbox": [
+    414.0,
+    1712.0,
+    606.0,
+    1729.0
+   ],
+   "text": "300만원 이익, 90만원 손실이 발생.",
+   "status": "corrected",
+   "from": "#85",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0081",
+   "bbox": [
+    1130.0,
+    1717.0,
+    1163.0,
+    1740.0
+   ],
+   "text": "세금",
+   "status": "verified",
+   "from": "#86",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0082",
+   "bbox": [
+    1280.0,
+    1721.0,
+    1334.0,
+    1743.0
+   ],
+   "text": "절세효과",
+   "status": "verified",
+   "from": "#87",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0083",
+   "bbox": [
+    854.0,
+    1731.0,
+    1024.0,
+    1746.0
+   ],
+   "text": "과세기준:300만원× 15.4%",
+   "status": "verified",
+   "from": "#88",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0084",
+   "bbox": [
+    413.0,
+    1732.0,
+    528.0,
+    1750.0
+   ],
+   "text": "ISA로투자했을경우",
+   "status": "verified",
+   "from": "#89",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0085",
+   "bbox": [
+    1102.0,
+    1734.0,
+    1192.0,
+    1760.0
+   ],
+   "text": "462,000원",
+   "status": "verified",
+   "from": "#90",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0086",
+   "bbox": [
+    1264.0,
+    1738.0,
+    1351.0,
+    1763.0
+   ],
+   "text": "452,100원",
+   "status": "verified",
+   "from": "#91",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0087",
+   "bbox": [
+    735.0,
+    1739.0,
+    818.0,
+    1765.0
+   ],
+   "text": "상품별투자",
+   "status": "verified",
+   "from": "#92",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0088",
+   "bbox": [
+    412.0,
+    1751.0,
+    559.0,
+    1773.0
+   ],
+   "text": "개별상품 투자했을 때 보다",
+   "status": "verified",
+   "from": "#93",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0089",
+   "bbox": [
+    413.0,
+    1773.0,
+    609.0,
+    1792.0
+   ],
+   "text": "452,100원의 절세효과가 있습니다.",
+   "status": "corrected",
+   "from": "#94",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0090",
+   "bbox": [
+    1233.0,
+    1834.0,
+    1264.0,
+    1855.0
+   ],
+   "text": "세금",
+   "status": "verified",
+   "from": "#95",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0091",
+   "bbox": [
+    969.0,
+    1846.0,
+    1138.0,
+    1860.0
+   ],
+   "text": "10만원(한도초과분)× 9.9%",
+   "status": "verified",
+   "from": "#96",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0092",
+   "bbox": [
+    1216.0,
+    1853.0,
+    1283.0,
+    1875.0
+   ],
+   "text": "9,900원",
+   "status": "verified",
+   "from": "#97",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0093",
+   "bbox": [
+    853.0,
+    1855.0,
+    906.0,
+    1873.0
+   ],
+   "text": "과세기준",
+   "status": "verified",
+   "from": "#98",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0094",
+   "bbox": [
+    747.0,
+    1862.0,
+    789.0,
+    1884.0
+   ],
+   "text": "ISA",
+   "status": "corrected",
+   "from": "#99",
+   "legibility": "clear",
+   "optional": false,
+   "note": "화살표 아이콘 제외"
+  },
+  {
+   "id": "f02_p01-g0095",
+   "bbox": [
+    853.0,
+    1873.0,
+    907.0,
+    1892.0
+   ],
+   "text": "210만원",
+   "status": "verified",
+   "from": "#100",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0096",
+   "bbox": [
+    853.0,
+    1890.0,
+    906.0,
+    1911.0
+   ],
+   "text": "(순이익)",
+   "status": "verified",
+   "from": "#101",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0097",
+   "bbox": [
+    732.0,
+    1892.0,
+    817.0,
+    1913.0
+   ],
+   "text": "ISA내 투자",
+   "status": "verified",
+   "from": "#102",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0098",
+   "bbox": [
+    1227.0,
+    1902.0,
+    1274.0,
+    1921.0
+   ],
+   "text": "비과세",
+   "status": "verified",
+   "from": "#103",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0099",
+   "bbox": [
+    970.0,
+    1903.0,
+    1091.0,
+    1920.0
+   ],
+   "text": "200만원(비과세한도)",
+   "status": "verified",
+   "from": "#104",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0100",
+   "bbox": [
+    373.0,
+    2041.0,
+    493.0,
+    2065.0
+   ],
+   "text": "자유로운상품교체",
+   "status": "verified",
+   "from": "#105",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0101",
+   "bbox": [
+    615.0,
+    2125.0,
+    649.0,
+    2150.0
+   ],
+   "text": "기존",
+   "status": "verified",
+   "from": "#106",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0102",
+   "bbox": [
+    1147.0,
+    2127.0,
+    1177.0,
+    2149.0
+   ],
+   "text": "ISA",
+   "status": "verified",
+   "from": "#107",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0103",
+   "bbox": [
+    511.0,
+    2175.0,
+    753.0,
+    2196.0
+   ],
+   "text": "가입기간중상품교체시해지로간주",
+   "status": "verified",
+   "from": "#108",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0104",
+   "bbox": [
+    1042.0,
+    2175.0,
+    1280.0,
+    2196.0
+   ],
+   "text": "가입기간중개별상품자유롭게 교체",
+   "status": "verified",
+   "from": "#109",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0105",
+   "bbox": [
+    512.0,
+    2207.0,
+    751.0,
+    2224.0
+   ],
+   "text": "소득공제장기펀드 : 납입금의 6.6%세금추정",
+   "status": "corrected",
+   "from": "#110",
+   "legibility": "clear",
+   "optional": false,
+   "note": "원문 이미지 표기 그대로(의미상 추징이지만 글자는 정)"
+  },
+  {
+   "id": "f02_p01-g0106",
+   "bbox": [
+    1068.0,
+    2207.0,
+    1254.0,
+    2224.0
+   ],
+   "text": "상품간·사업자간 상품교체허용",
+   "status": "alt",
+   "from": "#111",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0107",
+   "bbox": [
+    553.0,
+    2224.0,
+    709.0,
+    2246.0
+   ],
+   "text": "재형저축: 비과세혜택취소",
+   "status": "verified",
+   "from": "#112",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0108",
+   "bbox": [
+    1073.0,
+    2226.0,
+    1250.0,
+    2244.0
+   ],
+   "text": "비과세/저율 분리과세혜택유지",
+   "status": "verified",
+   "from": "#113",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0109",
+   "bbox": [
+    1121.0,
+    2271.0,
+    1200.0,
+    2289.0
+   ],
+   "text": "A채권형 펀드",
+   "status": "verified",
+   "from": "#114",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0110",
+   "bbox": [
+    769.0,
+    2281.0,
+    786.0,
+    2300.0
+   ],
+   "text": "B",
+   "status": "verified",
+   "from": "#115",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0111",
+   "bbox": [
+    480.0,
+    2284.0,
+    495.0,
+    2299.0
+   ],
+   "text": "A",
+   "status": "verified",
+   "from": "#116",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0112",
+   "bbox": [
+    742.0,
+    2298.0,
+    811.0,
+    2322.0
+   ],
+   "text": "운용사펀드",
+   "status": "verified",
+   "from": "#117",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0113",
+   "bbox": [
+    454.0,
+    2301.0,
+    522.0,
+    2322.0
+   ],
+   "text": "운용사 펀드",
+   "status": "verified",
+   "from": "#118",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0114",
+   "bbox": [
+    609.0,
+    2310.0,
+    655.0,
+    2329.0
+   ],
+   "text": "변경불가",
+   "status": "verified",
+   "from": "#119",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0115",
+   "bbox": [
+    1034.0,
+    2329.0,
+    1074.0,
+    2348.0
+   ],
+   "text": "FELS",
+   "status": "verified",
+   "from": "#120",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0116",
+   "bbox": [
+    1245.0,
+    2334.0,
+    1342.0,
+    2352.0
+   ],
+   "text": "B국내주식형 펀드",
+   "status": "verified",
+   "from": "#121",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0117",
+   "bbox": [
+    768.0,
+    2348.0,
+    786.0,
+    2366.0
+   ],
+   "text": "B",
+   "status": "verified",
+   "from": "#122",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0118",
+   "bbox": [
+    478.0,
+    2349.0,
+    497.0,
+    2367.0
+   ],
+   "text": "A",
+   "status": "verified",
+   "from": "#123",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0119",
+   "bbox": [
+    455.0,
+    2368.0,
+    521.0,
+    2386.0
+   ],
+   "text": "주식형펀드",
+   "status": "verified",
+   "from": "#125",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0120",
+   "bbox": [
+    744.0,
+    2368.0,
+    809.0,
+    2386.0
+   ],
+   "text": "채권형펀드",
+   "status": "verified",
+   "from": "#126",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0121",
+   "bbox": [
+    609.0,
+    2376.0,
+    655.0,
+    2396.0
+   ],
+   "text": "변경불가",
+   "status": "verified",
+   "from": "#127",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0122",
+   "bbox": [
+    1121.0,
+    2390.0,
+    1201.0,
+    2409.0
+   ],
+   "text": "자유롭게교체",
+   "status": "verified",
+   "from": "#128",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0123",
+   "bbox": [
+    768.0,
+    2415.0,
+    786.0,
+    2433.0
+   ],
+   "text": "B",
+   "status": "verified",
+   "from": "#129",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0124",
+   "bbox": [
+    996.0,
+    2415.0,
+    1072.0,
+    2432.0
+   ],
+   "text": "E혼합형펀드",
+   "status": "verified",
+   "from": "#130",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0125",
+   "bbox": [
+    478.0,
+    2416.0,
+    496.0,
+    2435.0
+   ],
+   "text": "A",
+   "status": "verified",
+   "from": "#131",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0126",
+   "bbox": [
+    1235.0,
+    2434.0,
+    1331.0,
+    2449.0
+   ],
+   "text": "C 해외주식형 펀드",
+   "status": "verified",
+   "from": "#133",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0127",
+   "bbox": [
+    461.0,
+    2435.0,
+    515.0,
+    2457.0
+   ],
+   "text": "은행예금",
+   "status": "verified",
+   "from": "#134",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0128",
+   "bbox": [
+    750.0,
+    2435.0,
+    803.0,
+    2454.0
+   ],
+   "text": "은행예금",
+   "status": "verified",
+   "from": "#135",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0129",
+   "bbox": [
+    609.0,
+    2442.0,
+    654.0,
+    2461.0
+   ],
+   "text": "변경불가",
+   "status": "verified",
+   "from": "#136",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0130",
+   "bbox": [
+    1138.0,
+    2479.0,
+    1181.0,
+    2499.0
+   ],
+   "text": "D예금",
+   "status": "verified",
+   "from": "#137",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0131",
+   "bbox": [
+    376.0,
+    2586.0,
+    640.0,
+    2607.0
+   ],
+   "text": "신탁형 ISA와일임형 ISA의 차이점",
+   "status": "verified",
+   "from": "#138",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0132",
+   "bbox": [
+    810.0,
+    2639.0,
+    879.0,
+    2664.0
+   ],
+   "text": "일임형 ISA",
+   "status": "verified",
+   "from": "#139",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0133",
+   "bbox": [
+    1138.0,
+    2643.0,
+    1333.0,
+    2661.0
+   ],
+   "text": "신탁형 ISA (= 일반적 특정금전신탁)",
+   "status": "corrected",
+   "from": "#140",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0134",
+   "bbox": [
+    478.0,
+    2696.0,
+    535.0,
+    2717.0
+   ],
+   "text": "운용재량",
+   "status": "verified",
+   "from": "#141",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0135",
+   "bbox": [
+    1139.0,
+    2698.0,
+    1331.0,
+    2715.0
+   ],
+   "text": "투자자가 종목 · 수량까지 모두 지정",
+   "status": "corrected",
+   "from": "#142",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0136",
+   "bbox": [
+    724.0,
+    2699.0,
+    966.0,
+    2713.0
+   ],
+   "text": "전문가가 금융시장에 따라 포트폴리오를 조정",
+   "status": "corrected",
+   "from": "#143",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0137",
+   "bbox": [
+    490.0,
+    2750.0,
+    523.0,
+    2770.0
+   ],
+   "text": "특징",
+   "status": "verified",
+   "from": "#144",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0138",
+   "bbox": [
+    1155.0,
+    2750.0,
+    1314.0,
+    2768.0
+   ],
+   "text": "고객의 구체적 상품운용 지시",
+   "status": "verified",
+   "from": "#145",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0139",
+   "bbox": [
+    667.0,
+    2753.0,
+    1022.0,
+    2767.0
+   ],
+   "text": "구체적 운용지시 없이도 가입 가능 →전문가에 의해 표준화된 상품",
+   "status": "verified",
+   "from": "#146",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0140",
+   "bbox": [
+    477.0,
+    2801.0,
+    534.0,
+    2826.0
+   ],
+   "text": "리밸런싱",
+   "status": "corrected",
+   "from": "#147",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0141",
+   "bbox": [
+    1162.0,
+    2806.0,
+    1306.0,
+    2820.0
+   ],
+   "text": "고객이 직접 운용지시 변경",
+   "status": "verified",
+   "from": "#148",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0142",
+   "bbox": [
+    681.0,
+    2807.0,
+    1008.0,
+    2821.0
+   ],
+   "text": "시장상황에따라 필요 시전문가에의해분기1회 이상재배분",
+   "status": "verified",
+   "from": "#149",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0143",
+   "bbox": [
+    454.0,
+    2860.0,
+    559.0,
+    2877.0
+   ],
+   "text": "적합한 투자자유형",
+   "status": "verified",
+   "from": "#150",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0144",
+   "bbox": [
+    1169.0,
+    2860.0,
+    1301.0,
+    2875.0
+   ],
+   "text": "투자경험이 많은 투자자",
+   "status": "verified",
+   "from": "#151",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0145",
+   "bbox": [
+    781.0,
+    2861.0,
+    909.0,
+    2875.0
+   ],
+   "text": "투자경험이 적은 투자자",
+   "status": "verified",
+   "from": "#152",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0146",
+   "bbox": [
+    377.0,
+    2909.0,
+    734.0,
+    2922.0
+   ],
+   "text": "※ ISA계좌는 전 금융기관을 통틀어 1개의 계좌만을 개설할 수 있습니다.",
+   "status": "corrected",
+   "from": "#153",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0147",
+   "bbox": [
+    375.0,
+    2980.0,
+    574.0,
+    3001.0
+   ],
+   "text": "ISA 유형별 제출서류안내",
+   "status": "verified",
+   "from": "#154",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0148",
+   "bbox": [
+    676.0,
+    3037.0,
+    770.0,
+    3052.0
+   ],
+   "text": "19세이상 거주자",
+   "status": "verified",
+   "from": "#155",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0149",
+   "bbox": [
+    1010.0,
+    3037.0,
+    1130.0,
+    3052.0
+   ],
+   "text": "15~19세 미만 거주자",
+   "status": "verified",
+   "from": "#156",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0150",
+   "bbox": [
+    447.0,
+    3062.0,
+    479.0,
+    3083.0
+   ],
+   "text": "구분",
+   "status": "verified",
+   "from": "#157",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0151",
+   "bbox": [
+    1309.0,
+    3063.0,
+    1352.0,
+    3082.0
+   ],
+   "text": "농어민",
+   "status": "corrected",
+   "from": "#158",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0152",
+   "bbox": [
+    785.0,
+    3086.0,
+    833.0,
+    3111.0
+   ],
+   "text": "서민형",
+   "status": "verified",
+   "from": "#159",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0153",
+   "bbox": [
+    615.0,
+    3087.0,
+    658.0,
+    3110.0
+   ],
+   "text": "일반형",
+   "status": "verified",
+   "from": "#160",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0154",
+   "bbox": [
+    962.0,
+    3087.0,
+    1006.0,
+    3110.0
+   ],
+   "text": "일반형",
+   "status": "verified",
+   "from": "#161",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0155",
+   "bbox": [
+    1135.0,
+    3087.0,
+    1179.0,
+    3110.0
+   ],
+   "text": "서민형",
+   "status": "verified",
+   "from": "#162",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0156",
+   "bbox": [
+    1303.0,
+    3139.0,
+    1357.0,
+    3158.0
+   ],
+   "text": "종합소득",
+   "status": "verified",
+   "from": "#163",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0157",
+   "bbox": [
+    958.0,
+    3140.0,
+    1010.0,
+    3157.0
+   ],
+   "text": "직전년도",
+   "status": "verified",
+   "from": "#164",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0158",
+   "bbox": [
+    760.0,
+    3141.0,
+    854.0,
+    3156.0
+   ],
+   "text": "근로소득 5천만원 ·",
+   "status": "corrected",
+   "from": "#165",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0159",
+   "bbox": [
+    1096.0,
+    3151.0,
+    1217.0,
+    3168.0
+   ],
+   "text": "근로소득5천만원이하",
+   "status": "verified",
+   "from": "#166",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0160",
+   "bbox": [
+    631.0,
+    3156.0,
+    640.0,
+    3166.0
+   ],
+   "text": "-",
+   "status": "verified",
+   "from": "#167",
+   "legibility": "clear",
+   "optional": true,
+   "note": "도식 속 작은 대시 기호"
+  },
+  {
+   "id": "f02_p01-g0161",
+   "bbox": [
+    931.0,
+    3161.0,
+    1037.0,
+    3178.0
+   ],
+   "text": "근로소득이 있는자",
+   "status": "verified",
+   "from": "#168",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0162",
+   "bbox": [
+    1282.0,
+    3161.0,
+    1378.0,
+    3178.0
+   ],
+   "text": "3천8백만원이하",
+   "status": "verified",
+   "from": "#169",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0163",
+   "bbox": [
+    745.0,
+    3163.0,
+    877.0,
+    3177.0
+   ],
+   "text": "종합소득 3천8백만원 이하",
+   "status": "verified",
+   "from": "#170",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0164",
+   "bbox": [
+    446.0,
+    3175.0,
+    481.0,
+    3200.0
+   ],
+   "text": "대상",
+   "status": "verified",
+   "from": "#171",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0165",
+   "bbox": [
+    706.0,
+    3213.0,
+    1260.0,
+    3227.0
+   ],
+   "text": "가입일 또는 연장일이 속한 과세기간 직전 3개 과세기간 중 1회 이상 금융소득종합과세대상자가 아닐 것",
+   "status": "corrected",
+   "from": "#172",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0166",
+   "bbox": [
+    429.0,
+    3260.0,
+    497.0,
+    3285.0
+   ],
+   "text": "비과세한도",
+   "status": "verified",
+   "from": "#173",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0167",
+   "bbox": [
+    1300.0,
+    3260.0,
+    1358.0,
+    3286.0
+   ],
+   "text": "400만원",
+   "status": "verified",
+   "from": "#174",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0168",
+   "bbox": [
+    608.0,
+    3262.0,
+    664.0,
+    3284.0
+   ],
+   "text": "200만원",
+   "status": "verified",
+   "from": "#175",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0169",
+   "bbox": [
+    781.0,
+    3262.0,
+    838.0,
+    3284.0
+   ],
+   "text": "400만원",
+   "status": "verified",
+   "from": "#176",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0170",
+   "bbox": [
+    955.0,
+    3262.0,
+    1011.0,
+    3284.0
+   ],
+   "text": "200만원",
+   "status": "verified",
+   "from": "#177",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0171",
+   "bbox": [
+    1129.0,
+    3262.0,
+    1184.0,
+    3284.0
+   ],
+   "text": "400만원",
+   "status": "verified",
+   "from": "#178",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0172",
+   "bbox": [
+    967.0,
+    3316.0,
+    999.0,
+    3340.0
+   ],
+   "text": "3년",
+   "status": "verified",
+   "from": "#179",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0173",
+   "bbox": [
+    423.0,
+    3317.0,
+    505.0,
+    3338.0
+   ],
+   "text": "의무가입기간",
+   "status": "verified",
+   "from": "#180",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0174",
+   "bbox": [
+    1280.0,
+    3369.0,
+    1381.0,
+    3388.0
+   ],
+   "text": "농·어업인확인서",
+   "status": "verified",
+   "from": "#181",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0175",
+   "bbox": [
+    1324.0,
+    3393.0,
+    1335.0,
+    3404.0
+   ],
+   "text": "+",
+   "status": "verified",
+   "from": "#182",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0176",
+   "bbox": [
+    433.0,
+    3409.0,
+    492.0,
+    3430.0
+   ],
+   "text": "제출서류",
+   "status": "verified",
+   "from": "#183",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0177",
+   "bbox": [
+    597.0,
+    3411.0,
+    674.0,
+    3428.0
+   ],
+   "text": "실명확인증표",
+   "status": "corrected",
+   "from": "#184",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0178",
+   "bbox": [
+    1285.0,
+    3411.0,
+    1376.0,
+    3428.0
+   ],
+   "text": "소득확인증명서",
+   "status": "verified",
+   "from": "#185",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0179",
+   "bbox": [
+    855.0,
+    3413.0,
+    1110.0,
+    3427.0
+   ],
+   "text": "소득확인증명서 (개인종합자산관리계좌 가입용)",
+   "status": "corrected",
+   "from": "#186",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0180",
+   "bbox": [
+    1267.0,
+    3431.0,
+    1394.0,
+    3448.0
+   ],
+   "text": "(개인종합자산관리계좌",
+   "status": "verified",
+   "from": "#187",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0181",
+   "bbox": [
+    1307.0,
+    3452.0,
+    1354.0,
+    3471.0
+   ],
+   "text": "가입용)",
+   "status": "verified",
+   "from": "#188",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0182",
+   "bbox": [
+    375.0,
+    3522.0,
+    492.0,
+    3539.0
+   ],
+   "text": "고객투자 유의사항",
+   "status": "verified",
+   "from": "#189",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0183",
+   "bbox": [
+    375.0,
+    3556.0,
+    1115.0,
+    3570.0
+   ],
+   "text": "※ 투자자는 이 계좌에 대하여 은행으로부터 충분한 설명을 받을 권리가 있으며, 가입 전 상품설명서 및 약관을 반드시 읽어보시기 바랍니다.",
+   "status": "corrected",
+   "from": "#190",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0184",
+   "bbox": [
+    375.0,
+    3577.0,
+    870.0,
+    3591.0
+   ],
+   "text": "※ 이 계좌 내 투자성 상품은 원금손실이 발생할 수 있으며, 그 손실은 투자자에게 귀속됩니다.",
+   "status": "corrected",
+   "from": "#191",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0185",
+   "bbox": [
+    374.0,
+    3597.0,
+    706.0,
+    3612.0
+   ],
+   "text": "※ 이 계좌는 신탁보수 또는 일임수수료가 발생할 수 있습니다.",
+   "status": "corrected",
+   "from": "#192",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0186",
+   "bbox": [
+    373.0,
+    3616.0,
+    762.0,
+    3634.0
+   ],
+   "text": "※ 과세기준 및 과세방법은 향후 세법개정 등에 따라 변동될 수 있습니다.",
+   "status": "corrected",
+   "from": "#193",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0187",
+   "bbox": [
+    373.0,
+    3636.0,
+    934.0,
+    3655.0
+   ],
+   "text": "※ 중도해지시 또는 국세청 부적격 통보시 과세특례를 적용받은 소득세액에 상당하는 세액이 추징됩니다.",
+   "status": "corrected",
+   "from": "#194",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0188",
+   "bbox": [
+    375.0,
+    3660.0,
+    1184.0,
+    3674.0
+   ],
+   "text": "※ 국내 상장주식 매매차익은 비과세이므로 국내 주식형펀드에서 손실이 발생하더라도 ISA 내 예금, 다른 펀드 등에서 발생한 이익과 통산되지 않습니다.",
+   "status": "corrected",
+   "from": "#195",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0189",
+   "bbox": [
+    374.0,
+    3679.0,
+    1193.0,
+    3696.0
+   ],
+   "text": "※기 계좌는 당행에서 특정금전신탁 또는 투자일임 중 한 가지 계약형태로만 가입이 가능하며, 형태별 차이는 가까운 영업점 등에서 확인하시기 바랍니다.",
+   "status": "alt",
+   "from": "#196",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0190",
+   "bbox": [
+    375.0,
+    3701.0,
+    1360.0,
+    3716.0
+   ],
+   "text": "※ 이 개인종합자산관리계좌(ISA)는 예금자보호법에 따라 예금보호 대상으로 운용되는 금융상품에 한하여 1인당 “1억원까지”(운용되는 금융상품 판매회사별 보호상품 합산) 보호됩니다.",
+   "status": "corrected",
+   "from": "#197",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0191",
+   "bbox": [
+    376.0,
+    3731.0,
+    696.0,
+    3745.0
+   ],
+   "text": "준법감시인심의번호 2026-4847(2026.09.01.~2027.08.31.)",
+   "status": "corrected",
+   "from": "#198",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0192",
+   "bbox": [
+    714.0,
+    3813.0,
+    805.0,
+    3838.0
+   ],
+   "text": "전화상담",
+   "status": "verified",
+   "from": "#199",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0193",
+   "bbox": [
+    858.0,
+    3813.0,
+    948.0,
+    3837.0
+   ],
+   "text": "채팅상담",
+   "status": "verified",
+   "from": "#200",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0194",
+   "bbox": [
+    374.0,
+    3814.0,
+    474.0,
+    3838.0
+   ],
+   "text": "상품공시실",
+   "status": "verified",
+   "from": "#201",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0195",
+   "bbox": [
+    529.0,
+    3814.0,
+    662.0,
+    3838.0
+   ],
+   "text": "서식/약관자료실",
+   "status": "verified",
+   "from": "#202",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0196",
+   "bbox": [
+    1003.0,
+    3816.0,
+    1101.0,
+    3834.0
+   ],
+   "text": "이메일상담",
+   "status": "verified",
+   "from": "#203",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0197",
+   "bbox": [
+    1256.0,
+    3890.0,
+    1364.0,
+    3912.0
+   ],
+   "text": "계열사/관련사이트",
+   "status": "verified",
+   "from": "#204",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0198",
+   "bbox": [
+    377.0,
+    3893.0,
+    946.0,
+    3908.0
+   ],
+   "text": "보안센터 전자민원접수 개인정보처리(취급)방침 보호금융상품등록부 금융소비자정보포털파인",
+   "status": "corrected",
+   "from": "#205",
+   "legibility": "clear",
+   "optional": false,
+   "note": "세로 구분선 제외"
+  },
+  {
+   "id": "f02_p01-g0199",
+   "bbox": [
+    1001.0,
+    3941.0,
+    1148.0,
+    3959.0
+   ],
+   "text": "카드전용상담:1644-4000",
+   "status": "verified",
+   "from": "#207",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0200",
+   "bbox": [
+    1166.0,
+    3941.0,
+    1370.0,
+    3959.0
+   ],
+   "text": "상담시간:평일09시~18시(공휴일제외)",
+   "status": "verified",
+   "from": "#208",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0201",
+   "bbox": [
+    375.0,
+    3942.0,
+    639.0,
+    3957.0
+   ],
+   "text": "고객행복센터 대표번호:1661-3000,1522-3000",
+   "status": "verified",
+   "from": "#209",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0202",
+   "bbox": [
+    661.0,
+    3942.0,
+    792.0,
+    3957.0
+   ],
+   "text": "해외:82-2-3704-1004",
+   "status": "verified",
+   "from": "#210",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0203",
+   "bbox": [
+    813.0,
+    3942.0,
+    983.0,
+    3957.0
+   ],
+   "text": "공용:1588-2100/1544-2100",
+   "status": "verified",
+   "from": "#211",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0204",
+   "bbox": [
+    375.0,
+    3970.0,
+    560.0,
+    3989.0
+   ],
+   "text": "Copyright NH Bank. All Rights Reserved.",
+   "status": "corrected",
+   "from": "#212",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0205",
+   "bbox": [
+    428.0,
+    4018.0,
+    500.0,
+    4036.0
+   ],
+   "text": "금융의 모든 순간",
+   "status": "corrected",
+   "from": "#213",
+   "legibility": "clear",
+   "optional": false,
+   "note": ""
+  },
+  {
+   "id": "f02_p01-g0206",
+   "bbox": [
+    382.0,
+    4020.0,
+    414.0,
+    4043.0
+   ],
+   "text": "WA",
+   "status": "added_manual",
+   "from": "manual",
+   "legibility": "tiny",
+   "optional": true,
+   "note": "웹 접근성 인증마크 속 글자"
+  }
+ ],
+ "non_text": [
+  {
+   "bbox": [
+    1358.0,
+    84.0,
+    1425.0,
+    118.0
+   ],
+   "note": "검색·메뉴 아이콘",
+   "from": "#5",
+   "ocr": "Q="
+  },
+  {
+   "bbox": [
+    1387.0,
+    133.0,
+    1421.0,
+    163.0
+   ],
+   "note": "인쇄 아이콘",
+   "from": "#17",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1391.5396728515625,
+    135.16226196289062,
+    1411.5994873046875,
+    157.18667602539062
+   ],
+   "note": "인쇄 아이콘",
+   "from": "#18",
+   "ocr": "금"
+  },
+  {
+   "bbox": [
+    759.0,
+    1279.0,
+    789.0,
+    1309.0
+   ],
+   "note": "사람 아이콘",
+   "from": "#61",
+   "ocr": "8"
+  },
+  {
+   "bbox": [
+    758.0,
+    1706.0,
+    792.0,
+    1739.0
+   ],
+   "note": "사람 아이콘",
+   "from": "#84",
+   "ocr": "8"
+  },
+  {
+   "bbox": [
+    620.0,
+    2360.0,
+    646.0,
+    2376.0
+   ],
+   "note": "점선 연결선 위 × 그림 기호",
+   "from": "#124",
+   "ocr": "×"
+  },
+  {
+   "bbox": [
+    616.0,
+    2426.0,
+    649.0,
+    2443.0
+   ],
+   "note": "점선 연결선 위 × 그림 기호",
+   "from": "#132",
+   "ocr": "- X -"
+  },
+  {
+   "bbox": [
+    1389.0,
+    3895.0,
+    1406.0,
+    3908.0
+   ],
+   "note": "드롭다운 아이콘",
+   "from": "#206",
+   "ocr": "¸"
+  },
+  {
+   "bbox": [
+    873.0,
+    1449.0,
+    883.0,
+    1457.0
+   ],
+   "note": "꺾인 연결선",
+   "from": "E1:B200",
+   "ocr": "7"
+  },
+  {
+   "bbox": [
+    873.0,
+    1449.0,
+    883.0,
+    1457.0
+   ],
+   "note": "꺾인 연결선",
+   "from": "E2:B300",
+   "ocr": "7"
+  },
+  {
+   "bbox": [
+    1173.0,
+    3891.0,
+    1193.0,
+    3910.0
+   ],
+   "note": "페이스북 아이콘",
+   "from": "E3:B200",
+   "ocr": "f"
+  },
+  {
+   "bbox": [
+    1173.0,
+    3891.0,
+    1193.0,
+    3910.0
+   ],
+   "note": "페이스북 아이콘",
+   "from": "E4:B300",
+   "ocr": "f"
+  },
+  {
+   "bbox": [
+    616.0,
+    2288.0,
+    649.0,
+    2316.0
+   ],
+   "note": "도식 × 기호",
+   "from": "manual",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    868.0,
+    1287.0,
+    888.0,
+    1306.0
+   ],
+   "note": "도식 연결선 끝",
+   "from": "manual",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    928.0,
+    1843.0,
+    956.0,
+    1871.0
+   ],
+   "note": "도식 연결선 끝",
+   "from": "manual",
+   "ocr": ""
+  },
+  {
+   "bbox": [
+    1204.0,
+    3887.0,
+    1232.0,
+    3914.0
+   ],
+   "note": "인스타그램 아이콘",
+   "from": "manual",
+   "ocr": ""
+  }
+ ],
+ "absorbed_rows": []
+}

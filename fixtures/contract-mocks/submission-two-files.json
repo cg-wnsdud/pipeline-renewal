@@ -1,0 +1,82 @@
+{
+ "note": "계약 검증용 mock(docs/12). 실제 파싱 결과가 아니며 실제 결과에 넣지 않는다. 상품·라벨 값은 가상의 예시다(label_ids 는 실제 구분값 사전이 아님).",
+ "cases": ["복수 상품 영역(공통)", "여러 파일의 같은 상품", "상품 하나 전용 영역", "미확정 영역", "상품별 라벨 참조", "미실행 영역"],
+ "documents": [
+  {
+   "contract": "layout-result/2", "result_id": "lr2-00000000000000000001", "submission_id": "mock-s1",
+   "source": {"file_id": "m01", "file_name": "mock-a.pdf", "input_order": 1, "file_type": "pdf",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000001", "page_count": 2},
+   "parser_profile": {"name": "page-first-default/1", "read_mode": "page-first", "verify_mode": "region-reread/1",
+                      "table_mode": "table-cells/1", "assignment_rule": {"name": "core-containment/1", "core_shrink": 0.0}, "versions": {}},
+   "pages": [
+    {"page_id": "m01_p01", "page_no": 1, "width": 1654, "height": 2339, "coordinate_system": "page_px_xyxy",
+     "image": {"sha256": "0000000000000000000000000000000000000000000000000000000000000011", "path": "../../stage1/pages/m01_p01.png"},
+     "route": "whole", "execution_status": "READY", "quality_status": "not_verified", "boundary": null, "issues": []},
+    {"page_id": "m01_p02", "page_no": 2, "width": 1654, "height": 2339, "coordinate_system": "page_px_xyxy",
+     "image": {"sha256": "0000000000000000000000000000000000000000000000000000000000000012", "path": "../../stage1/pages/m01_p02.png"},
+     "route": "whole", "execution_status": "READY", "quality_status": "not_verified", "boundary": null, "issues": []}
+   ],
+   "regions": [
+    {"region_id": "m01_p01-v0-L000", "page_id": "m01_p01", "bbox": [10, 10, 800, 120], "table_candidate": false,
+     "text": "가상 상품 A · 가상 상품 B 공통 안내", "text_status": "read", "table": null,
+     "review": {"required": false, "quality_reasons": [], "context_reasons": []}, "candidate_boundary": false,
+     "product_assignment": {"status": "completed", "scope": "shared", "product_ids": ["P-A", "P-B"]},
+     "labeling": {"status": "completed", "items": [{"product_id": "P-A", "label_ids": ["mock-label-1"]},
+                                                   {"product_id": "P-B", "label_ids": ["mock-label-1", "mock-label-2"]}]}},
+    {"region_id": "m01_p01-v0-L001", "page_id": "m01_p01", "bbox": [10, 200, 800, 400], "table_candidate": true,
+     "text": "가입기간 금리", "text_status": "read",
+     "table": {"status": "table", "rows": [["가입기간", "금리"]], "structure": "table-cells/1", "n_rows": 1, "n_cols": 2,
+               "cells": [{"row": 0, "col": 0, "rowspan": 1, "colspan": 1, "text": "가입기간"},
+                         {"row": 0, "col": 1, "rowspan": 1, "colspan": 1, "text": "금리"}]},
+     "review": {"required": true, "quality_reasons": [], "context_reasons": ["region_overlap"]}, "candidate_boundary": false,
+     "product_assignment": {"status": "completed", "scope": "specific", "product_ids": ["P-A"]},
+     "labeling": {"status": "partial", "items": [{"product_id": "P-A", "label_ids": []}]}},
+    {"region_id": "m01_p02-v0-L000", "page_id": "m01_p02", "bbox": [10, 10, 800, 120], "table_candidate": false,
+     "text": "어느 상품 설명인지 판단 보류", "text_status": "read", "table": null,
+     "review": {"required": true, "quality_reasons": ["vlm_uncertain"], "context_reasons": []}, "candidate_boundary": false,
+     "product_assignment": {"status": "partial", "scope": "unknown", "product_ids": []},
+     "labeling": {"status": "not_run", "items": []}},
+    {"region_id": "m01_p02-v0-L001", "page_id": "m01_p02", "bbox": [10, 300, 800, 380], "table_candidate": false,
+     "text": null, "text_status": "read_failed", "table": null,
+     "review": {"required": true, "quality_reasons": ["read_failed"], "context_reasons": []}, "candidate_boundary": false,
+     "product_assignment": {"status": "not_run", "scope": null, "product_ids": []},
+     "labeling": {"status": "not_run", "items": []}}
+   ],
+   "unassigned_texts": [
+    {"ocr_id": "m01_p01-v0-T009", "page_id": "m01_p01", "bbox": [900, 10, 1000, 40], "ocr_text": "미배정 문구", "reason": "outside_layout",
+     "candidate_region_ids": [], "empty_text": false, "final": false}
+   ],
+   "products": [{"product_id": "P-A", "name": "가상 상품 A"}, {"product_id": "P-B", "name": null}],
+   "trace_ref": {"run_dir": "../..", "reads": "../../trace/reads.json", "stage1_records": []}
+  },
+  {
+   "contract": "layout-result/2", "result_id": "lr2-00000000000000000002", "submission_id": "mock-s1",
+   "source": {"file_id": "m02", "file_name": "mock-b.png", "input_order": 2, "file_type": "image",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000002", "page_count": 1},
+   "parser_profile": {"name": "page-first-default/1", "read_mode": "page-first", "verify_mode": "region-reread/1",
+                      "table_mode": "table-cells/1", "assignment_rule": {"name": "core-containment/1", "core_shrink": 0.0}, "versions": {}},
+   "pages": [
+    {"page_id": "m02_p01", "page_no": 1, "width": 720, "height": 5000, "coordinate_system": "page_px_xyxy",
+     "image": {"sha256": "0000000000000000000000000000000000000000000000000000000000000021", "path": "../../stage1/pages/m02_p01.png"},
+     "route": "long", "execution_status": "CANDIDATE_RUN", "quality_status": "candidate_unvalidated",
+     "boundary": {"plan_status": "candidate", "plan_version": "auto-section-pack-2", "cuts": [0, 1800, 5000], "tiles": [], "validated": false},
+     "issues": [{"code": "BOUNDARY_CANDIDATE_RUN", "severity": "review", "message": "mock"}]}
+   ],
+   "regions": [
+    {"region_id": "m02_p01-t0-L000", "page_id": "m02_p01", "bbox": [0, 100, 700, 300], "table_candidate": false,
+     "text": "가상 상품 A 계속(다른 파일·타일)", "text_status": "read", "table": null,
+     "review": {"required": true, "quality_reasons": [], "context_reasons": ["candidate_boundary_unvalidated"]}, "candidate_boundary": true,
+     "product_assignment": {"status": "completed", "scope": "specific", "product_ids": ["P-A"]},
+     "labeling": {"status": "completed", "items": [{"product_id": "P-A", "label_ids": ["mock-label-3"]}]}},
+    {"region_id": "m02_p01-t1-L000", "page_id": "m02_p01", "bbox": [0, 1900, 700, 2100], "table_candidate": false,
+     "text": "", "text_status": "no_text", "table": null,
+     "review": {"required": false, "quality_reasons": [], "context_reasons": []}, "candidate_boundary": true,
+     "product_assignment": {"status": "not_run", "scope": null, "product_ids": []},
+     "labeling": {"status": "not_run", "items": []}}
+   ],
+   "unassigned_texts": [],
+   "products": [{"product_id": "P-A", "name": "가상 상품 A"}],
+   "trace_ref": {"run_dir": "../..", "reads": "../../trace/reads.json", "stage1_records": []}
+  }
+ ]
+}
