@@ -17,17 +17,6 @@ VLM_IMAGE_PIXEL_BUDGET = 2_580_480   # VLM 이미지 처리기 예산(기존 서
 IMAGE_SCOPES = ("page", "tile", "region_crop")
 TASKS = ("read_text", "table_check")
 
-READ_RESULT_SCHEMA = {
-    "type": "object", "additionalProperties": False, "required": ["region_id", "text", "uncertain"],
-    "properties": {"region_id": {"type": "string"}, "text": {"type": ["string", "null"]},
-                   "uncertain": {"type": "boolean"}},
-}
-TABLE_RESULT_SCHEMA = {
-    "type": "object", "additionalProperties": False, "required": ["region_id", "is_table", "text", "uncertain"],
-    "properties": {"region_id": {"type": "string"}, "is_table": {"type": "boolean"},
-                   "text": {"type": ["string", "null"]}, "uncertain": {"type": "boolean"}},
-}
-
 
 class ContractError(ValueError):
     pass
@@ -90,37 +79,3 @@ def validate_requests(requests: list[dict], regions: list[dict]) -> dict:
         raise ContractError("; ".join(problems))
     return {"requests": len(requests), "read_text": sum(q["task"] == "read_text" for q in requests),
             "table_check": sum(q["task"] == "table_check" for q in requests), "passed": True}
-
-
-def merge_results(regions: list[dict], results: list[dict], reviews: dict[str, dict]) -> list[dict]:
-    """VLM 결과를 Region 에 붙인다. bbox·ID 는 그대로, 거짓 표도 같은 영역·문구로 남긴다.
-
-    - text=None 은 판독 실패, "" 은 글자 없음으로 판독. 둘을 섞지 않는다.
-    - is_table 은 실제 boolean 이어야 한다(문자열을 bool() 로 바꾸지 않는다).
-    - needs_review 는 reviews(vlm_tasks.review_reasons: OCR/VLM 불일치·판독 실패·계약 오류·중첩 등)로 정한다.
-      uncertain=false 만으로 검토 불필요를 결정하지 않는다."""
-    by_id = {x["region_id"]: x for x in results}
-    if sorted(by_id) != sorted(r["region_id"] for r in regions) or len(by_id) != len(results):
-        raise ContractError("VLM 결과의 region_id 집합이 요청과 다름")
-    out = []
-    for r in regions:
-        res = by_id[r["region_id"]]
-        text = res.get("text")
-        if text is not None and not isinstance(text, str):
-            raise ContractError(f"{r['region_id']}: text 타입 {type(text).__name__}")
-        if r["table_candidate"]:
-            if not isinstance(res.get("is_table"), bool):
-                raise ContractError(f"{r['region_id']}: is_table 이 boolean 이 아님({res.get('is_table')!r})")
-            verified = res["is_table"]
-        else:
-            if "is_table" in res:
-                raise ContractError(f"{r['region_id']}: 표 후보가 아닌 영역에 표 판정이 있음")
-            verified = None
-        review = reviews.get(r["region_id"])
-        if review is None:
-            raise ContractError(f"{r['region_id']}: 검토 근거(review_reasons) 없음")
-        out.append({"region_id": r["region_id"], "page_id": r["page_id"], "bbox": r["bbox"], "text": text,
-                    "text_status": "read_failed" if text is None else ("no_text" if text == "" else "read"),
-                    "table_verified": verified, "needs_review": review["needs_review"],
-                    "review_reasons": review["quality_reasons"] + review["context_reasons"]})
-    return out

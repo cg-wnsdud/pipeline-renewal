@@ -4,10 +4,7 @@
 """
 from __future__ import annotations
 
-import json
 import statistics
-
-from PIL import Image, ImageDraw
 
 from .regions import parse_view
 from .routing import InputView
@@ -16,10 +13,7 @@ SCOUT_ASPECT = 2.5          # 실험 정책값(서버 보장값 아님)
 EDGE_PX = 2                 # 탐색 창 가장자리에 닿은 상자는 잘린 관측으로 제외
 PAD_PX = 4                  # 보호 구간 위아래 여유
 MIN_GAP_PX = 6              # 후보로 삼을 빈 띠 최소 높이
-M1_GAP_RATIO = 2.0          # M1: 빈 띠 ≥ 2.0 × 줄 간격 중앙값이면 safe
 CONTEXT_PX = 300            # M2 입력 crop: 후보선 위아래 범위
-RELATIONS = ["independent_sections", "heading_and_body", "same_paragraph_or_sentence", "inside_table",
-             "button_and_description", "list_or_condition_continuation", "unknown"]
 
 
 def scout_windows(width: int, height: int) -> list[tuple[int, int, int, int]]:
@@ -82,42 +76,3 @@ def context_items(boxes: list[dict], y: int) -> tuple[list[dict], list[dict]]:
     below = [b for b in uniq if b["bbox"][1] >= y and b["bbox"][1] <= y + CONTEXT_PX][:8]
     return ([{"id": f"A{i + 1}", "text": b["text"], "bbox": b["bbox"]} for i, b in enumerate(reversed(above))],
             [{"id": f"B{i + 1}", "text": b["text"], "bbox": b["bbox"]} for i, b in enumerate(below)])
-
-
-def relation_request(page_img: Image.Image, y: int, above: list[dict], below: list[dict]) -> dict:
-    top, bot = max(0, y - CONTEXT_PX), min(page_img.height, y + CONTEXT_PX)
-    crop = page_img.crop((0, top, page_img.width, bot))
-    marked = crop.copy()
-    ImageDraw.Draw(marked).line((0, y - top, crop.width, y - top), fill=(220, 0, 0), width=3)
-    a_ids = [a["id"] for a in above] + ["NONE"]
-    b_ids = [b["id"] for b in below] + ["NONE"]
-    schema = {"type": "object", "additionalProperties": False, "required": ["above_id", "below_id", "relation", "reason"],
-              "properties": {"above_id": {"type": "string", "enum": a_ids}, "below_id": {"type": "string", "enum": b_ids},
-                             "relation": {"type": "string", "enum": RELATIONS}, "reason": {"type": "string"}}}
-    text = ("긴 광고 화면을 가로로 나눌 위치를 검토합니다. 첫 이미지는 후보선 주변 원본이고, 둘째는 같은 이미지에 후보선(빨간 선) 하나만 "
-            "그린 사본입니다. 글자는 첫 이미지에서 읽으세요.\n"
-            "1) above_id: 선 바로 위에서 관계 판단의 근거가 되는 글자(A 목록, A1 이 선에 가장 가까움). 없으면 NONE.\n"
-            "2) below_id: 선 바로 아래의 근거 글자(B 목록, B1 이 선에 가장 가까움). 없으면 NONE.\n"
-            "3) relation: 위 내용과 아래 내용의 관계를 하나 고르세요.\n"
-            "- independent_sections: 서로 독립된 섹션(위 섹션이 끝나고 새 섹션이 시작)\n"
-            "- heading_and_body: 위가 제목·소제목이고 아래가 그 설명·내용\n"
-            "- same_paragraph_or_sentence: 같은 문단·문장이 이어짐\n"
-            "- inside_table: 같은 표·항목-값 목록의 행 사이\n"
-            "- button_and_description: 버튼·링크와 그 안내문이 연결됨\n"
-            "- list_or_condition_continuation: 같은 목록·조건·각주가 이어짐\n"
-            "- unknown: 판단할 수 없음\n"
-            "좌표나 새 후보를 만들지 마세요. reason 에 근거를 짧게 쓰세요.\n"
-            "위 글자(A, 선에서 가까운 순): " + json.dumps(above, ensure_ascii=False) +
-            "\n아래 글자(B, 선에서 가까운 순): " + json.dumps(below, ensure_ascii=False))
-    return {"text": text, "images": [crop, marked], "schema": schema, "crop_y": [top, bot]}
-
-
-def accept_m2(parsed: dict | None, above: list[dict], below: list[dict]) -> tuple[bool, str]:
-    """코드가 관계 유형으로 판정한다. 근거 ID 가 선에 가장 가까운 3개 밖이면 버린다."""
-    if not isinstance(parsed, dict) or parsed.get("relation") not in RELATIONS:
-        return False, "invalid_response"
-    near_a = {a["id"] for a in above[:3]} | ({"NONE"} if not above else set())
-    near_b = {b["id"] for b in below[:3]} | ({"NONE"} if not below else set())
-    if parsed.get("above_id") not in near_a or parsed.get("below_id") not in near_b:
-        return False, "evidence_mismatch"
-    return parsed["relation"] == "independent_sections", parsed["relation"]

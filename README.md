@@ -9,7 +9,7 @@ layout_pipeline/            파이프라인 코드
   pages.py, hwp_bridge.py     1 입력 → 페이지(PDF 200dpi 렌더, HWP/HWPX 는 PDF 변환)
   routing.py, auto_boundary.py, boundary.py
                               긴 이미지 판정·자동 경계(타일 나누기)
-  stage1.py, ocr_client.py, regions.py, assignment.py, diagnostics.py, ink.py
+  stage1.py, ocr_client.py, regions.py, assignment.py, diagnostics.py
                               2 OCR 호출·레이아웃 영역·OCR 글자 배정
   read_stage.py, page_read.py, vlm_tasks.py, table_cells.py, vlm_client.py, vlm_contract.py
                               3 VLM 영역 판독(페이지 판독·재판독·표 셀 구조)
@@ -59,6 +59,8 @@ work/                       실행 산출물(git 제외)
 5. **상품·템플릿·영역 소속 결정(observe)**: 영역 상자 이미지와 전체 영역의 파싱 결과(문구·표)를 VLM 에 보내 상품이 몇 개인지, 상품별 템플릿, 모든 영역이 어느 상품에 속하는지(한 상품·여러 상품 공통·미확정)를 한 호출에서 함께 정한다. 응답의 상품 번호·영역 연결을 검사하고, 이름도 자기 영역도 없는 대상은 버리고(R1) 이름 없는 대상이 같은 템플릿 대상과 겹치면 합친다(R2). 큰 묶음(4쪽·80영역·16,000자·이미지 6장 초과)은 페이지별로 확인한 뒤 통합 호출로 파일·페이지에 이어지는 같은 상품을 잇는다. 요청에는 파일명·파일 ID 를 넣지 않는다.
 6. **영역별 라벨링**: 영역에 연결된 상품의 템플릿 라벨 스키마에서 해당 구분값을 고른다. 여러 상품의 공통 영역은 상품별로 라벨링하고, 소속이 불명확한 영역은 미확정으로 남긴다. 라벨 근거 인용은 영역 문구에서 확인한다.
 7. **최종 JSON·확인 화면**: 파일마다 `layout-result/3`(페이지, 영역 bbox·최종 문구·표 결과, 상품·템플릿, 영역의 상품 연결·라벨, 검토 상태)을 쓰고 스키마·계약 검사를 한다. 상세 판단 근거·프롬프트·원시 응답은 `trace/` 에 따로 두며, 저장 응답만으로 같은 결과를 다시 만들 수 있다.
+
+VLM 호출은 `--vlm-concurrency`(기본 2) 상한 안에서 동시에 보낸다. 긴 이미지 경계 판정은 한 라운드의 후보를 함께 보내고, 판독은 모든 파일·페이지·타일·띠를 한 작업 풀에 넣어 1차 판독이 끝난 단위부터 그 단위의 재판독·표 셀을 같은 풀에 넣는다. 의미 단계는 모든 호출이 같은 상한을 함께 쓴다. OCR 은 직렬이다. 동시 2·3·4 비교는 `docs/17-parallel-calls-and-concurrency.md`.
 
 ## 최종 산출물 JSON 구조
 

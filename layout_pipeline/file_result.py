@@ -190,14 +190,3 @@ def write_file_results(out_dir: Path, docs: list[dict]) -> list[dict]:
                       "review_quality": sum(bool(r["review"]["quality_reasons"]) for r in rs)})
     dump(out_dir / "files" / "index.json", {"contract": CONTRACT + "/index", "files": index})
     return index
-
-
-def export_run(root: Path, run_dir: Path, out_dir: Path) -> list[dict]:
-    """기존 실행(layout-result/1)을 파일별 layout-result/2 로 내보낸다. run_dir 은 읽기만 한다."""
-    result_v1 = load(run_dir / "result.json")
-    stage1_dir = _resolve(root, result_v1["settings"]["stage1"])
-    records = [load(stage1_dir / "records" / f"{p['page_id']}.json") for p in result_v1["pages"]]
-    from .supplement import reapply
-    reapply(records, run_dir / "trace")                  # 보충 영역(…-S000)은 trace 근거로 다시 더한다
-    docs = build_file_results(root, out_dir, result_v1, records, stage1_dir, run_dir / "trace")
-    return write_file_results(out_dir, docs)

@@ -12,10 +12,6 @@
   0.2~0.4 에서 결과 수가 같다는 것은 정답 근거가 아니다. 완화 배정 전체를 원본과 대조한
   감사(docs/11)로 오배정 여부를 확인한다. 저장 bbox 는 어느 규칙에서도 바뀌지 않는다.
 
-ink-containment/1(docs/11 §1, 비교안): core_shrink 0.25 로 배정되는 항목 중 원래 OCR bbox 가 영역 밖으로 나간 것은
-  OCR 상자 안 글자 잉크(ink.py)가 모두 그 영역 안일 때만 배정한다. 잉크가 하나라도 밖이면 partial_overlap 으로 미배정.
-  OCR 상자 여백만 영역 밖인 경우만 받아들이는 규칙이다(이전·새 입력 감사에서 glyph_outside 배정 0).
-
 미배정 항목은 가까운 영역에 붙이거나 bbox 를 늘리지 않고 unassigned_texts 로 보존한다.
 
 overlap-best/1(선택 규칙): 같은 view 에서 OCR bbox 와 양의 면적으로 겹치는 영역이 있으면 교집합/OCR 면적이
@@ -28,7 +24,6 @@ from collections import Counter
 from dataclasses import dataclass
 
 from .geometry import area, contains, core, intersection, protrusion
-from .ink import INK_DISTANCE, outside_ink
 from .regions import OcrItem, Region
 
 RULE_NAME = "core-containment/1"
@@ -49,30 +44,22 @@ class AssignmentRule:
     # 영역 밖, 30개가 판단 불가로 확인되어 기본에서 제외했다. 비교용으로만 --core-shrink 0.25 를 쓴다.
     core_shrink: float = 0.0
     status: str = "baseline"
-    ink_check: bool = False      # ink-containment/1: 영역 밖으로 나간 OCR 상자는 잉크가 모두 영역 안일 때만 배정
     overlap_best: bool = False   # overlap-best/1: 겹치는 OCR 줄은 가장 많이 겹친 단일 영역에 귀속
 
     @property
     def strict(self) -> bool:
-        return self.core_shrink == 0 and not self.overlap_best and not self.ink_check
+        return self.core_shrink == 0 and not self.overlap_best
 
     def to_dict(self) -> dict:
         if self.overlap_best:
             return {"name": OVERLAP_RULE_NAME, "core_shrink": None, "strict": False, "status": self.status,
                     "statement": "OCR bbox 와 양의 면적으로 겹치는 같은 view 의 영역 중 OCR 면적 대비 겹침이 최대인 한 영역에 배정. "
                                  "동률이면 더 작은 영역, 더 높은 검출 점수, 원시 순번 순으로 선택. 겹치는 영역이 없을 때만 미배정."}
-        if self.ink_check:
-            return {"name": INK_RULE_NAME, "core_shrink": self.core_shrink, "strict": False, "status": self.status,
-                    "ink_distance": INK_DISTANCE,
-                    "statement": "core-containment(core_shrink) 로 배정되는 항목 중 OCR bbox 가 영역 밖으로 나간 것은 "
-                                 "OCR 상자 안 잉크 픽셀이 모두 그 영역 안일 때만 배정. 그 외는 미배정(사유 기록)."}
         return {"name": RULE_NAME, "core_shrink": self.core_shrink, "strict": self.strict, "status": self.status,
                 "statement": "OCR 상자 중심부(각 변을 짧은 변×core_shrink 만큼 축소)를 정확히 한 영역이 포함하고 "
                              "다른 영역과 중심부가 겹치지 않으면 배정. 그 외는 미배정(사유 기록)."}
 
 
-INK_RULE_NAME = "ink-containment/1"
-INK_RULE = AssignmentRule(core_shrink=0.25, status="experiment", ink_check=True)
 OVERLAP_RULE_NAME = "overlap-best/1"
 OVERLAP_RULE = AssignmentRule(status="provisional", overlap_best=True)
 
@@ -110,26 +97,16 @@ class PartitionError(AssertionError):
     pass
 
 
-def assign(items: list[OcrItem], regions: list[Region], rule: AssignmentRule, page=None) -> dict:
-    """view 단위로 배정한다(타일 응답 사이의 교차 배정 없음). ink_check 규칙은 page(RGB 배열)가 필요하다."""
+def assign(items: list[OcrItem], regions: list[Region], rule: AssignmentRule) -> dict:
+    """view 단위로 배정한다(타일 응답 사이의 교차 배정 없음)."""
     by_view: dict[str, list[Region]] = {}
     for r in regions:
         by_view.setdefault(r.view_id, []).append(r)
-    if rule.ink_check and page is None:
-        raise ValueError(f"{INK_RULE_NAME} 배정에는 페이지 이미지가 필요하다")
     bbox_of = {r.region_id: r.bbox for r in regions}
     region_of = {r.region_id: r for r in regions}
     assigned, unassigned = [], []
     for item in items:
         status, candidates = classify(item, by_view.get(item.view_id, []), rule)
-        ink = None
-        if status == "assigned" and rule.ink_check:
-            hit = next(x for x in candidates if x["core_inside"])
-            if not hit["exact_inside"]:
-                m = outside_ink(page, item.ocr_bbox, bbox_of[hit["region_id"]])
-                ink = {"ink_outside_px": m["ink_outside_px"], "ink_outside_max_px": m["ink_outside_max_px"]}
-                if m["ink_outside_px"] > 0:
-                    status = "partial_overlap"
         if status == "assigned":
             if rule.overlap_best:
                 hit = max(candidates, key=lambda x: (x["intersection_px"], -area(bbox_of[x["region_id"]]),
@@ -150,14 +127,13 @@ def assign(items: list[OcrItem], regions: list[Region], rule: AssignmentRule, pa
                              "score": item.score, "empty_text": item.empty, "exact_inside": hit["exact_inside"],
                              "protrusion_px": hit["protrusion_px"], "inside_ratio": hit["inside_ratio"]}
                             | ({"assignment_review": review, "candidate_region_ids": [c["region_id"] for c in candidates]}
-                               if rule.overlap_best else {})
-                            | ({"ink_check": ink} if ink else {}))
+                               if rule.overlap_best else {}))
         else:
             unassigned.append({"ocr_id": item.ocr_id, "source": item.source, "source_index": item.source_index,
                                "page_id": item.page_id, "view_id": item.view_id, "ocr_text": item.ocr_text,
                                "ocr_bbox": item.ocr_bbox, "score": item.score, "reason": status,
                                "reason_text": REASONS[status], "candidates": candidates, "empty_text": item.empty,
-                               "review_required": True, "final": False} | ({"ink_check": ink} if ink else {}))
+                               "review_required": True, "final": False})
     checks = verify_partition(items, regions, assigned, unassigned)
     return {"rule": rule.to_dict(), "assigned": assigned, "unassigned_texts": unassigned, "checks": checks}
 

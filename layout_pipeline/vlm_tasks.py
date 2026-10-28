@@ -11,7 +11,7 @@ import json
 import math
 import re
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 from .text_eval import digits, norm, semiglobal, similarity_cover
 
@@ -164,34 +164,6 @@ def table_schema(region_id: str) -> dict:
 def row_cells(row) -> list[str]:
     """v3(string[]) 와 v1/v2({cells: string[]}) 응답을 모두 읽는다(저장 결과 재평가용)."""
     return row.get("cells", []) if isinstance(row, dict) else list(row)
-
-
-def page_request(record: dict, regions: list[dict], page_img: Image.Image) -> dict:
-    """A: 원래 배치의 페이지 원본 + 대상 영역을 표시한 별도 사본 + ID/bbox/초안."""
-    marked = page_img.copy()
-    d = ImageDraw.Draw(marked)
-    lw = max(3, page_img.width // 400)
-    font = ImageFont.truetype(FONT, max(18, page_img.width // 60))
-    items = []
-    for k, r in enumerate(regions):
-        color = COLORS[k % len(COLORS)]
-        b = r["bbox"]
-        d.rectangle(b, outline=color, width=lw)
-        label = short(r["region_id"])
-        tw = d.textlength(label, font=font)
-        ty = b[1] - font.size - 6 if b[1] - font.size - 6 > 0 else b[3] + 4
-        d.rectangle([b[0], ty, b[0] + tw + 8, ty + font.size + 4], fill=color)
-        d.text((b[0] + 4, ty), label, font=font, fill=(255, 255, 255))
-        items.append({"region_id": r["region_id"], "label": label, "bbox_page_px": [round(v) for v in b],
-                      **legacy_context(record, r)})
-    w, h = page_img.size
-    text = ("첫 번째 이미지는 원본 페이지입니다. 두 번째 이미지는 같은 페이지에 판독 대상 영역을 색 상자와 라벨로 표시한 사본입니다. "
-            "표시가 글자를 가릴 수 있으니 글자는 첫 번째 이미지에서 읽고, 영역 위치는 두 번째 이미지와 bbox(원본 페이지 "
-            f"{w}x{h}px 좌표)로 확인하세요. 각 region_id 에 대해 그 상자 안에 보이는 모든 글자를 원문 그대로 전사하세요. "
-            + RULES + "\n영역 목록:\n" + json.dumps(items, ensure_ascii=False))
-    return {"mode": "page", "region_ids": [r["region_id"] for r in regions], "images": [page_img, marked],
-            "image_roles": ["page_original", "page_marked_copy"], "text": text, "schema": read_schema([r["region_id"] for r in regions]),
-            "items": items}
 
 
 MARGIN_RULE = {"name": "ocr-median-0.3/1",
@@ -404,22 +376,3 @@ def review_reasons(record: dict, region: dict, result: dict) -> dict:
     return {"needs_review": bool(quality or context), "quality_reasons": quality, "context_reasons": context,
             "measures": measures, "ocr_reference": reference,
             "rule": {"mismatch_min_cover": MISMATCH_MIN_COVER, "status": "provisional"}}
-
-
-def cross_region_duplicates(texts: dict[str, str | None], overlaps: list[dict] | None = None) -> list[dict]:
-    """같은 정규화 줄(4자 이상)이 서로 다른 Region 출력에 반복되는지. 원시 보존 검증과 별개로 측정만 한다.
-    regions_overlap=true 면 원시 중첩 영역의 중복 판독, false 면 서로 떨어진 영역에 같은 문구가 있는 경우다."""
-    pairs = {frozenset((o["a"], o["b"])) for o in (overlaps or [])}
-    seen: dict[str, set] = {}
-    for rid, text in texts.items():
-        for line in (text or "").splitlines():
-            n = norm(line)
-            if len(n) >= 4:
-                seen.setdefault(n, set()).add(rid)
-    out = []
-    for k, v in seen.items():
-        if len(v) >= 2:
-            ids = sorted(v)
-            overlap = any(frozenset((a, b)) in pairs for i, a in enumerate(ids) for b in ids[i + 1:])
-            out.append({"line": k, "regions": ids, "regions_overlap": overlap})
-    return out

@@ -166,7 +166,8 @@ def run_fake(tmp, files, fake, concurrency=2) -> tuple[dict, Path]:
 
 def test_assets_match_manifest_catalog_and_scope():
     assert A.verify_assets() == []
-    cat = A.catalog()
+    # 원본 템플릿 카탈로그(실행 중에는 읽지 않는 출처 자료)와 라벨 스키마·분류 정책의 템플릿이 맞는지 확인한다.
+    cat = json.loads((A.ASSET_DIR / "ad_templates.json").read_text(encoding="utf-8"))["templates"]
     for t in A.templates():
         s = A.label_schema(t["label_schema"])
         assert t["template_id"] in cat and s["scope"] == t["template_id"]

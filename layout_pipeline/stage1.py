@@ -11,7 +11,6 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-import numpy as np
 
 from . import diagnostics, gold_eval, vlm_contract
 from .assignment import AssignmentRule, assign
@@ -21,7 +20,7 @@ from .jsonio import dump, load
 from .ocr_client import BASE_OPTIONS, OcrClient
 from .pages import Page, load_manifest, render_submission
 from .regions import parse_view
-from .routing import InputView, RouteDecision, decide, load_plans, load_policy
+from .routing import RouteDecision, decide, load_plans, load_policy
 
 CONTRACT = "layout-stage1/1"
 LARGE_REGION_FRAC = 0.25   # 진단 표시 기준. 영역을 바꾸지 않는다.
@@ -55,9 +54,7 @@ def build_page(page: Page, decision: RouteDecision, calls: list[dict], responses
         issues.append(_issue("BOUNDARY_CANDIDATE_RUN", "review", decision.basis))
     elif status != "READY":
         issues.append(_issue(status, "pending", decision.basis))
-    # ink-containment/1 은 OCR 상자 안 잉크가 영역 안인지 원본 페이지 픽셀로 본다(그 외 규칙은 이미지 불필요).
-    page_arr = np.asarray(page.open_image().convert("RGB")) if rule.ink_check else None
-    assignment = assign(items, regions, rule, page_arr)
+    assignment = assign(items, regions, rule)
     rel = diagnostics.region_text_relations(regions, assignment)
     overlaps = diagnostics.region_overlaps(regions)
     tile_edges = diagnostics.tile_edge_regions(regions, decision.views, page.width, page.height)
@@ -157,9 +154,10 @@ def build_page(page: Page, decision: RouteDecision, calls: list[dict], responses
 def run(manifests: list[Path], out: Path, settings: Settings, *, pdf_dpi: int, policy_path: Path,
         plans_dir: Path | None, layout_options: dict | None, only_pages: set[str] | None,
         rule: AssignmentRule, ocr_concurrency: int = 1, run_candidates: bool = False,
-        reuse_dir: Path | None = None, auto_vlm=None) -> dict:
+        reuse_dir: Path | None = None, auto_vlm=None, vlm_concurrency: int = 1) -> dict:
     """reuse_dir: 같은 페이지·같은 입력 범위(view crop·보낸 이미지 해시·옵션)의 기존 OCR 원시 응답을 재사용한다
-    (일반 페이지 전체 OCR 1회 결과를 다시 호출하지 않음). 새 입력(후보 타일 등)만 OCR 한다."""
+    (일반 페이지 전체 OCR 1회 결과를 다시 호출하지 않음). 새 입력(후보 타일 등)만 OCR 한다.
+    vlm_concurrency: 자동 경계 관계 판정(auto_vlm)의 라운드 안 동시 호출 상한."""
     started = time.perf_counter()
     policy = load_policy(policy_path)
     plans = load_plans(plans_dir)
@@ -174,7 +172,7 @@ def run(manifests: list[Path], out: Path, settings: Settings, *, pdf_dpi: int, p
         pages = [p for p in pages if p.page_id in only_pages]
     decisions = {p.page_id: decide(p, policy, plans, run_candidates) for p in pages}
     client = OcrClient(settings.ocr_url or "", settings.ocr_timeout_s, options, out / "raw", out / "views")
-    auto_plans = []
+    auto_plans, auto_timing = [], []
     if auto_vlm is not None:
         # 확정 계획이 없는 긴 페이지만 자동 경계 정책(section-pack/2)으로 계획을 만든다(docs/09 §2).
         from . import auto_boundary
@@ -182,8 +180,15 @@ def run(manifests: list[Path], out: Path, settings: Settings, *, pdf_dpi: int, p
         for p in pages:
             d = decisions[p.page_id]
             if d.route == "long" and d.status == "BOUNDARY_PENDING":
+                t_scout = time.perf_counter()
                 boxes, scalls = auto_boundary.scout(p, client, out)
-                plan = auto_boundary.make_plan(p, boxes, auto_vlm, out, bpol, scalls)
+                t_judge = time.perf_counter()
+                plan = auto_boundary.make_plan(p, boxes, auto_vlm, out, bpol, scalls, vlm_concurrency)
+                # 탐색 OCR 과 VLM 관계 판정 시간을 나눠 남긴다(stage1 벽시계에 함께 들어간다).
+                auto_timing.append({"page_id": p.page_id, "scout_ocr_seconds": round(t_judge - t_scout, 3),
+                                    "judge_seconds": round(time.perf_counter() - t_judge, 3),
+                                    "judge_calls": sum(len(r["to_judge"]) for r in plan["rounds"]),
+                                    "judge_rounds": sum(1 for r in plan["rounds"] if r["to_judge"])})
                 dump(out / "boundary-plans" / f"{p.page_id}.json", plan)
                 plans[p.page_id] = plan
                 auto_plans.append(p.page_id)
@@ -231,56 +236,14 @@ def run(manifests: list[Path], out: Path, settings: Settings, *, pdf_dpi: int, p
             "ocr_concurrency": ocr_concurrency, "ocr_wall_seconds": ocr_wall,
             "run_candidate_boundaries": run_candidates, "reused_ocr_from": str(reuse_dir) if reuse_dir else None,
             "reused_ocr_calls": len(reused), "new_ocr_calls": len(client.calls),
-            "auto_boundary_pages": auto_plans, "assignment_rule": rule.to_dict(), "only_pages": sorted(only_pages or []),
+            "auto_boundary_pages": auto_plans, "auto_boundary_timing": auto_timing, "vlm_concurrency": vlm_concurrency,
+            "assignment_rule": rule.to_dict(), "only_pages": sorted(only_pages or []),
             "page_ids": [p.page_id for p in pages]}
     dump(out / "pages.json", [p.to_dict() for p in pages])
     dump(out / "routes.json", [decisions[p.page_id].to_dict() for p in pages])
     result = _build_all(out, pages, decisions, calls, responses, rule, meta)
     meta["wall_seconds"] = round(time.perf_counter() - started, 3)
     dump(out / "run.json", meta)
-    return result
-
-
-def _view_from(d: dict) -> InputView:
-    return InputView(d["view_id"], d["page_id"], d["kind"], tuple(d["crop"]))
-
-
-def rebuild(out: Path, rule: AssignmentRule, dest: Path | None = None, plans_dir: Path | None = None) -> dict:
-    """저장된 원시 응답으로 빌드만 다시 한다(OCR 호출 없음). dest 를 주면 원래 실행 폴더는 그대로 둔다."""
-    meta = load(out / "run.json") | {"rebuilt_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                                     "assignment_rule": rule.to_dict(), "rebuilt_from": str(out)}
-    if "layout_options" not in meta:      # 이전 실행 기록 호환
-        meta["layout_options"] = ({"layoutThreshold": meta["layout_threshold"]}
-                                  if meta.get("layout_threshold") is not None else {})
-    pages = [Page(**{k: v for k, v in p.items() if k != "geometry"}) for p in load(out / "pages.json")]
-    decisions = {}
-    for d in load(out / "routes.json"):
-        decisions[d["page_id"]] = RouteDecision(d["page_id"], d["route"], d["shape"], d["status"], d["basis"],
-                                                [_view_from(v) for v in d["views"]], d.get("boundary_plan"))
-    if plans_dir is not None:
-        # OCR 이 실행되지 않은 페이지에만 경계 문서를 다시 적용한다. 새 OCR 이 필요한 결정은 재빌드에서 거부한다.
-        policy = load_policy(Path(meta["routing_policy"]["path"]))
-        plans = load_plans(plans_dir)
-        meta["boundary_plans"] = sorted(plans)
-        for p in pages:
-            if decisions[p.page_id].views:
-                continue
-            new = decide(p, policy, plans)
-            if new.views:
-                raise RuntimeError(f"{p.page_id}: 실행 가능한 경계 문서는 재빌드가 아니라 새 실행(run)으로 처리한다")
-            decisions[p.page_id] = new
-    calls = load(out / "calls.json")
-    responses = {}
-    for c in calls:
-        if c["ok"]:
-            responses[c["view_id"]] = load(resolve(c["raw_path"]))["result"]["layoutParsingResults"][0]["prunedResult"]
-    target = dest or out
-    if dest is not None:
-        for name in ("pages.json", "calls.json"):
-            dump(dest / name, load(out / name))
-    dump(target / "routes.json", [decisions[p.page_id].to_dict() for p in pages])
-    result = _build_all(target, pages, decisions, calls, responses, rule, meta)
-    dump(target / "run.json", meta)
     return result
 
 

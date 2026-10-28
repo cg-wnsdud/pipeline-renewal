@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 
@@ -89,8 +90,12 @@ def scout(page, ocr_client, out_dir: Path) -> tuple[list[dict], list[dict]]:
     return boxes, calls
 
 
-def make_plan(page, boxes: list[dict], vlm_client, out_dir: Path, policy: dict, scout_calls: list[dict]) -> dict:
-    """빈 띠 후보 → 구성 → 고른 경계만 관계 판정 → 거부 위치를 빼고 다시 구성."""
+def make_plan(page, boxes: list[dict], vlm_client, out_dir: Path, policy: dict, scout_calls: list[dict],
+              concurrency: int = 1) -> dict:
+    """빈 띠 후보 → 구성 → 고른 경계만 관계 판정 → 거부 위치를 빼고 다시 구성.
+
+    한 라운드의 판정 대상은 서로 독립이라 concurrency 상한으로 동시에 보낸다. 다음 라운드 구성은 앞 판정에 의존하므로
+    라운드는 순서대로 진행한다. 판정 결과는 위치(y) 순서로 모은다(호출 번호 순서와 무관)."""
     allowed = set(policy["allowed_relations"])
     relations = policy["allowed_relations"] + policy["rejected_relations"]
     cands, line_gap = boundary.candidates(boxes, page.height)
@@ -100,21 +105,26 @@ def make_plan(page, boxes: list[dict], vlm_client, out_dir: Path, policy: dict, 
     img = page.open_image()
     rounds = []
     comp = None
+
+    def judge_at(y: int) -> dict:
+        above, below = boundary.context_items(boxes, y)
+        req = relation_request(img, y, above, below, relations)
+        call = vlm_client.chat(req["text"], req["images"], req["schema"], "boundary_relation", 800,
+                               {"kind": "boundary_relation", "version": RELATION_VERSION, "page_id": page.page_id, "y": y})
+        dump(out_dir / "boundary-calls" / f"{call.call_id}.json", asdict(call))
+        ok, relation = judge(call.parsed, above, below, allowed)
+        return {"ok": ok, "relation": relation, "call_id": call.call_id,
+                "reason": (call.parsed or {}).get("reason") if isinstance(call.parsed, dict) else None}
+
     for _ in range(MAX_ROUNDS):
         comp = compose_sections(page.height, [y for y in pool if judged.get(y, {}).get("ok", True)], target)
         todo = [y for y in comp["cuts"][1:-1] if y not in judged]
         rounds.append({"cuts": comp["cuts"], "to_judge": todo})
         if not todo:
             break
-        for y in todo:
-            above, below = boundary.context_items(boxes, y)
-            req = relation_request(img, y, above, below, relations)
-            call = vlm_client.chat(req["text"], req["images"], req["schema"], "boundary_relation", 800,
-                                   {"kind": "boundary_relation", "version": RELATION_VERSION, "page_id": page.page_id, "y": y})
-            dump(out_dir / "boundary-calls" / f"{call.call_id}.json", asdict(call))
-            ok, relation = judge(call.parsed, above, below, allowed)
-            judged[y] = {"ok": ok, "relation": relation, "call_id": call.call_id,
-                         "reason": (call.parsed or {}).get("reason") if isinstance(call.parsed, dict) else None}
+        with ThreadPoolExecutor(max_workers=max(1, min(concurrency, len(todo)))) as workers:
+            for y, j in zip(todo, workers.map(judge_at, todo)):
+                judged[y] = j
     # 목표보다 긴 타일이 남으면(안쪽에 허용 경계 없음) 레이아웃 검출 품질을 보장할 수 없어 자동 확정하지 않는다(f09 A 실측).
     final_ok = comp is not None and not comp["oversized_sections"] and all(judged.get(y, {}).get("ok") for y in comp["cuts"][1:-1])
     scope_ok = in_scope(policy, page.width, page.height)

@@ -114,12 +114,14 @@ def main() -> int:
                    reuse_dir=args.reuse_ocr,
                    auto_vlm=VlmClient(os.environ["PN_VLM_URL"], os.environ["PN_VLM_MODEL"],
                                       float(os.environ.get("PN_VLM_TIMEOUT_S", "320")), prefix="bnd")
-                   if args.auto_boundaries else None)
+                   if args.auto_boundaries else None, vlm_concurrency=args.vlm_concurrency)
         from layout_pipeline.viewer import build_viewer
         build_viewer(stage1_dir)
         s1 = load(stage1_dir / "run.json")
         timing["stage1"] = {"ocr_concurrency": args.ocr_concurrency, "wall_seconds": round(time.perf_counter() - t0, 3),
-                            "reused_ocr_calls": s1.get("reused_ocr_calls"), "new_ocr_calls": s1.get("new_ocr_calls")}
+                            "reused_ocr_calls": s1.get("reused_ocr_calls"), "new_ocr_calls": s1.get("new_ocr_calls"),
+                            # stage1 벽시계 중 자동 경계 VLM 관계 판정 시간(라운드 안 동시 --vlm-concurrency)
+                            "auto_boundary_judge_seconds": round(sum(a["judge_seconds"] for a in s1.get("auto_boundary_timing") or []), 3)}
     if args.stage1_only:
         print(json.dumps({"stage1": str(stage1_dir), "timing": timing}, ensure_ascii=False, indent=1))
         return 0
