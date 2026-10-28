@@ -10,7 +10,7 @@
   core_shrink=0 이면 엄격 포함(원래 OCR bbox 전체가 한 영역 안, 다른 영역과 겹침 없음)이다.
   중심점 하나로 판정하지 않는다. 0.25 는 배정 휴리스틱이며 잠정 상태다(status=provisional).
   0.2~0.4 에서 결과 수가 같다는 것은 정답 근거가 아니다. 완화 배정 전체를 원본과 대조한
-  감사(scripts/audit_assignment.py)로 오배정 여부를 확인한다. 저장 bbox 는 어느 규칙에서도 바뀌지 않는다.
+  감사(docs/11)로 오배정 여부를 확인한다. 저장 bbox 는 어느 규칙에서도 바뀌지 않는다.
 
 ink-containment/1(docs/11 §1, 비교안): core_shrink 0.25 로 배정되는 항목 중 원래 OCR bbox 가 영역 밖으로 나간 것은
   OCR 상자 안 글자 잉크(ink.py)가 모두 그 영역 안일 때만 배정한다. 잉크가 하나라도 밖이면 partial_overlap 으로 미배정.

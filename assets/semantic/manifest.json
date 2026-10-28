@@ -1,0 +1,102 @@
+{
+ "asset_set": "nh-semantic-assets",
+ "version": "nh-label-schema@358baf3+policy",
+ "imported_at": "2026-10-27",
+ "source": {
+  "repository": "nh-ad-compliance",
+  "head_commit": "b3b611cbdbf09b7bbaea8f9503397b4432935911",
+  "note": "읽기 전용 참고 저장소. 데이터 파일만 복사했고 코드·파싱 파이프라인은 가져오지 않았다."
+ },
+ "label_schemas": [
+  "loan-named",
+  "loan-broker-balance",
+  "deposit-demand",
+  "deposit-term",
+  "deposit-saving",
+  "deposit-index-linked",
+  "investment-isa-general",
+  "investment-isa-trust",
+  "investment-isa-discretionary",
+  "investment-pension-general"
+ ],
+ "files": {
+  "ad_templates.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/templates/ad_templates.json",
+   "source_commit": "996d112f75285584effd184c72dc48dfc86fc94f",
+   "source_commit_date": "2026-10-07",
+   "sha256": "8fc9a280793be1b01ab33ae0dc87f77960351da803cfbfa359621c518a44e624"
+  },
+  "product-contexts-v1.json": {
+   "source_path": "packages/rule-engine/src/nh_rule_engine/data/product-contexts-v1.json",
+   "source_commit": "0633d91ce14b0090f655d8b1ba0cfce67f13ee3d",
+   "source_commit_date": "2026-10-20",
+   "sha256": "6d02eeb1a8a9e5ca4438fbcdefe8c298658672112beb3aca903030ff0646cbf3"
+  },
+  "label-schemas/loan-named.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/loan-named.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "75d310798fe4f684e2170f5b3097608b7c239e5a4327babf9fb4266f80df93cd"
+  },
+  "label-schemas/loan-broker-balance.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/loan-broker-balance.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "3a092ac684736cacfcaebc0a66fd486a595bd956ad6d2f2c89ef7c9dfbf27856"
+  },
+  "label-schemas/deposit-demand.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/deposit-demand.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "02032e1c55771df12a5ee4478f122231f9b255dfd468a845d637b96bca4d5672"
+  },
+  "label-schemas/deposit-term.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/deposit-term.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "fb15b4a50fdae9b6033c4ba5387ef1a87ad4480999a0942d526a1e8cf4024b44"
+  },
+  "label-schemas/deposit-saving.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/deposit-saving.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "3ea08cf166bde500f9b286e6369e1103e128e7a6ac99f173f5617d981466b8c4"
+  },
+  "label-schemas/deposit-index-linked.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/deposit-index-linked.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "9167b652a39b1a8d318f75561536cc9081877559edbce84db1ddb34442c14cc5"
+  },
+  "label-schemas/investment-isa-general.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/investment-isa-general.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "5fc930dff9c21bb65d0f7005adee119a08e10d67052a83ffdcbf893918fbf7cc"
+  },
+  "label-schemas/investment-isa-trust.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/investment-isa-trust.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "3e0e2a2670a9e48789aa94180bcdb71609aec609dce180b3166cc3796b26682b"
+  },
+  "label-schemas/investment-isa-discretionary.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/investment-isa-discretionary.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "13a9e86db172faeaf1d27a48489584ae741e65c2a122f30bb68783a9b7f3348e"
+  },
+  "label-schemas/investment-pension-general.json": {
+   "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/investment-pension-general.json",
+   "source_commit": "358baf30499d4438993f7e20a1e76089c0e34c92",
+   "source_commit_date": "2026-10-21",
+   "sha256": "21fe643b5db7e4c7e7b374e00279250a678c664bafd93c6183b3b9999d8ca0c0"
+  }
+ },
+ "local_files": {
+  "classification-policy.json": {
+   "note": "2026-10-27 작업 지시 7절의 사용자 제공 식별 기준을 옮긴 분류 정책(이 저장소에서 관리)",
+   "sha256": "9b060cb92859f65982667506685b9bb66caf3d38cef4485359d92bb2ac2ff809"
+  }
+ }
+}

@@ -1,5 +1,0 @@
-{"manifest_version": 1, "note": "예시: 두 상품이 한 페이지/한 묶음에 있는 입력", "source_root": "C:/Users/cccjj/cginside/농협프로젝트/test-file",
- "submissions": [{"submission_id": "ex-two-products-1p", "description": "올원더풀행복동행 예금·적금(1쪽, 좌우 두 상품)",
-                  "files": [{"file_id": "f13", "path": "14. 예금성상품-적립식, 거치식 혼합 광고 5.pdf"}]},
-                 {"submission_id": "ex-two-products-2p", "description": "고향사랑기부 예·적금(2쪽)",
-                  "files": [{"file_id": "f12", "path": "14. 예금성상품-적립식, 거치식 혼합 광고 4.pdf"}]}]}

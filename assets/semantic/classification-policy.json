@@ -1,0 +1,190 @@
+{
+ "version": "classification-policy/3",
+ "basis": "2026-10-27 작업 지시 7절의 사용자 제공 식별 기준. 수치는 분류 예시이며 현행 금융·법률 기준을 검증한 것이 아니다.",
+ "mention_roles": {
+  "comparison": "상품 비교(한 상품·계좌의 가입 유형·운용 방식 비교(예: ISA 신탁형·일임형, 고정금리·변동금리) — 유형마다 이름·조건·금리가 적혀 있어도 그 상품 하나의 내용 —, 광고 대상이 아닌 다른 상품과의 비교). 서로 다른 상품을 각자의 상품명·가입 조건과 함께 나란히 소개한 광고에서는 그 상품들이 각각 광고 대상",
+  "example": "설명용 예시(계산 예시의 상품 A/B 등)",
+  "holding": "계좌·제도 안에 편입·운용할 수 있는 상품 언급(ISA 안의 예금·펀드·ELB 등)",
+  "condition": "우대조건·혜택 조건에 언급된 다른 상품",
+  "notice": "일반 고지",
+  "menu": "메뉴·탭·링크·화면 경로"
+ },
+ "groups": ["예금성", "대출성", "투자성", "카드", "보험", "기타"],
+ "templates": [
+  {
+   "code": "loan_named", "template_id": "대출성상품-상품명 노출", "label_schema": "loan-named", "product_group": "대출성",
+   "features": [
+    {"id": "loan_named.name", "desc": "상품명이 ~대출, ~론, 새희망홀씨, 마이너스통장, 종합통장대출(예: NH더퍼스트기업대출, NH햇살론119, NH오피스텔담보대출)"},
+    {"id": "loan_named.terms", "desc": "대출대상, 대출한도, 대출금리, 대출기간, 상환방법"},
+    {"id": "loan_named.costs", "desc": "부대비용: 중도상환해약금·인지세·보증료"},
+    {"id": "loan_named.collateral", "desc": "채권보전"},
+    {"id": "loan_named.rate_formula", "desc": "기준금리 + 가산금리 − 우대금리"},
+    {"id": "loan_named.rate_range", "desc": "최저 연 ○% ~ 최고 연 ○%"},
+    {"id": "loan_named.menu", "desc": "해당 광고의 앱 상단/메뉴 경로가 대출"}
+   ],
+   "rules": ["대출모집인 결정 신호가 없으면 이 템플릿으로 판단한다.",
+             "잔금대출·중도금대출·분양·입주라는 표현만으로 모집인 유형을 선택하지 않는다."],
+   "exclusions": [],
+   "mixed": []
+  },
+  {
+   "code": "loan_broker", "template_id": "대출성상품-대출모집인(잔금대출)", "label_schema": "loan-broker-balance", "product_group": "대출성",
+   "features": [
+    {"id": "loan_broker.decisive", "desc": "결정 신호: 대출상담사, 대출모집인, 대출모집법인, 대출모집위탁계약, 은행연합회등록번호, 대리·중개, 대출상담사 신원확인, 대출모집인 수수료율"},
+    {"id": "loan_broker.apartment", "desc": "보조 신호: 아파트 단지명 + 입주를 진심으로 축하"},
+    {"id": "loan_broker.consultant", "desc": "보조 신호: 상담사 이름·휴대폰 번호"},
+    {"id": "loan_broker.no_figures", "desc": "보조 신호: 금리·한도 수치 없이 최적의 상품을 안내"}
+   ],
+   "rules": ["광고 본문에서 결정 신호 중 하나라도 확인되면 모집인 유형으로 판단한다. 보조 신호만으로는 선택하지 않는다.",
+             "구체적인 상품명과 금리까지 함께 나오면 같은 상품에 loan_named 도 함께 적용한다(templates 에 둘 다)."],
+   "exclusions": [],
+   "mixed": []
+  },
+  {
+   "code": "deposit_demand", "template_id": "예금성상품-입출식", "label_schema": "deposit-demand", "product_group": "예금성",
+   "features": [
+    {"id": "deposit_demand.name", "desc": "상품명이 ~통장, 저축예금, 보통예금, ~자유예금, MMDA"},
+    {"id": "deposit_demand.free", "desc": "자유입출금, 입출금이 자유로운"},
+    {"id": "deposit_demand.no_term", "desc": "가입기간 제한없음"},
+    {"id": "deposit_demand.daily_balance", "desc": "일별 잔액 ○만원까지 우대금리"},
+    {"id": "deposit_demand.settlement", "desc": "3·6·9·12월 넷째 토요일 결산 이자지급"},
+    {"id": "deposit_demand.fee_waiver", "desc": "수수료 면제 혜택"},
+    {"id": "deposit_demand.menu", "desc": "해당 광고의 앱 상단/메뉴 경로가 입출금"}
+   ],
+   "rules": [],
+   "exclusions": ["마이너스통장·종합통장대출(대출 상품)", "다른 상품의 우대조건 속 ○○통장"],
+   "mixed": ["통장·적금, 입출식 및 적립식이면 적립식(deposit_saving)도 검토한다."]
+  },
+  {
+   "code": "deposit_term", "template_id": "예금성상품-거치식", "label_schema": "deposit-term", "product_group": "예금성",
+   "features": [
+    {"id": "deposit_term.name", "desc": "상품명이 ~예금, 정기예금, 실세예금"},
+    {"id": "deposit_term.type", "desc": "거치식예금, 적립방법 거치식, 가입대상 개인(거치식)"},
+    {"id": "deposit_term.interest_example", "desc": "원금 ○만원 ○개월 예치 시 세전이자"},
+    {"id": "deposit_term.min_amount", "desc": "○만원 이상 예치"},
+    {"id": "deposit_term.lump_sum", "desc": "목돈"},
+    {"id": "deposit_term.payout", "desc": "만기일시지급식/월이자지급식"},
+    {"id": "deposit_term.coupon", "desc": "정기예금 금리우대쿠폰"},
+    {"id": "deposit_term.menu", "desc": "해당 광고의 앱 상단/메뉴 경로가 예금"}
+   ],
+   "rules": ["지수연동예금 신호를 먼저 확인하고 일반 거치식과 구별한다."],
+   "exclusions": ["저축예금·보통예금·자유예금·지수연동예금", "예금자보호라는 단어만 있는 경우", "예금상품 같은 일반 명사"],
+   "mixed": ["예·적금, 예적금이면 적립식(deposit_saving)도 검토한다."]
+  },
+  {
+   "code": "deposit_saving", "template_id": "예금성상품-적립식", "label_schema": "deposit-saving", "product_group": "예금성",
+   "features": [
+    {"id": "deposit_saving.name", "desc": "상품명이 ~적금"},
+    {"id": "deposit_saving.type", "desc": "자유적립식, 정액적립식, 적립금액, 가입대상 개인(적립식)"},
+    {"id": "deposit_saving.monthly", "desc": "월 ○만원 이상"},
+    {"id": "deposit_saving.interest_example", "desc": "매월 ○만원씩 ○개월 납입 시 세전이자"},
+    {"id": "deposit_saving.maturity", "desc": "만기금액 알아보기"},
+    {"id": "deposit_saving.menu", "desc": "해당 광고의 앱 상단/메뉴 경로가 적금"}
+   ],
+   "rules": [],
+   "exclusions": ["대출·예금 광고의 우대조건에만 등장하는 적립식 예금/적금/펀드"],
+   "mixed": ["예·적금이면 거치식(deposit_term)도 검토한다.", "통장·적금이면 입출식(deposit_demand)도 검토한다."]
+  },
+  {
+   "code": "deposit_index", "template_id": "예금성상품-지수연동예금", "label_schema": "deposit-index-linked", "product_group": "예금성",
+   "features": [
+    {"id": "deposit_index.name", "desc": "지수연동예금, ELD, Equity-Linked Deposit"},
+    {"id": "deposit_index.series", "desc": "회차 표기(26-9호 등)"},
+    {"id": "deposit_index.underlying", "desc": "KOSPI200 안정형/수익형, 기초자산, 낙아웃"},
+    {"id": "deposit_index.periods", "desc": "모집기간 + 계약기간"},
+    {"id": "deposit_index.range", "desc": "최저~최고 수익률 범위, 판매한도, 원금보장형"},
+    {"id": "deposit_index.early_loss", "desc": "중도해지수수료 적용으로 원금손실"},
+    {"id": "deposit_index.menu", "desc": "해당 광고의 앱 상단/메뉴 경로가 지수연동예금"}
+   ],
+   "rules": [],
+   "exclusions": ["ELB(파생결합사채)", "ELS"],
+   "mixed": []
+  },
+  {
+   "code": "isa_general", "template_id": "투자성상품-개인종합자산관리계좌(ISA) 일반", "label_schema": "investment-isa-general", "product_group": "투자성",
+   "features": [
+    {"id": "isa_general.unspecified", "desc": "ISA가 메인 광고 대상이고 신탁형·일임형 어느 쪽도 특정되지 않음"},
+    {"id": "isa_general.both_types", "desc": "신탁형·일임형을 둘 다 소개하거나 비교(예: 신탁형 ISA와 일임형 ISA의 차이점, 신탁형 연 ○% / 일임형 연 ○%)"},
+    {"id": "isa_general.common", "desc": "보조 신호: 가입대상, 납입한도, 의무가입기간 3년, 비과세 200/400만원, 손익통산"}
+   ],
+   "rules": ["ISA가 메인 광고 대상이면서 신탁형·일임형 어느 쪽도 특정되지 않거나, 둘 다 소개·비교하면 이 템플릿이다."],
+   "exclusions": ["일반형·서민형·농어민형은 가입유형이므로 일반 ISA 선택 근거가 아니다."],
+   "mixed": []
+  },
+  {
+   "code": "isa_trust", "template_id": "투자성상품-개인종합자산관리계좌(ISA) 신탁형", "label_schema": "investment-isa-trust", "product_group": "투자성",
+   "features": [
+    {"id": "isa_trust.name", "desc": "신탁형 ISA, 신탁형 개인종합자산관리계좌"},
+    {"id": "isa_trust.trust_terms", "desc": "특정금전신탁, 신탁보수, 신탁금액"},
+    {"id": "isa_trust.direct", "desc": "투자자가 투자종목·수량을 지정/운용지시, 고객이 원하는 상품을 직접 선택하여 운용"},
+    {"id": "isa_trust.menu", "desc": "해당 광고 메뉴 경로 ISA > 신탁형ISA"}
+   ],
+   "rules": [],
+   "exclusions": ["일반 ISA의 비교 설명에만 신탁형이 등장하는 경우", "ISA 안의 예금·펀드·ELB 언급으로 다른 템플릿을 추가하지 않는다."],
+   "mixed": []
+  },
+  {
+   "code": "isa_discretionary", "template_id": "투자성상품-개인종합자산관리계좌(ISA) 일임형", "label_schema": "investment-isa-discretionary", "product_group": "투자성",
+   "features": [
+    {"id": "isa_discretionary.name", "desc": "일임형 ISA, NH밸런스 ISA"},
+    {"id": "isa_discretionary.contract", "desc": "투자일임(계약), 일임업자, 일임수수료"},
+    {"id": "isa_discretionary.portfolio", "desc": "모델포트폴리오(MP), 저위험/중위험/고위험형, 리밸런싱"},
+    {"id": "isa_discretionary.expert", "desc": "전문가가 운용"},
+    {"id": "isa_discretionary.menu", "desc": "해당 광고 메뉴 경로 ISA > 일임형ISA"}
+   ],
+   "rules": [],
+   "exclusions": ["일반 ISA의 비교 설명에만 일임형이 등장하는 경우"],
+   "mixed": []
+  },
+  {
+   "code": "pension", "template_id": "투자성상품-퇴직연금 일반", "label_schema": "investment-pension-general", "product_group": "투자성",
+   "features": [
+    {"id": "pension.common", "desc": "퇴직연금, IRP, 개인형IRP, 디폴트옵션, 퇴직연금 전용 콜센터 1588-5995, IRP 세액공제 16.5%"},
+    {"id": "pension.plan_irp", "desc": "제도 구분 IRP(개인형IRP)"},
+    {"id": "pension.plan_dc", "desc": "제도 구분 DC(확정기여형)"},
+    {"id": "pension.plan_db", "desc": "제도 구분 DB(확정급여형)"},
+    {"id": "pension.option_fund", "desc": "퇴직연금 운용상품으로 실제 소개된 펀드: 펀드, TDF, 타겟데이트펀드, 증권투자신탁, 혼합자산투자신탁, 집합투자증권, BF(밸런스펀드)"},
+    {"id": "pension.option_etf", "desc": "운용상품으로 실제 소개된 ETF: ETF, 상장지수펀드(ETF로만 세고 펀드로 중복하지 않는다. 펀드와 ETF를 별도로 함께 소개하면 둘 다)"},
+    {"id": "pension.option_elb", "desc": "운용상품으로 실제 소개된 ELB: ELB, 파생결합사채(원금지급형 같은 일반 표현만으로는 ELB로 보지 않는다. ELD·ELS와 구별)"},
+    {"id": "pension.option_other", "desc": "운용상품으로 실제 소개된 국채·ELS·RP"},
+    {"id": "pension.option_guaranteed", "desc": "원리금보장상품(정기예금·GIC 등) 소개. 금융투자상품 포함 근거가 아니다"},
+    {"id": "pension.notice_investment", "desc": "일반 고지·범주명 속 금융투자상품·펀드 언급(예: 금융투자상품은 자산가치 변동…, 실적배당형상품(펀드)은 예금자보호법에 따라 보호되지 않습니다, 운용결과에 따라 투자원금의 손실…, 원리금비보장상품 수익률). 포함 근거가 아니다"}
+   ],
+   "rules": ["실제 소개란 헤드라인, 상품 소개, 금리·수익률 표, 운용상품 라인업, 포트폴리오 표에 펀드·ETF·ELB 등이 나오는 것이다. 이런 근거는 pension.option_* 로 쓴다.",
+             "퇴직연금 운용상품(펀드·ETF·ELB 등)은 별도 광고 대상으로 만들지 않고 퇴직연금 대상의 근거로 쓴다.",
+             "금융투자상품 포함·미노출은 묶음의 모든 페이지를 보고 정한다. 첫 페이지 결과를 전체에 적용하지 않는다."],
+   "exclusions": ["DB저축은행·DB손해보험의 DB는 회사명이다.", "연금저축은 퇴직연금이 아니다."],
+   "mixed": []
+  }
+ ],
+ "pension": {
+  "template_code": "pension",
+  "plan_features": {"pension.plan_irp": "IRP", "pension.plan_dc": "DC", "pension.plan_db": "DB"},
+  "component_features": {"pension.option_fund": "FUND", "pension.option_etf": "ETF", "pension.option_elb": "ELB"},
+  "inclusion_only_features": ["pension.option_other"],
+  "context_source": "product-contexts-v1.json(RETIREMENT): 기본 템플릿 + 실제 소개된 운용상품 템플릿. 운용상품 템플릿은 라벨 스키마가 없으면 기본 스키마로 라벨링한다."
+ },
+ "special_codes": {
+  "unsupported": "지원 범위 밖 유형(카드, 독립 펀드·ETF·ELS 광고, 보험, 상품명 미노출 대출·예금 광고, 그 밖의 상품)",
+  "undetermined": "템플릿을 판단할 근거가 부족함"
+ },
+ "other_features": [
+  {"id": "other.product", "desc": "unsupported·undetermined 광고 대상의 대표 근거(그 대상의 상품명 또는 상품 설명 문구)"}
+ ],
+ "global_rules": [
+  "키워드가 있다는 이유만으로 새 광고 대상이나 템플릿을 추가하지 않는다.",
+  "ISA 일반의 신탁형·일임형 비교는 보통 일반 ISA 광고 대상 하나다.",
+  "ISA 안에 편입 가능한 예금·펀드·ELB를 독립 상품 광고로 만들지 않는다.",
+  "상품 A/B가 계산 예시에 등장하면 고유 상품으로 등록하지 않는다.",
+  "대출모집인 광고에 구체적 상품명과 금리가 있어도 같은 상품에 템플릿 두 개가 적용되는 것일 수 있다.",
+  "한 상품이 여러 파일·페이지에 이어지면 같은 대상이다.",
+  "같은 이름이라는 이유만으로 서로 다른 상품을 합치지 않는다.",
+  "이름이 없는 광고 대상에 임의의 고유 상품명을 만들지 않는다.",
+  "지원 범위 밖 유형을 억지로 가까운 템플릿에 넣지 않는다."
+ ],
+ "review_signals": {
+  "note": "모델 판단을 바꾸지 않고 검토 표시만 하는 결정 신호(코드 확인용 정규식).",
+  "loan_broker_decisive": "대출상담사|대출모집인|대출모집법인|대출모집위탁계약|은행연합회\\s*등록번호|대리\\s*[·ㆍ・]?\\s*중개|대출모집인\\s*수수료율",
+  "pension_investment_terms": "펀드|ETF|ELB|TDF|상장지수|파생결합사채|타겟데이트"
+ }
+}

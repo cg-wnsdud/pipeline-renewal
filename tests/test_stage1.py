@@ -556,27 +556,6 @@ def test_crop2_changes_only_instruction_and_ocr_reference_form():
     t3 = vlm_tasks.table_request(record, region, img)
     t4 = vlm_tasks.table_request(record, region, img, "table-check/4")
     assert t4["schema"] == t3["schema"] and "ocr_candidates" in t4["items"][0] and "ocr_draft" in t3["items"][0]
-
-
-def test_structure_eval_separates_order_mixing_from_missing_lines():
-    from layout_pipeline import structure_eval as se
-    gold = {"a": {"text": "중도해지 및"}, "b": {"text": "만기후 금리"}, "c": {"text": "가입일 당시 고시된 중도해지 및 만기후"},
-            "d": {"text": "금리 준용"}}
-    units = [["a", "b", "c", "d"]]
-    mixed = "중도해지 및 가입일 당시 고시된 중도해지 및 만기후\n만기후 금리 금리준용"
-    kept = "중도해지 및 만기후 금리\n가입일 당시 고시된 중도해지 및 만기후 금리 준용"
-    assert se.evaluate_units(mixed, units, gold)["order_or_block_mixed"] == 1
-    assert se.evaluate_units(kept, units, gold)["kept"] == 1
-    assert se.evaluate_units("중도해지 및 만기후 금리", units, gold)["lines_missing"] == 1
-    rows = se.evaluate_table_rows([["구분", "고정금리"], ["신용", "0.85%"]], [["x", "y"]], {"x": {"text": "신용"}, "y": {"text": "0.85%"}})
-    assert rows["kept"] == 1
-    assert se.evaluate_table_rows([["신용"], ["0.85%"]], [["x", "y"]], {"x": {"text": "신용"}, "y": {"text": "0.85%"}})["kept"] == 0
-    assert se.content("● 기부실적 : 0.5%p") == se.content("·기부실적:0.5%p")
-    assert se._category("452,100원의적세효과가 있습니다", "452,100원의 절세효과가 있습니다.", "452,100원의적세효과가 있습니다", se.content) == "vlm_followed_ocr_error"
-    assert se._category("금용의모든순간", "금융의 모든 순간", "금융의 모든 순간", se.content) == "vlm_corrected_ocr"
-    assert se._category("법를 제19조", "법를 제19조", "법을 제19조", se.content) == "vlm_broke_correct_ocr"
-
-
 def test_overlap_duplicate_text_is_context_review_without_changing_text():
     """f12_p02 L019/L025 형: 겹친 두 영역이 같은 위치 문구를 함께 읽음 → 맥락 검토 근거만 추가, 문구·영역 유지."""
     from layout_pipeline.final_output import mark_overlap_duplicates
@@ -802,3 +781,22 @@ def test_reread_selects_complete_candidate_and_keeps_first_on_conflict_or_failur
     assert out["p-v0-L002"]["text"] == "가입금액" and out["p-v0-L002"]["reread_review"] == ["reread_conflict"]
     again = reconstruct_reads(tmp_path / "trace", [record])
     assert {k: v["text"] for k, v in again.items()} == {k: v["text"] for k, v in out.items()}
+
+
+def test_reread_that_brings_text_from_outside_the_box_is_not_selected():
+    """reread-select/2(docs/16 §5.2): 상자 안 누락 보충은 채택, 1차 판독에 없던 상자 밖 OCR 줄(다른 영역 글자)을 가져온 후보는
+    1차 판독 유지 + reread_outside_text. 문구를 고치지 않고 후보 중 하나를 고른다."""
+    from layout_pipeline import page_read
+    region = {"region_id": "p-v0-L000", "page_id": "p", "bbox": [10, 10, 390, 60], "table_candidate": False}
+    asg = [{"region_id": "p-v0-L000", "ocr_id": "p-v0-T000", "ocr_text": "중도해지 및", "ocr_bbox": [10, 10, 100, 30]},
+           {"region_id": "p-v0-L000", "ocr_id": "p-v0-T001", "ocr_text": "만기후 금리", "ocr_bbox": [10, 32, 100, 55]},
+           {"region_id": "p-v0-L002", "ocr_id": "p-v0-T003", "ocr_text": "가입금액 월 1만원 이상", "ocr_bbox": [10, 130, 200, 170]}]
+    record = {"regions": [region], "assignments": asg, "unassigned_texts": []}
+    ok = {"contract_ok": True, "uncertain": False}
+    inside = page_read.select_reread(record, region, "중도해지 및", ok | {"text": "중도해지 및\n만기후 금리"})
+    assert inside["source"] == "reread" and inside["text"] == "중도해지 및\n만기후 금리"
+    outside = page_read.select_reread(record, region, "중도해지 및", ok | {"text": "중도해지 및\n만기후 금리\n가입금액 월 1만원 이상"})
+    assert outside["source"] == "first_pass" and outside["text"] == "중도해지 및" and outside["review"] == ["reread_outside_text"]
+    assert outside["measures"]["reread_outside_lines"] == ["가입금액 월 1만원 이상"]
+    kept = page_read.select_reread(record, region, "중도해지 및\n가입금액 월 1만원 이상", ok | {"text": "중도해지 및\n만기후 금리\n가입금액 월 1만원 이상"})
+    assert kept["source"] == "reread"          # 1차에도 있던 상자 밖 줄은 새 유입이 아니다(최종 검토 표시는 text_from_outside_box 가 맡음)

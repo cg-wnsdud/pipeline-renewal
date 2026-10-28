@@ -538,6 +538,7 @@ def apply_patch(text: str, patch: dict) -> tuple[str, list[dict], list[dict]]:
 
 # region-reread/1(docs/10): 1차 구조를 고정하지 않고, 대상 영역 하나의 완결된 text 후보를 원본에서 다시 읽는다.
 REREAD_VERSION = "region-reread/1"
+REREAD_SELECT_VERSION = "reread-select/2"   # select_reread 선택 정책(/1: 상자 안 OCR 덮임만, /2: + 상자 밖 문구 유입 거부)
 REREAD_MAX_TOKENS = 4000
 REREAD_CHANGES = ["outside_text_removed", "order_or_block_fixed", "label_value_fixed", "duplicate_removed",
                   "missing_added", "chars_fixed", "none"]
@@ -634,9 +635,19 @@ def ocr_cover(record: dict, region: dict, text: str | None) -> float | None:
 
 
 def select_reread(record: dict, region: dict, first_text: str | None, reread: dict) -> dict:
-    """후보 선택 정책(docs/10 §1, 실행 전 고정). 정답 자료를 보지 않는다."""
+    """후보 선택 정책(docs/10 §1, 실행 전 고정 + reread-select/2). 정답 자료를 보지 않는다. 문구는 고치지 않고 후보 중 하나를 고른다.
+
+    reread-select/2(docs/16 §5.2): 재판독이 1차 판독에 없던 상자 밖 OCR 줄(outside_text: 다른 영역의 글자)을 새로 가져오면 채택하지
+    않고 1차 판독을 유지한다. 상자 안 OCR 덮임만 보던 /1 은 tt02 그림 영역이 문맥 이미지에서 페이지 전체 문구를 가져온 후보를
+    채택했다. 상자 안 누락만 보충한 후보는 그대로 채택한다."""
     if not reread.get("contract_ok") or reread.get("text") is None:
         return {"text": first_text, "source": "first_pass", "review": ["reread_failed"]}
+    own_ids = {o["ocr_id"] for o in region_ocr(record, region)}
+    before = set(outside_text(record, region, first_text, own_ids)) if first_text else set()
+    added = [h for h in outside_text(record, region, reread["text"], own_ids) if h not in before]
+    if added:
+        return {"text": first_text, "source": "first_pass", "review": ["reread_outside_text"],
+                "measures": {"reread_outside_lines": added[:10], "reread_outside_line_count": len(added)}}
     c1, c2 = ocr_cover(record, region, first_text), ocr_cover(record, region, reread["text"])
     if c1 is not None and c2 is not None and c2 < c1 - CONFLICT_DROP and c2 < CONFLICT_FLOOR:
         return {"text": first_text, "source": "first_pass", "review": ["reread_conflict"],

@@ -1,159 +1,61 @@
 # layout-pipeline
 
-입력에 보이는 문구를 확보하고 원본 위치(OCR 레이아웃 검출 bbox)와 연결하는 파서다.
+금융 광고 입력(이미지·PDF·HWP)을 페이지별 영역과 최종 문구로 파싱하고, 광고 상품·템플릿·영역 소속·라벨까지 정해 파일별 JSON 과 확인 화면을 만드는 파이프라인.
 
-- `../new-pipeline`은 비교 근거로 보존하며, 이 폴더는 그 코드를 import하지 않는다.
-- 기존 코드에서 옮긴 것은 HWP/HWPX→PDF 변환 연결(`hwp_bridge.py`) 하나다.
+## 파일 구조
 
-## 현재 범위와 상태(2026-10-27)
-
-**실행 경로**: 입력 → 페이지 준비 → OCR(일반 페이지는 전체 1회) → 레이아웃 영역/배정/미배정 → 모든 Region VLM 판독 → 최종 JSON·trace·대조 화면.
-
-**기본 프로필(page-first-default/1, docs/12)**: `run_pipeline.py` 기본값은 다음과 같다.
-- 판독: page-first, 필요한 영역만 원본 crop으로 재판독(reread).
-- 표: table-cells/1.
-- 배정: strict(VLM 입력의 OCR 근거).
-- 미배정 출력(unassigned-output/1): 결과의 `unassigned_texts`는 어느 영역에도 OCR 상자 면적 50% 이상 들어가지 않은 줄만 둔다. 영역 안 글자는 영역 문구 쪽으로 본다(docs/12 §7).
-- 긴 이미지: 승인 경계(해시가 같은 페이지만) → 없으면 자동 경계 → 정책 범위 밖이면 후보 경계로 실행(CANDIDATE_RUN 표시).
-- 실행 옵션은 `--manifest`와 `--out`만 지정한다(VLM 동시 2).
-
-**선택 배정 규칙 `overlap-best/1`**(비교용, 기본 아님, VLM 입력과 재판독 조건이 바뀜): `--assignment-rule overlap-best`를 주면 같은 OCR view의
-레이아웃 영역과 양의 면적으로 겹치는 OCR 줄을 가장 많이 겹친 한 영역에 귀속한다. 겹침이 같은 경우
-더 작은 영역을 고른다. 겹침이 없는 줄만 `outside_layout` 미배정으로 남는다(잘못된 면적 0 bbox는
-`invalid_bbox` 예외). 50% 미만 겹침과 여러 영역 경합은 검토 사유로 기록하고 page-first에서는
-해당 영역을 재판독한다. 50% 미만 겹침 OCR은 영역 기록에는 배정하지만 VLM의 확정 OCR 초안으로
-전달하지 않는다. 현재 strict 기본값은 유지하며, 저장된 OCR 응답으로 먼저 비교할 수 있다.
-
-```bash
-.venv/Scripts/python.exe scripts/run_stage1.py --rebuild <기존-stage1> --dest <새-stage1> --assignment-rule overlap-best
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest <manifest.json> --assignment-rule overlap-best --out <새-출력폴더>
+```
+layout_pipeline/            파이프라인 코드
+  pages.py, hwp_bridge.py     1 입력 → 페이지(PDF 200dpi 렌더, HWP/HWPX 는 PDF 변환)
+  routing.py, auto_boundary.py, boundary.py
+                              긴 이미지 판정·자동 경계(타일 나누기)
+  stage1.py, ocr_client.py, regions.py, assignment.py, diagnostics.py, ink.py
+                              2 OCR 호출·레이아웃 영역·OCR 글자 배정
+  read_stage.py, page_read.py, vlm_tasks.py, table_cells.py, vlm_client.py, vlm_contract.py
+                              3 VLM 영역 판독(페이지 판독·재판독·표 셀 구조)
+  supplement.py               4 놓친 영역 보충
+  final_output.py, file_result.py, contract_v2.py, final_viewer.py, viewer.py
+                              파싱 결과(layout-result/2)·계약 검사·확인 화면
+  semantic.py, classify.py    5 상품·템플릿·영역 소속 결정(observe)
+  labeling.py                 6 영역별 라벨링
+  file_result_v3.py, contract_v3.py, report_html.py, semantic_assets.py
+                              7 최종 결과(layout-result/3)·계약 검사·입력 검토 화면·분류 자산
+  config.py, geometry.py, jsonio.py, text_eval.py, gold_eval.py, report.py
+                              공통 도구(설정·좌표·JSON·문구 비교·정답 대조·Stage 1 보고)
+scripts/
+  run_pipeline.py             전체 실행(입력 → 파싱 → 보충 → 의미 단계 → 결과·화면). --rebuild 는 저장 응답으로 재구성
+  run_semantic.py             저장된 파싱 결과로 의미 단계만 실행·재구성
+  make_pipeline_report.py     입력별 실행 여러 개를 입력 검토 화면 하나로 합침
+  import_semantic_assets.py   분류·라벨 자산 확인(--check)·정책 해시 갱신
+config/                     레이아웃 옵션, 긴 이미지 분기·자동 경계 정책
+assets/semantic/            템플릿 카탈로그·라벨 스키마·분류 정책(manifest 로 해시 고정)
+schemas/                    layout-result-2(파싱)·layout-result-3(최종) JSON 스키마
+fixtures/                   승인된 긴 이미지 경계, 정답 대조용 페이지 정답, 계약 테스트 모의 입력
+tests/                      단위 테스트(모델 호출 없음, `pytest`)
+docs/                       설계·실험 기록
+work/                       실행 산출물(git 제외)
+.env.example                OCR·VLM 서버 등 환경 변수 견본(.env 로 복사)
 ```
 
-이전 crop 판독은 `--read-mode crop`, 이전 표 판독은 `--table-read legacy`로 비교할 수 있다.
+## 파이프라인 흐름
 
-**최종 결과**는 입력 파일별 `layout-result/2`다(docs/12).
-- `<out>/files/<file_id>/result.json`: 여러 페이지 PDF/HWP는 모든 페이지를 한 문서에 담는다.
-- `<out>/files/index.json`: 파일 목록.
-- `<out>/files/index.html`: 파일·페이지를 고르는 대조 화면.
-
-영역마다 상품 배정·라벨링 필드가 있고, 이번 단계에서는 `not_run`이다. 상품 배정과 라벨링은 아직 구현·실행하지 않았다. 실행 단위 `<out>/result.json`(layout-result/1)은 내부·재구성용이다.
-
-아래 항목은 경로별 설명이다(이전 기본값 기준 서술 포함).
-
-- **일반 영역**: 검출 영역 전체 crop을 묶음 요청으로 판독한다. 기본 지시는 `crop/1`이다.
-  - 판독 원칙 v2·v3(`crop/2`, `crop/3`, 이미지 기준 읽기 순서 + 정렬된 OCR 후보)는 선택지로만 있다.
-  - 비교 결과 사전 기준에 미달했다(docs/04). 채택은 사용자 판단 대상이다.
-- **표 후보**: `table-check/3`로 확인한다. rows가 있는데 text가 비면 rows로 채우고, `text_from_table_rows`로 표시한다.
-- **검토 근거**: 품질 근거와 맥락 근거를 나눈다.
-  - 품질: OCR↔VLM 어절 단위 불일치, 숫자 불일치, 응답 잔여물 등.
-  - 맥락: 영역 겹침, 경계 걸침, 겹친 영역의 중복 문구 등.
-  - 문구·bbox는 고치지 않는다.
-- **페이지 우선 판독**(`--read-mode page-first`, docs/08·09):
-  - **판독**: 원본 페이지(또는 타일)와 영역 표시 사본을 한 번에 보내 region_id별 문구와 표 후보 판정을 받는다.
-  - **영역 확인**(`--verify-mode reread`, docs/10): 일반 조건에 걸린 영역만 한 영역씩 다시 읽는다. 원본 영역 crop과 1차 판독 단위(페이지·띠·타일) 문맥 이미지를 함께 보내 완결된 문구 후보를 받고, 고정 정책으로 1차와 재판독 중 하나를 고른다. 두 후보는 모두 trace에 남는다. 표는 text만 재판독하고, 표 결과가 없거나 불완전할 때만 표 crop을 다시 읽는다. 이전 방식(region-patch/1)은 `--verify-mode patch`로 재현할 수 있다.
-  - **띠 나누기**: 서버 축소가 0.7배 미만인 페이지는 VLM 입력만 영역 사이에서 띠로 나눈다(page-band/1). OCR과 영역은 그대로다.
-  - **상태**: 기본값은 crop이다. 최신 결과는 `work/pipeline/page-first-reread-2026-10-26`(재판독)이고, 이전 결과는 `page-first-v2-2026-10-26`(보완 방식)이다. docs/11 변경(표 셀 구조·순서 확인 조건)을 더한 19페이지 회귀는 `page-first-docs11-regression-2026-10-26`, 새 입력 2개 최종 실험은 `new-inputs-page-first-final-2026-10-26`·`new-inputs-crop-final-2026-10-26`(ink-containment/1 배정)이다.
-- **표 구조 판독**(`--table-read cells`, docs/11): 표 후보마다 원본 표 crop + 문맥 이미지로 text 와 논리 셀(row·col·rowspan·colspan·text)을 한 응답으로 받아 하나의 후보로 쓴다(table-cells/1). crop·page-first 두 모드가 같은 경로를 쓴다. rows 는 셀에서 변환한 호환 보기다. 기본(`legacy`)은 이전 경로이며, 재판독이 표 text 만 바꾸고 rows 가 1차 값으로 남으면 `table_text_rows_from_different_reads` 품질 검토를 단다.
-- **순서 확인 조건**(simple-column-order/1, docs/11): 한 단으로 쌓인 영역에서 문구 줄 순서가 위→아래와 어긋나면 page-first 는 재판독으로 보내고, 최종 문구에 남으면 `reading_order_conflict` 품질 검토를 단다. 문구를 OCR 순서로 고치지 않는다.
-- **배정 규칙**: 기본은 엄격 포함(strict). `ink-containment/1`(OCR 상자 여백만 영역 밖인 경우만 배정)은 `scripts/run_stage1.py --rebuild --assignment-rule ink-containment` 로 고를 수 있는 비교 규칙이다(docs/11 §1).
-- **긴 이미지**: 확정 경계 문서(`boundary-plan/2`, `validated`)가 있으면 타일 OCR·판독을 한다. 없으면 보류하고, 사유를 결과와 화면에 표시한다.
-  - **f08·f09·f11**: 사용자 승인 경계(human_review, 2026-10-26)로 확정했다(`fixtures/boundary-plans`).
-  - **자동 경계 정책**(`--auto-boundaries`, `config/boundary-policy.json`, docs/09):
-    - 절차: 탐색 OCR → 빈 띠 → 비율 2.5 이하로 구성 → VLM 관계 판정 → 금지 관계(제목–본문, 같은 문장, 표 행 사이)면 빼고 재구성.
-    - 상태: 사용자 승인과 3페이지 검증(passed)을 마쳤다. 범위(폭 640~700px, 비율 ≥ 3.0) 안의 새 예시는 자동으로 확정하고, 범위 밖은 후보로 처리한다.
-  - **입력 크기**: 페이지 전체나 더 큰 창은 레이아웃 검출이 나빠 허용하지 않는다(docs/05). f09 [0,2131] 한 타일에서는 각주 영역이 빠졌다.
-  - **후보 실험 실행**: `--run-candidate-boundaries`로 실행한다. 상태는 `CANDIDATE_RUN`이며 확정 결과가 아니다.
-- **서버 클래스별 옵션(dict)**: 패치가 **아직 적용되지 않았다**(읽기 전용 확인, docs/06). 현재 경로는 문자열 `"large"`만 보내므로 영향이 없다.
-- **품질**: 정답이 있는 16페이지만 평가했다(문구 보존·구조 보존·OCR 대비·검토 표시). 원문·위치·표 관계 품질은 통과로 표시하지 않는다.
-- **범위 밖**: 상품 연결·템플릿 선택·라벨링은 후속 단계다. HWPX 실제 광고 샘플은 제공되지 않았다.
-
-문서:
-- [docs/00-correction.md](docs/00-correction.md): 계약
-- [docs/02-followup-results.md](docs/02-followup-results.md): 지표 분리·검출 옵션·VLM 1차
-- [docs/03-pipeline-results.md](docs/03-pipeline-results.md): 평가 보완·여백 crop·통합 실행·경계 실험·동시성
-- [docs/04-reading-principles-plan.md](docs/04-reading-principles-plan.md): 판독 원칙 v2·v3 비교(사전 계획 → 결과 → 판정)
-- [docs/05-long-input-plan.md](docs/05-long-input-plan.md): 긴 이미지 입력 크기 비교
-- [docs/06-server-layout-options.md](docs/06-server-layout-options.md): 서버 클래스별 옵션 적용 상태와 패치 계약
-- [docs/07-results.md](docs/07-results.md): 판독 원칙 비교 단계 종합 보고
-- [docs/08-page-first-and-long-plan.md](docs/08-page-first-and-long-plan.md): 페이지 우선 판독·긴 이미지 후보 실행(계획 → 결과)
-- [docs/09-boundary-policy-and-page-read-fixes.md](docs/09-boundary-policy-and-page-read-fixes.md): 경계 정책 확정·자동 경계 검증·페이지 우선 판독 수정(계획 → 결과)
-- [docs/10-region-reread-plan.md](docs/10-region-reread-plan.md): 영역 재판독으로 영역 소속·읽기 구조 확인(계획 → 결과)
-- [docs/11-assignment-table-structure-plan.md](docs/11-assignment-table-structure-plan.md): OCR 배정 원인 실험·표 셀 구조 판독·순서 확인 조건(계획 → 결과)
-- [docs/12-file-result-contract.md](docs/12-file-result-contract.md): 입력 파일별 결과 계약 layout-result/2(스키마 `schemas/layout-result-2.schema.json`), 기존 결과 내보내기, tmp 입력 실행
-- [docs/boundary-experiment-plan.md](docs/boundary-experiment-plan.md): 경계 실험 사전 계획
-
-## 실행
-
-```bash
-uv venv --python 3.12 .venv
-uv pip install --python .venv/Scripts/python.exe "pillow>=11" "pypdfium2==5.12.0" "requests>=2.32" "pytest>=8" "numpy>=2" "jsonschema>=4.21"
-cp .env.example .env
-
-# docs/12: 기본 프로필로 입력부터 실행(파일별 결과 files/<file_id>/result.json 과 files/index.html 생성).
-# 옵션은 입력과 출력 폴더만. 승인 경계·자동 경계·후보 경계 실행·VLM 동시 2·미배정 출력 규칙이 기본값이다.
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest work/manifests/tmp-inputs-2026-10-27.json --out work/pipeline/<새 폴더>
-# 기존 실행을 파일별 결과로 내보내기 + 보존 검사(호출 없음, 원래 실행은 읽기만)
-.venv/Scripts/python.exe scripts/export_file_results.py --run work/pipeline/page-first-docs11-regression-2026-10-26 --out work/export/<새 폴더>
-# docs/11: 배정·참고 전달 감사(호출 없음), 작은 비교, 새 입력 정답 대조, 기존 실행에 새 호출만 더한 회귀
-.venv/Scripts/python.exe scripts/audit_reference_flow.py --stage1 work/pipeline/new-inputs-stage1-2026-10-26/stage1 \
-    --run work/pipeline/new-inputs-page-first-2026-10-26 --run work/pipeline/new-inputs-crop-2026-10-26 \
-    --out work/audit/new-inputs-2026-10-26 --cases work/audit/new-inputs-2026-10-26/cases.json
-.venv/Scripts/python.exe scripts/run_docs11_experiments.py --exp E3,E2,E1a,E1b --out work/docs11-exp --concurrency 1
-.venv/Scripts/python.exe scripts/eval_new_inputs.py --run <out1> --run <out2> --out work/compare/x
-.venv/Scripts/python.exe scripts/run_targeted_update.py --base work/pipeline/page-first-reread-2026-10-26 --out work/pipeline/x
-# 영역 재판독 실험(기존 Stage 1·1차 응답 재사용, docs/10)
-.venv/Scripts/python.exe scripts/run_reread_experiment.py --run work/pipeline/page-first-v2-2026-10-26 --set core --conditions A,B --reps 2 --out work/reread/exp1
-# 최종(재판독): 1차 page 응답 30개를 새 폴더 trace/vlm 에 복사한 뒤 --resume 으로 확인 단계만 실행
-.venv/Scripts/python.exe scripts/run_pipeline.py --from-stage1 work/pipeline/page-first-v2-2026-10-26/stage1 --read-mode page-first     --verify-mode reread --resume --vlm-concurrency 2 --out work/pipeline/page-first-reread-2026-10-26
-# 페이지 우선 판독 v2 + 긴 이미지 확정 경계(승인) + 자동 경계(계획 없는 새 긴 이미지)
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/manifest.json --manifest fixtures/manifest-hwp.json \
-    --boundary-plans fixtures/boundary-plans --auto-boundaries --reuse-ocr work/runs/stage1-merge-large \
-    --read-mode page-first --vlm-concurrency 2 --out work/pipeline/page-first-v2-2026-10-26
-# (이전) 페이지 우선 판독 + 긴 이미지 후보 경계 실험 실행(일반 페이지 OCR 은 기존 Stage 1 재사용, 새 타일만 OCR)
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/manifest.json --manifest fixtures/manifest-hwp.json \
-    --boundary-plans fixtures/boundary-plans-candidate --run-candidate-boundaries --reuse-ocr work/runs/stage1-merge-large \
-    --read-mode page-first --vlm-concurrency 2 --out work/pipeline/page-first-2026-10-26
-.venv/Scripts/python.exe scripts/eval_pipeline.py work/pipeline/page-first-2026-10-26
-# 통합 실행(입력 파일부터). 출력 폴더는 비어 있어야 함. manifest 의 파일 경로·순서대로 처리
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/manifest.json --manifest fixtures/manifest-hwp.json \
-    --boundary-plans fixtures/boundary-plans --vlm-concurrency 2 --out work/pipeline/final-2026-10-25
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/examples/normal-page.json --out work/examples/normal
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/examples/bundle.json --out work/examples/bundle
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/examples/two-products.json --out work/examples/two-products
-.venv/Scripts/python.exe scripts/run_pipeline.py --manifest fixtures/examples/long.json --boundary-plans fixtures/boundary-plans --out work/examples/long
-# 정답이 있는 입력의 평가(사용자 결과와 분리된 <out>/eval/)
-.venv/Scripts/python.exe scripts/eval_pipeline.py work/examples/normal
-# 저장된 원시 응답으로 결과·화면 재생성(호출 없음)
-.venv/Scripts/python.exe scripts/run_pipeline.py --rebuild --out work/pipeline/full-c1
-# 여러 실행의 구조·관계·OCR 추종·검토 표시 비교(구조 정답 fixtures/structure-gold.json, 사례 fixtures/vlm-cases.json)
-.venv/Scripts/python.exe scripts/eval_structure.py --out work/compare/x --baseline c1,c2 c1=work/pipeline/full-c1 c2=work/pipeline/full-c2 new=work/pipeline/final-2026-10-25
-# 판독 원칙 선택지(기본 crop/1·table-check/3, docs/04)
-.venv/Scripts/python.exe scripts/run_pipeline.py --from-stage1 work/runs/stage1-merge-large --general-request crop/3 --table-request table-check/3 --out work/pipeline/x
-
-# Stage 1만(OCR·영역·배정), 실험 도구
-.venv/Scripts/python.exe scripts/probe_layout_options.py --page-image work/runs/stage1-merge-large/pages/h01_p03.png --out work/server-probe/x
-.venv/Scripts/python.exe scripts/run_long_input_experiment.py eval --out work/long/exp2
-.venv/Scripts/python.exe scripts/run_stage1.py --manifest fixtures/manifest.json --out work/runs/x
-.venv/Scripts/python.exe scripts/run_vlm_eval.py --run work/runs/stage1-merge-large --set fixtures/vlm-eval-set.json --out work/vlm/x
-.venv/Scripts/python.exe scripts/run_boundary_experiment.py scout --out work/boundary/x
-.venv/Scripts/python.exe scripts/compare_concurrency.py
-.venv/Scripts/python.exe -m pytest -q
+```
+입력(업로드 하나 = 묶음 하나)
+ → 1 페이지 준비 → 2 OCR 영역·글자 검출 → 3 VLM 영역별 최종 문구 판독 → 4 놓친 영역 보충
+ → 파싱 결과 저장(파일별 layout-result/2)
+ → 5 상품·템플릿·영역 소속 결정 → 6 영역별 라벨링 → 7 최종 JSON(파일별 layout-result/3)·확인 화면
 ```
 
-## 통합 실행 출력(`<out>/`)
+실행: `python scripts/run_pipeline.py --manifest <입력 정의 json> --out work/pipeline/<새 폴더>`
 
-| 파일 | 내용 |
-|---|---|
-| `result.json` | **사용자 결과(layout-result/1)**. 담는 항목은 아래 목록 참고 |
-| `trace/vlm/*.json` | VLM 요청 메타(프롬프트·스키마·이미지 크기/해시·crop 범위)와 원시 응답 |
-| `trace/reads.json` | Region별 판독 근거(호출 ID, 계약 오류, 검토 측정값) |
-| `trace/timing.json` | 단계별 시간·동시성 |
-| `stage1/` | OCR 원시 응답·영역·배정 기록·Stage 1 화면 |
-| `viewer/index.html` | 최종 대조 화면. `#페이지ID/영역ID`로 바로 이동. 기본은 영역별 최종 결과(VLM 최종 문구·판독 실패·품질 검토·맥락 검토). 'OCR 참고'·'평가용 정답 대조' 레이어는 꺼진 상태로 시작하며, 출처 라벨로 구분한다 |
-| `eval/` | (평가를 실행한 경우) 페이지·영역·표 평가 |
+출력: `<out>/files/<file_id>/result.json`(파싱), `<out>/semantic/files/<file_id>/result.json`(최종), `<out>/semantic/report.html`(입력 검토 화면), `<out>/trace/`(판단 근거·원시 응답·시간).
 
-`result.json`에 담기는 항목:
-- 페이지: 좌표계 `page_px_xyxy`, 실행 상태, 품질 상태
-- Region: 원본 bbox, VLM 최종 문구, `text_status`(read / no_text / read_failed / not_read), 표 확인(table / not_table / unknown)과 `rows`, 검토 근거(품질/맥락 구분)
-- 판독 실패 영역: OCR 참고(`final=false`)
-- 미배정 OCR(최종 문구와 합치지 않음), 이슈, 계약 검사
+## 단계별 로직
+
+1. **입력·페이지 준비**: 한 번의 업로드를 하나의 광고 묶음으로 처리한다. PDF 는 200dpi 이미지로, HWP/HWPX 는 기존 변환 경로(hwp_bridge)로 PDF 를 만든 뒤 같은 방식으로 페이지를 만든다.
+2. **OCR 영역·글자 검출**: 일반 페이지는 전체를 한 번에 OCR 서버(PP-StructureV3)에 보낸다. 세로가 가로의 3배 이상인 긴 이미지는 승인된 경계 문서가 있으면 그 경계로, 없으면 자동 경계(영역 사이 빈 띠 중 제목–본문을 가르지 않는 곳, section-pack/2)로 타일을 나눠 보낸다. 자동 경계 정책의 검증 범위(폭 640~700px) 밖이면 후보 경계로 실행하고 `candidate_pages` 검토를 붙인다. 레이아웃 상자가 영역(`…-L000`)이 되고 OCR 글자는 영역에 배정하거나 미배정으로 남긴다.
+3. **VLM 영역별 최종 문구 판독**: 페이지(긴 페이지는 띠·타일) 이미지에 영역 상자를 그려 보여 주고 영역마다 최종 문구를 받는다. OCR 은 참고이고 최종 문구는 VLM 판독 결과다. 누락·순서 어긋남·상자 밖 문구 등 조건에 걸린 영역만 원본 crop 으로 재판독하며, 재판독이 다른 영역 글자를 가져오면 채택하지 않는다. 표 후보는 문구와 행·열 셀 구조를 함께 받는다.
+4. **놓친 영역 보충**: 판독 뒤 어느 영역에도 들지 않은 OCR 글자를 같은 줄·위아래로 붙은 것끼리 묶고(2행×2열 이상이면 표 후보), 그런 글자가 있는 페이지는 표 문턱을 0.3 으로 낮춘 OCR 을 한 번 더 받아 표 상자를 찾는다. 새 영역은 원본에서 다시 읽고, 기존 영역과 겹치거나 문구가 이웃 영역에 이미 있으면 버린다. 추가 영역은 `…-S000` ID 와 `supplement_region` 검토로 구분하고 근거는 `trace/supplement.json` 에 남긴다.
+5. **상품·템플릿·영역 소속 결정(observe)**: 영역 상자 이미지와 전체 영역의 파싱 결과(문구·표)를 VLM 에 보내 상품이 몇 개인지, 상품별 템플릿, 모든 영역이 어느 상품에 속하는지(한 상품·여러 상품 공통·미확정)를 한 호출에서 함께 정한다. 응답의 상품 번호·영역 연결을 검사하고, 이름도 자기 영역도 없는 대상은 버리고(R1) 이름 없는 대상이 같은 템플릿 대상과 겹치면 합친다(R2). 큰 묶음(4쪽·80영역·16,000자·이미지 6장 초과)은 페이지별로 확인한 뒤 통합 호출로 파일·페이지에 이어지는 같은 상품을 잇는다. 요청에는 파일명·파일 ID 를 넣지 않는다.
+6. **영역별 라벨링**: 영역에 연결된 상품의 템플릿 라벨 스키마에서 해당 구분값을 고른다. 여러 상품의 공통 영역은 상품별로 라벨링하고, 소속이 불명확한 영역은 미확정으로 남긴다. 라벨 근거 인용은 영역 문구에서 확인한다.
+7. **최종 JSON·확인 화면**: 파일마다 `layout-result/3`(페이지, 영역 bbox·최종 문구·표 결과, 상품·템플릿, 영역의 상품 연결·라벨, 검토 상태)을 쓰고 스키마·계약 검사를 한다. 상세 판단 근거·프롬프트·원시 응답은 `trace/` 에 따로 두며, 저장 응답만으로 같은 결과를 다시 만들 수 있다.

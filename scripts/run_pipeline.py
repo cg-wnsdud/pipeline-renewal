@@ -12,6 +12,9 @@
   <out>/trace/timing.json  단계별 시간·동시성
   <out>/stage1/            (OCR 을 새로 실행한 경우) Stage 1 산출물
   <out>/viewer/index.html  최종 대조 화면
+  <out>/files/             파일별 파싱 snapshot(layout-result/2)
+  <out>/semantic/          (기본, --no-semantic 이면 생략) snapshot 저장 뒤 의미 단계: 상품·템플릿 분류·영역 배정·라벨링
+                           → semantic/files/<file_id>/result.json(layout-result/3)·index.html (docs/14)
 """
 from __future__ import annotations
 
@@ -79,6 +82,12 @@ def main() -> int:
                     help="strict(기본) 또는 겹치는 OCR 줄을 최적 단일 영역에 귀속하는 overlap-best/1")
     ap.add_argument("--layout-config", default=str(ROOT / "config" / "layout-options.json"))
     ap.add_argument("--cache-bust", action="store_true", help="성능 비교용: 요청마다 고유 식별자로 서버 prefix cache 재사용 방지")
+    ap.add_argument("--supplement", action=argparse.BooleanOptionalAction, default=True,
+                    help="(기본 켬) 판독 뒤 놓친 영역 보충(docs/16 §9, supplement/1): 레이아웃 상자 밖 OCR 묶음과 낮은 문턱(0.3) 표 상자로 "
+                         "보충 영역을 만들어 원본에서 읽고, 기존 영역과 중복이 아니면 더한다. 끄면 레이아웃 상자 영역만")
+    ap.add_argument("--semantic", action=argparse.BooleanOptionalAction, default=True,
+                    help="(기본 켬) 파싱 snapshot 저장 뒤 상품·템플릿 분류·영역 배정·라벨링(docs/14, <out>/semantic). "
+                         "같은 --vlm-concurrency 상한을 쓴다. 끄면 파싱까지만")
     args = ap.parse_args()
     if args.rebuild:
         return rebuild(args.out)
@@ -137,6 +146,15 @@ def main() -> int:
         reads = reader.read_pages_page_first(records, args.max_images, with_ocr=args.read_mode == "page-first")
     timing["read"] = {"vlm_concurrency": args.vlm_concurrency, "wall_seconds": round(time.perf_counter() - t1, 3),
                       "http_calls": client.count}
+    if args.supplement:
+        from layout_pipeline import supplement
+        t_s, n0 = time.perf_counter(), client.count
+        sup_reader = Reader(client, args.out / "trace", args.vlm_concurrency, "crop/3", args.table_request)
+        sup_reader.table_read = "cells"
+        probe = supplement.TableProbe(load(stage1_dir / "run.json").get("layout_options"), args.out / "trace")
+        sup = supplement.run(records, reads, sup_reader, probe, args.out / "trace", args.max_images)
+        timing["supplement"] = {"wall_seconds": round(time.perf_counter() - t_s, 3), "ocr_calls": sup["ocr_calls"],
+                                "vlm_calls": client.count - n0, "added": sup["added"], "dropped": sup["dropped"]}
     settings = {"stage1": str(stage1_dir), "layout_options": load(stage1_dir / "run.json").get("layout_options"),
                 "assignment_rule": load(stage1_dir / "run.json").get("assignment_rule"),
                 "general_request": args.general_request if args.general_crop_margin == "none" else "crop-margin/1",
@@ -145,10 +163,13 @@ def main() -> int:
                 "vlm_concurrency": args.vlm_concurrency, "temperature": 0, "cache_bust": nonce,
                 "read_mode": args.read_mode, "run_candidate_boundaries": args.run_candidate_boundaries,
                 "table_read": args.table_read if args.table_read == "legacy" else "table-cells/1"}
+    if args.supplement:
+        settings["supplement"] = supplement.settings()
     if args.read_mode != "crop":
         from layout_pipeline import page_read
         settings |= {"page_request": page_read.PAGE_VERSION if args.read_mode == "page-first" else page_read.PAGE_VERSION_NO_OCR,
                      "verify_request": page_read.REREAD_VERSION if args.verify_mode == "reread" else page_read.PATCH_VERSION,
+                     "reread_select": page_read.REREAD_SELECT_VERSION if args.verify_mode == "reread" else None,
                      "general_request": None,
                      "verify_conditions": {"min_effective_text_px": page_read.MIN_EFFECTIVE_TEXT_PX,
                                            "missing_ocr_cover": page_read.MISSING_OCR_COVER,
@@ -165,8 +186,32 @@ def main() -> int:
                "file_results": files,
                "pages": [(p["page_id"], p["execution_status"], p["reading"]) for p in result["pages"]],
                "timing": timing, "viewer": str(viewer)}
+    if args.semantic:
+        t2 = time.perf_counter()
+        summary["semantic"] = run_semantic_stage(args.out, args.vlm_concurrency)
+        timing["semantic"] = summary["semantic"].get("timing")
+        timing["semantic_stage_wall_seconds"] = round(time.perf_counter() - t2, 3)
+    # 입력 → 파싱 → 결과 저장·화면 → 의미 단계까지 한 실행의 전체 경과(total_wall_seconds 는 파싱까지)
+    timing["end_to_end_wall_seconds"] = round(time.perf_counter() - t0, 3)
+    dump(args.out / "trace" / "timing.json", timing)
+    if args.semantic and (args.out / "semantic" / "report.json").is_file():
+        from layout_pipeline.report_html import build_report
+        build_report(args.out / "semantic")      # 파싱 시간(trace/timing.json)을 더해 입력 검토 화면을 다시 만든다
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     return 0
+
+
+def run_semantic_stage(out: Path, concurrency: int) -> dict:
+    """파싱 snapshot(<out>/files) 저장 뒤 의미 단계(docs/14). 기존 <out>/semantic 이 있으면 덮어쓰지 않고 건너뛴다."""
+    from layout_pipeline import semantic
+    sem_dir = out / "semantic"
+    if sem_dir.exists() and any(sem_dir.iterdir()):
+        return {"skipped": f"{sem_dir} 가 이미 있음(덮어쓰지 않음). scripts/run_semantic.py --parse {out} --out <새 폴더> 로 실행"}
+    client = VlmClient(os.environ["PN_VLM_URL"], os.environ["PN_VLM_MODEL"], float(os.environ.get("PN_VLM_TIMEOUT_S", "320")),
+                       prefix="sem")
+    report = semantic.run(out, sem_dir, client, concurrency)
+    return {"checks": report["checks"], "timing": report["timing"], "viewer": report["viewer"],
+            "products": {s["submission_id"]: s["products"] for s in report["submissions"]}}
 
 
 def rebuild(out: Path) -> int:
@@ -175,15 +220,24 @@ def rebuild(out: Path) -> int:
     stage1_dir = Path(old["settings"]["stage1"])
     page_ids = [p["page_id"] for p in old["pages"]]
     records = [load(stage1_dir / "records" / f"{pid}.json") for pid in page_ids]
+    from layout_pipeline import page_read, supplement
+    supplement.reapply(records, out / "trace")      # 보충 영역(채택분)을 저장 근거대로 다시 더한다(호출 없음)
     reads = reconstruct_reads(out / "trace", records)
-    result, regions = build_result(records, reads, old["settings"] | {"rebuilt_from_trace": True})
+    settings = old["settings"] | {"rebuilt_from_trace": True}
+    if settings.get("verify_request") == page_read.REREAD_VERSION:      # 재구성은 지금 코드의 선택 정책을 쓴다
+        settings["reread_select"] = page_read.REREAD_SELECT_VERSION
+    result, regions = build_result(records, reads, settings)
     dump(out / "result.json", result)
     dump(out / "trace" / "reads.json", {r["region_id"]: {k: r.get(k) for k in ("trace", "contract_errors", "uncertain", "review")}
                                         for r in regions})
     build_final_viewer(out, stage1_dir)
     files = export_files(out, result, records, stage1_dir)
+    sem = None
+    if (out / "semantic" / "run.json").is_file():      # 의미 단계도 저장 응답으로 다시 만든다(호출 없음)
+        from layout_pipeline import semantic
+        sem = semantic.rebuild(out / "semantic")["checks"]
     print(json.dumps({"contract_checks": result["contract_checks"]["passed"], "problems": result["contract_checks"]["problems"][:5],
-                      "file_results": files}, ensure_ascii=False))
+                      "file_results": files, "semantic_checks": sem}, ensure_ascii=False))
     return 0
 
 

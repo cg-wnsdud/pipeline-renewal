@@ -1,0 +1,60 @@
+{
+  "schema_version": "product-contexts-v1",
+  "decision_date": "2026-10-19",
+  "basis": "사용자 승인: IRP·DC·DB를 퇴직연금 공통으로 통합하고 선택한 운용상품 기준 추가",
+  "contexts": [
+    {
+      "code": "RETIREMENT",
+      "label": "퇴직연금 공통",
+      "base_template": "투자성상품-퇴직연금 일반",
+      "components": [
+        {
+          "code": "FUND",
+          "label": "펀드",
+          "template": "투자성상품-펀드"
+        },
+        {
+          "code": "ETF",
+          "label": "ETF",
+          "template": "투자성상품-ETF"
+        },
+        {
+          "code": "ELB",
+          "label": "ELB",
+          "template": "투자성상품-ELB"
+        }
+      ],
+      "source_policy": "퇴직연금 공통 + 실제 선택한 운용상품 기준. IRP·DC·DB는 등록 확정 입력으로 항목 적용성을 결정한다. 기존 IRP 전용 템플릿은 신규 선택에서 제외하고 과거 결과는 보존한다.",
+      "restricted_standalone_templates": [
+        "투자성상품-펀드",
+        "투자성상품-ETF",
+        "투자성상품-ELB"
+      ]
+    }
+  ],
+  "legacy_registration_templates": [
+    "투자성상품-퇴직연금(IRP) 펀드상품 노출",
+    "투자성상품-퇴직연금(IRP) 금융투자상품 미노출"
+  ],
+  "historical_contexts": [
+    {
+      "code": "RETIREMENT",
+      "label": "IRP 펀드상품 노출",
+      "base_template": "투자성상품-퇴직연금(IRP) 펀드상품 노출",
+      "components": [
+        {
+          "code": "ETF",
+          "label": "ETF",
+          "template": "투자성상품-ETF"
+        },
+        {
+          "code": "ELB",
+          "label": "ELB",
+          "template": "투자성상품-ELB"
+        }
+      ],
+      "source_policy": "IRP 펀드 노출 기준이 펀드 의무를 포함한다. 함께 언급된 ETF·ELB 기준만 추가하고 펀드 의무를 중복하지 않는다. 금융투자상품 미노출 IRP는 이 조합에 넣지 않는다.",
+      "restricted_standalone_templates": []
+    }
+  ]
+}

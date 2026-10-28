@@ -67,11 +67,14 @@
 
 ## 3. 데이터 단위와 상태
 
+> **변경(2026-10-28, 사용자 결정, docs/16 §9)**: 영역 출처가 레이아웃 상자 하나라는 계약을 '레이아웃 상자 + 보충 영역'으로 바꿨다. 레이아웃 상자 영역(`-L`)의 ID·bbox 는 그대로이고, 상자가 놓친 글자만 보충 영역(`-S`)으로 더한다(`--no-supplement` 로 끌 수 있음).
+
 | 단위 | 출처 | 필드 |
 |---|---|---|
 | Page | 이미지 원본(EXIF 반영) 또는 PDF/HWP 렌더 | `page_id, width, height, geometry, image_sha256, source` |
 | InputView | 경로 결정 | `view_id, kind(whole|tile), crop(페이지 좌표)` |
 | Region | `prunedResult.layout_det_res.boxes[i]` | `region_id = {view_id}-L{i:03d}`, `bbox = coordinate + offset`, `raw_coordinate`, `table_candidate`, trace용 `raw_label/raw_score` |
+| 보충 Region(2026-10-28, docs/16 §9) | 판독 뒤 레이아웃 상자 밖에 남은 OCR 묶음, 또는 같은 view 를 layoutThreshold 0.3 으로 다시 받은 `table` 상자 | `region_id = {view_id}-S{k:03d}`, `source = supplement:ocr_gap|supplement:table_threshold`, 원본에서 다시 읽고 기존 영역과 중복이 아닐 때만 추가. 근거 `trace/supplement.json` |
 | OcrItem | `prunedResult.overall_ocr_res.rec_*[j]` | `ocr_id = {view_id}-T{j:03d}`, `ocr_text, ocr_bbox, ocr_poly, score` |
 | server_blocks | `parsing_res_list` | 비교 전용 |
 

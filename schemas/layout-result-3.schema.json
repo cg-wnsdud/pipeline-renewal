@@ -1,0 +1,176 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "layout-result/3",
+ "title": "입력 파일별 의미 단계 결과(상품·템플릿·영역 배정·라벨)",
+ "description": "docs/14·docs/15. layout-result/2 파싱 snapshot 의 페이지·영역·표·미배정 OCR 값을 그대로 담고, 상품(products)·영역별 상품 배정·라벨·의미 단계 검토 코드를 더한다. 근거 인용·프롬프트·원시 응답은 trace/semantic 에 있다. 2026-10-27 확정: semantic.classification_mode·products[].pages·product_assignment.basis 추가(이전 실험 출력은 초안 /3).",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["contract", "result_id", "submission_id", "source", "parse", "semantic", "pages", "products", "regions", "unassigned_texts", "trace_ref"],
+ "properties": {
+  "contract": {"const": "layout-result/3"},
+  "result_id": {"type": "string", "pattern": "^lr3-[0-9a-f]{20}$"},
+  "submission_id": {"type": "string", "minLength": 1},
+  "source": {
+   "type": "object", "additionalProperties": false,
+   "required": ["file_id", "file_name", "input_order", "file_type", "sha256", "page_count"],
+   "properties": {
+    "file_id": {"type": "string", "minLength": 1},
+    "file_name": {"type": ["string", "null"]},
+    "input_order": {"type": "integer", "minimum": 1},
+    "file_type": {"enum": ["image", "pdf", "hwp", "hwpx"]},
+    "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "page_count": {"type": "integer", "minimum": 1}
+   }
+  },
+  "parse": {
+   "type": "object", "additionalProperties": false, "required": ["contract", "result_id", "profile", "path"],
+   "description": "근거 파싱 snapshot(layout-result/2). 이 문서의 파싱 값은 그 문서와 같다.",
+   "properties": {"contract": {"const": "layout-result/2"}, "result_id": {"type": "string", "pattern": "^lr2-[0-9a-f]{20}$"},
+                  "profile": {"type": "string"}, "path": {"type": "string"}}
+  },
+  "semantic": {
+   "type": "object", "additionalProperties": false, "required": ["profile", "classification_mode", "status", "versions"],
+   "description": "classification_mode: observe(고정 경로, docs/16 §9: 관측 한 호출에서 상품·템플릿·모든 영역 소속을 함께 결정 + 이름 없는 대상 정리, 큰 묶음은 페이지별 관측 + 통합) | legacy(정리 규칙 없는 이전 관측·통합, 이전 실행 재구성용)",
+   "properties": {"profile": {"type": "string"}, "classification_mode": {"enum": ["observe", "legacy"]},
+                  "status": {"enum": ["completed", "partial", "failed"]}, "versions": {"type": "object"}}
+  },
+  "pages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/page"}},
+  "products": {"type": "array", "items": {"$ref": "#/$defs/product"}},
+  "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}},
+  "unassigned_texts": {"type": "array", "items": {"$ref": "#/$defs/unassigned"}},
+  "trace_ref": {"type": "object", "additionalProperties": false, "required": ["parse_result", "semantic_trace"],
+                "properties": {"parse_result": {"type": "string"}, "semantic_trace": {"type": "string"}}}
+ },
+ "$defs": {
+  "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+  "review_codes": {"type": "object", "additionalProperties": false, "required": ["required", "codes"],
+                   "properties": {"required": {"type": "boolean"}, "codes": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}},
+  "page": {
+   "type": "object", "additionalProperties": false,
+   "required": ["page_id", "page_no", "width", "height", "coordinate_system", "image", "route", "execution_status", "quality_status", "boundary", "issues"],
+   "properties": {
+    "page_id": {"type": "string"}, "page_no": {"type": "integer", "minimum": 1},
+    "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1},
+    "coordinate_system": {"const": "page_px_xyxy"},
+    "image": {"type": "object", "additionalProperties": false, "required": ["sha256", "path"],
+              "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "path": {"type": "string"}}},
+    "route": {"enum": ["whole", "long"]},
+    "execution_status": {"type": "string"},
+    "quality_status": {"enum": ["not_verified", "candidate_unvalidated", "not_processed"]},
+    "boundary": {"type": ["object", "null"]},
+    "issues": {"type": "array", "items": {"type": "object", "required": ["code", "severity", "message"],
+               "properties": {"code": {"type": "string"}, "severity": {"type": "string"}, "message": {"type": "string"}}}}
+   }
+  },
+  "table": {
+   "type": ["object", "null"], "additionalProperties": false,
+   "required": ["status", "rows"],
+   "properties": {
+    "status": {"enum": ["table", "not_table", "unknown"]},
+    "rows": {"type": ["array", "null"], "items": {"type": "array", "items": {"type": "string"}}},
+    "structure": {"type": "string"},
+    "n_rows": {"type": ["integer", "null"]}, "n_cols": {"type": ["integer", "null"]},
+    "cells": {"type": ["array", "null"], "items": {"type": "object", "additionalProperties": false,
+              "required": ["row", "col", "rowspan", "colspan", "text"],
+              "properties": {"row": {"type": "integer", "minimum": 0}, "col": {"type": "integer", "minimum": 0},
+                             "rowspan": {"type": "integer", "minimum": 1}, "colspan": {"type": "integer", "minimum": 1},
+                             "text": {"type": "string"}}}}
+   }
+  },
+  "region": {
+   "type": "object", "additionalProperties": false,
+   "required": ["region_id", "page_id", "bbox", "table_candidate", "text", "text_status", "table", "review", "candidate_boundary", "product_assignment", "labeling", "semantic_review"],
+   "properties": {
+    "region_id": {"type": "string"}, "page_id": {"type": "string"}, "bbox": {"$ref": "#/$defs/bbox"},
+    "table_candidate": {"type": "boolean"},
+    "text": {"type": ["string", "null"]},
+    "text_status": {"enum": ["read", "no_text", "read_failed", "not_read"]},
+    "table": {"$ref": "#/$defs/table"},
+    "review": {"type": "object", "additionalProperties": false, "required": ["required", "quality_reasons", "context_reasons"],
+               "description": "파싱 검토(layout-result/2 그대로). 의미 단계 검토는 semantic_review",
+               "properties": {"required": {"type": "boolean"}, "quality_reasons": {"type": "array", "items": {"type": "string"}},
+                              "context_reasons": {"type": "array", "items": {"type": "string"}}}},
+    "candidate_boundary": {"type": "boolean"},
+    "product_assignment": {"$ref": "#/$defs/product_assignment"},
+    "labeling": {"$ref": "#/$defs/labeling"},
+    "semantic_review": {"$ref": "#/$defs/review_codes"}
+   },
+   "allOf": [
+    {"if": {"properties": {"text_status": {"enum": ["read_failed", "not_read"]}}}, "then": {"properties": {"text": {"type": "null"}}},
+     "else": {"properties": {"text": {"type": "string"}}}},
+    {"if": {"properties": {"text_status": {"const": "no_text"}}}, "then": {"properties": {"text": {"const": ""}}}},
+    {"if": {"properties": {"table_candidate": {"const": false}}}, "then": {"properties": {"table": {"type": "null"}}},
+     "else": {"properties": {"table": {"type": "object"}}}}
+   ]
+  },
+  "status": {"enum": ["not_run", "completed", "partial", "failed"]},
+  "product_assignment": {
+   "type": "object", "additionalProperties": false, "required": ["status", "scope", "product_ids", "basis"],
+   "description": "completed: specific(1개)·shared(1개 이상, 공통)·mixed(2개 이상, 영역 안에 상품별 내용이 나뉨). partial: unknown(미확정, 빈 배열). failed·not_run: scope null, 빈 배열. basis: single_product(그 페이지의 후보 상품이 하나라 모델 호출 없이 배정, scope=specific), model(모델 배정·미확정 응답), null(미실행·실패·광고 상품 없음).",
+   "properties": {
+    "status": {"$ref": "#/$defs/status"},
+    "scope": {"enum": ["specific", "shared", "mixed", "unknown", null]},
+    "product_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "basis": {"enum": ["single_product", "model", null]}
+   },
+   "allOf": [
+    {"if": {"properties": {"status": {"enum": ["not_run", "failed"]}}},
+     "then": {"properties": {"scope": {"const": null}, "product_ids": {"maxItems": 0}, "basis": {"const": null}}}},
+    {"if": {"properties": {"status": {"const": "partial"}}},
+     "then": {"properties": {"scope": {"const": "unknown"}, "product_ids": {"maxItems": 0}, "basis": {"enum": ["model", null]}}}},
+    {"if": {"properties": {"status": {"const": "completed"}}},
+     "then": {"properties": {"scope": {"enum": ["specific", "shared", "mixed"]}, "product_ids": {"minItems": 1},
+                             "basis": {"enum": ["single_product", "model"]}}}},
+    {"if": {"properties": {"basis": {"const": "single_product"}}, "required": ["basis"]},
+     "then": {"properties": {"scope": {"const": "specific"}}}}
+   ]
+  },
+  "labeling": {
+   "type": "object", "additionalProperties": false, "required": ["status", "items"],
+   "description": "completed: 배정 상품마다 item(빈 label_ids 는 '해당 라벨 없음' 판정). partial: 일부 상품만. failed·not_run: items 빈 배열(사유는 semantic_review.codes).",
+   "properties": {
+    "status": {"$ref": "#/$defs/status"},
+    "items": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["product_id", "label_ids"],
+              "properties": {"product_id": {"type": "string"},
+                             "label_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}}}
+   },
+   "allOf": [{"if": {"properties": {"status": {"enum": ["not_run", "failed"]}}}, "then": {"properties": {"items": {"maxItems": 0}}}},
+             {"if": {"properties": {"status": {"enum": ["completed", "partial"]}}}, "then": {"properties": {"items": {"minItems": 1}}}}]
+  },
+  "unassigned": {
+   "type": "object", "additionalProperties": false,
+   "required": ["ocr_id", "page_id", "bbox", "ocr_text", "reason", "candidate_region_ids", "empty_text", "final"],
+   "properties": {
+    "ocr_id": {"type": "string"}, "page_id": {"type": "string"}, "bbox": {"$ref": "#/$defs/bbox"},
+    "ocr_text": {"type": "string"}, "reason": {"type": "string"},
+    "candidate_region_ids": {"type": "array", "items": {"type": "string"}},
+    "empty_text": {"type": "boolean"}, "final": {"const": false}
+   }
+  },
+  "product": {
+   "type": "object", "additionalProperties": false,
+   "required": ["product_id", "name", "product_group", "status", "templates", "pension", "files", "pages", "review"],
+   "properties": {
+    "product_id": {"type": "string", "pattern": "^product_[0-9]{3}$"},
+    "name": {"type": ["string", "null"], "description": "광고 원문에 적힌 상품명. 없으면 null(이름을 만들지 않음)"},
+    "product_group": {"enum": ["예금성", "대출성", "투자성", "카드", "보험", "기타", null]},
+    "status": {"enum": ["classified", "undetermined", "unsupported"]},
+    "templates": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["template_id", "role", "label_schema"],
+                  "properties": {"template_id": {"type": "string"}, "role": {"enum": ["product", "component"]},
+                                 "label_schema": {"type": ["string", "null"]}}}},
+    "pension": {"type": ["object", "null"], "additionalProperties": false, "required": ["investment_products", "plans", "components"],
+                "properties": {"investment_products": {"enum": ["included", "not_exposed", "undetermined"]},
+                               "plans": {"type": "array", "uniqueItems": true, "items": {"enum": ["IRP", "DC", "DB"]}},
+                               "components": {"type": "array", "uniqueItems": true, "items": {"enum": ["FUND", "ETF", "ELB"]}}}},
+    "files": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "pages": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"},
+              "description": "상품이 걸친 페이지 ID(묶음의 다른 파일 페이지 포함). files 는 이 페이지들이 속한 파일이다"},
+    "review": {"$ref": "#/$defs/review_codes"}
+   },
+   "allOf": [
+    {"if": {"properties": {"status": {"const": "classified"}}}, "then": {"properties": {"templates": {"minItems": 1}}},
+     "else": {"properties": {"templates": {"maxItems": 0}, "pension": {"type": "null"}}}}
+   ]
+  }
+ }
+}

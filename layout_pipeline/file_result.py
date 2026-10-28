@@ -197,5 +197,7 @@ def export_run(root: Path, run_dir: Path, out_dir: Path) -> list[dict]:
     result_v1 = load(run_dir / "result.json")
     stage1_dir = _resolve(root, result_v1["settings"]["stage1"])
     records = [load(stage1_dir / "records" / f"{p['page_id']}.json") for p in result_v1["pages"]]
+    from .supplement import reapply
+    reapply(records, run_dir / "trace")                  # 보충 영역(…-S000)은 trace 근거로 다시 더한다
     docs = build_file_results(root, out_dir, result_v1, records, stage1_dir, run_dir / "trace")
     return write_file_results(out_dir, docs)

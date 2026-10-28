@@ -392,6 +392,11 @@ def integrate_region(record: dict, region: dict, res: dict | None) -> dict:
                 "ocr_reference": failed_ocr_reference(record, region)}
     res = rows_text_fallback(region, res)
     review = vlm_tasks.review_reasons(record, region, res)
+    if str(region.get("source", "")).startswith("supplement:"):
+        # 레이아웃 상자가 놓친 글자로 만든 보충 영역(docs/16 §9). 원래 상자 영역이 아니므로 맥락 검토 근거로 남긴다.
+        review["context_reasons"] += ["supplement_region", region["source"].replace("supplement:", "supplement_")]
+        if region.get("supplement_note"):
+            review["context_reasons"].append(region["supplement_note"])
     if res.get("text_from_rows"):
         review["context_reasons"].append("text_from_table_rows")
     if res.get("patch_not_applied"):
