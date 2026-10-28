@@ -319,6 +319,38 @@ def test_paged_flow_links_same_product_across_files(tmp_path, monkeypatch):
                                                       "basis": "model"}
     assert "x.png" not in seen[0] and "b01" not in seen[0] and "T1" in seen[0] and "T2" in seen[0]
     assert sorted(k.split(":")[0] for k in fake.keys).count("integrate") == 1
+    # 심의 단계 입력(review-input/1): 묶음 하나에 두 파일의 페이지·영역이 입력 순서로 들어가고 값은 원래 결과 그대로
+    h = load(out / "handoff" / f"{d1['submission_id']}.json")
+    assert rep["handoff"]["passed"] and h["contract"] == "review-input/1"
+    assert [f["file_id"] for f in h["files"]] == ["b01", "b02"] and [p["file_id"] for p in h["pages"]] == ["b01", "b02"]
+    assert [p["product_id"] for p in h["products"]] == ["product_001"] and h["products"][0]["templates"][0]["labels"]
+    src = {r["region_id"]: r for d in (d1, d2) for r in d["regions"]}
+    got = {r["region_id"]: r for p in h["pages"] for r in p["regions"]}
+    assert set(got) == set(src) and all(got[k]["text"] == src[k]["text"] and got[k]["bbox"] == src[k]["bbox"] for k in got)
+    assert got[d2["regions"][1]["region_id"]]["product"] == {"scope": "shared", "product_ids": ["product_001"]}
+
+
+def test_handoff_keeps_table_cells_and_marks_missing_structure():
+    """표는 셀 구조 그대로, 셀 구조가 없는 표는 table=null + 검토. 맥락 사유(경계·보충)는 needs_review 를 켜지 않는다."""
+    from layout_pipeline import handoff
+    cells = [{"row": 0, "col": 0, "rowspan": 1, "colspan": 2, "text": "구분"}, {"row": 1, "col": 0, "rowspan": 1, "colspan": 1, "text": "기간"},
+             {"row": 1, "col": 1, "rowspan": 1, "colspan": 1, "text": "12개월"}]
+
+    def region(rid, table, quality=(), context=()):
+        return {"region_id": rid, "page_id": "a_p01", "bbox": [0, 0, 10, 10], "text": "구분 기간 12개월", "text_status": "read",
+                "table": table, "review": {"required": bool(quality or context), "quality_reasons": list(quality),
+                                           "context_reasons": list(context)},
+                "product_assignment": {"status": "completed", "scope": "specific", "product_ids": ["product_001"], "basis": "model"},
+                "labeling": {"status": "completed", "items": [{"product_id": "product_001", "label_ids": ["가입기간"]}]},
+                "semantic_review": {"required": False, "codes": []}}
+    ok = handoff._region(region("r1", {"status": "table", "rows": [], "structure": "table-cells/1", "n_rows": 2, "n_cols": 2,
+                                       "cells": cells}, context=["candidate_boundary_unvalidated"]))
+    assert ok["is_table"] and ok["table"] == {"n_rows": 2, "n_cols": 2, "cells": cells} and not ok["needs_review"]
+    bad = handoff._region(region("r2", {"status": "table", "rows": [["기간", "12개월"]], "structure": "rows/legacy"},
+                                 quality=["table_structure_failed"]))
+    assert bad["is_table"] and bad["table"] is None and bad["needs_review"] and bad["review_reasons"] == ["table_structure_failed"]
+    plain = handoff._region(region("r3", {"status": "not_table", "rows": [], "structure": "table-cells/1"}))
+    assert plain["is_table"] is False and plain["table"] is None
 
 
 def test_integration_failure_keeps_targets_separate_with_review(tmp_path, monkeypatch):

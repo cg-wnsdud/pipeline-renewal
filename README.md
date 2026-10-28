@@ -71,6 +71,7 @@ VLM 호출은 `--vlm-concurrency`(기본 2) 상한 안에서 동시에 보낸다
 | `<out>/semantic/files/<file_id>/result.json` | **최종 산출물**(layout-result/3). 파싱 값에 상품·영역 소속·라벨을 더한 것. `run_semantic.py` 단독 실행이면 `<out>/files/<file_id>/result.json` |
 | `<out>/files/<file_id>/result.json` | 파싱 결과(layout-result/2). 상품·라벨은 `not_run`. 최종 문서의 파싱 값(bbox·text·table·review)은 이것과 같고 계약 검사가 보존을 확인한다 |
 | `files/index.json` | 파일 목록과 요약(쪽·영역 수, 상태 분포). 최종 쪽 목록은 상품과 `parse_review`·`semantic_review` 수도 담는다 |
+| `<out>/semantic/handoff/<submission_id>.json` | **심의 단계 입력**(review-input/1). 묶음 하나에 파일 → 페이지 → 영역(읽기 순서)으로 심의에 필요한 값만 담는다(아래 "심의 단계 입력"). `handoff/check.json` 은 영역 보존·참조 검사. 저장 결과로 다시 만들기: `scripts/build_handoff.py --semantic <의미 단계 폴더>` |
 | `files/contract-check.json` | 스키마·참조·보존·라벨 인용 위치 검사 결과 |
 | `semantic/report.html`, `trace/` | 검토 화면, 근거(프롬프트·원시 응답·인용·시간). 최종 JSON 에는 넣지 않는다 |
 
@@ -172,6 +173,31 @@ VLM 호출은 `--vlm-concurrency`(기본 2) 상한 안에서 동시에 보낸다
   "semantic_review": {"required": false, "codes": []}
 }
 ```
+
+### 심의 단계 입력(review-input/1)
+
+최종 결과(layout-result/3)에서 심의에 필요한 값만 추린 묶음 단위 JSON 이다. 값은 layout-result/3 그대로이며(영역 ID·bbox·text·표 셀), 원래 결과는 그대로 둔다.
+
+```jsonc
+{
+  "contract": "review-input/1", "submission_id": "tp03",
+  "files": [{"file_id", "file_name", "file_type", "input_order", "page_count"}],
+  "products": [{"product_id", "name", "product_group", "status", "pension", "files", "pages",
+                "templates": [{"template_id", "role", "label_schema", "labels": ["회사명", "…"]}]}],   // labels = 그 템플릿에서 쓸 수 있는 라벨
+  "pages": [{"page_id", "file_id", "page_no", "width", "height", "image": {"path", "sha256"}, "processed",
+             "regions": [{"region_id", "bbox", "text", "text_status",
+                          "is_table",                                   // true | false | null(표 판정 불가)
+                          "table": {"n_rows", "n_cols", "cells": [{"row", "col", "rowspan", "colspan", "text"}]},   // 표가 아니거나 셀 구조가 없으면 null
+                          "product": {"scope", "product_ids"},          // specific | shared | mixed | unknown | null(미실행)
+                          "labels": [{"product_id", "label_ids"}],      // 상품별 라벨
+                          "needs_review", "review_reasons"}]}],         // 판독 품질·의미 단계 사유(경계·보충 같은 맥락 사유 제외)
+  "source": {"<file_id>": "<layout-result/3 result_id>"}
+}
+```
+
+- 영역은 페이지 안에서 읽기 순서(위→아래, 같은 줄은 왼쪽→오른쪽)다. `bbox` 는 그 페이지 이미지(`width`×`height`) 픽셀 좌표다.
+- 셀 구조를 얻지 못한 표는 `is_table=true`, `table=null`, `needs_review=true` 다. `text` 에는 판독 문구가 있다.
+- 넣지 않는 것: 실행·버전 정보, 경계·진단·이슈, 맥락 검토 사유, 미배정 OCR, 판단 근거. 필요하면 `source` 의 result_id 로 layout-result/3 을 찾는다.
 
 ### 읽을 때 주의
 

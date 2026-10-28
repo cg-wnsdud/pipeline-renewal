@@ -20,7 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 
-from . import classify, contract_v3, labeling
+from . import classify, contract_v3, handoff, labeling
 from . import semantic_assets as A
 from .file_result_v3 import CONTRACT, SEMANTIC_PROFILE, build_docs, write_docs
 from .jsonio import dump, load
@@ -307,6 +307,8 @@ def run(parse_dir: Path, out_dir: Path, client, concurrency: int, submissions: s
     index = write_docs(out_dir, all_docs)
     dump(out_dir / "files" / "index.json", {"contract": CONTRACT + "/index", "files": index})
     dump(out_dir / "files" / "contract-check.json", checks)
+    # 심의 단계 입력(review-input/1): 묶음마다 필요한 값만 추린 JSON(<out>/handoff/<submission_id>.json)
+    hand = handoff.write_all(out_dir)
     viewer = build_semantic_viewer(out_dir, all_docs, [r["trace"] for r in results], checks)
     timing = {"wall_seconds": round(time.perf_counter() - t0, 3), "concurrency_limit": concurrency, "peak_concurrency": gate.peak,
               "http_calls": gate.calls, "replay": replay}
@@ -316,7 +318,9 @@ def run(parse_dir: Path, out_dir: Path, client, concurrency: int, submissions: s
             "problems": sum(len(v) for v in checks["contract_errors"].values()) + sum(len(v) for v in checks["preservation_errors"].values())
             + len(checks["submission_errors"]) + len(checks["label_evidence_errors"])},
         "dev_regression_overlap": example_overlap([d for r in results for d in by_sub[r["submission_id"]]]),
-        "submissions": [summary(r) for r in results], "viewer": str(viewer)}
+        "submissions": [summary(r) for r in results], "viewer": str(viewer),
+        "handoff": {"contract": handoff.CONTRACT, "passed": not any(v["problems"] for v in hand.values()),
+                    "files": {k: v["path"] for k, v in hand.items()}}}
     # 재구성은 실행 당시 보고서(호출 수·시간)를 덮어쓰지 않는다
     dump(out_dir / ("report.rebuild.json" if replay else "report.json"), report)
     if not replay:
