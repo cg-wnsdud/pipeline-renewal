@@ -593,7 +593,8 @@ def test_gate_keeps_total_concurrency_within_limit(tmp_path, monkeypatch):
 
 
 def test_target_without_name_or_evidence_is_dropped(tmp_path):
-    """근거 인용도 영역 문구 속 이름도 없는 대상은 상품으로 등록하지 않는다(그 대상 전용 영역은 미확정 + 코드)."""
+    """근거 인용도 영역 문구 속 이름도 없는 대상은 상품으로 등록하지 않는다. 그 대상 전용 영역은 관측에 남은 대상이 하나뿐이면
+    그 대상으로 채우고(docs/19) 검토 코드는 남긴다."""
     def observe(meta, schema, text):
         out = observe_one(meta, schema, text)
         out["targets"].append({"tid": "t2", "name": None, "group": "기타", "templates": ["unsupported"], "evidence": []})
@@ -604,7 +605,8 @@ def test_target_without_name_or_evidence_is_dropped(tmp_path):
     d = load(out / "files" / "a01" / "result.json")
     assert rep["checks"]["passed"] and [p["product_id"] for p in d["products"]] == ["product_001"]
     assert d["regions"][0]["product_assignment"]["product_ids"] == ["product_001"]
-    assert d["regions"][3]["product_assignment"] == {"status": "partial", "scope": "unknown", "product_ids": [], "basis": "model"}
+    assert d["regions"][3]["product_assignment"] == {"status": "completed", "scope": "specific", "product_ids": ["product_001"],
+                                                     "basis": "model"}
     assert "target_without_evidence" in d["regions"][3]["semantic_review"]["codes"]
     trace = load(out / "trace" / "semantic" / "s1.json")
     assert trace["units"][0]["dropped_targets"][0]["tid"] == "t2"
@@ -653,3 +655,17 @@ def test_integration_product_without_templates_uses_member_proposals_with_review
     assert rep["checks"]["passed"] and len(prods) == 2
     p2 = next(p for p in prods.values() if "b02" in p["files"])
     assert p2["templates"][0]["template_id"] == "예금성상품-입출식" and "integration_templates_missing" in p2["review"]["codes"]
+
+
+def test_broker_template_needs_decisive_word_in_its_quote(tmp_path):
+    """decisive-signal/1(docs/19): 대출모집인 결정 신호로 인용한 문구에 결정 신호 낱말이 없으면 템플릿을 빼고 상품명 노출로 둔다."""
+    b = _bundle(tmp_path, [[R("검단 중도금대출 강남중앙금융센터 류지선 과장 대출금리 연 3.87%")]])
+    ev = [("loan_named.name", "P1-R01", "검단 중도금대출"), ("loan_broker.decisive", "P1-R01", "강남중앙금융센터 류지선 과장")]
+    p = classify.resolve(b, _units(b, {"P1": [_t(None, ["loan_named", "loan_broker"], ev, "대출성")]}), None)["products"][0]
+    assert p["codes"] == ["loan_named"] and "decisive_signal_missing" in p["review"]
+    only = classify.resolve(b, _units(b, {"P1": [_t(None, ["loan_broker"], ev[1:], "대출성")]}), None)["products"][0]
+    assert only["codes"] == ["loan_named"] and only["status"] == "classified"
+    b2 = _bundle(tmp_path / "b", [[R("대출상담사 홍길동 NH주택담보대출")]])
+    ok = classify.resolve(b2, _units(b2, {"P1": [_t(None, ["loan_broker"], [("loan_broker.decisive", "P1-R01", "대출상담사 홍길동")], "대출성")]}),
+                          None)["products"][0]
+    assert ok["codes"] == ["loan_broker"] and "decisive_signal_missing" not in ok["review"]

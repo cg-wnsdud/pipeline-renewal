@@ -87,3 +87,19 @@ def test_r2_merges_two_unnamed_same_template_targets_and_keeps_failed_observatio
     assert obs["targets"][1]["tid"] == "t2"                                    # 입력은 바꾸지 않는다
     failed = {"ok": False, "errors": ["x"], "targets": [], "regions": {}, "parts": [], "missing": ["P1-R01"]}
     assert classify.apply_target_rules(failed) is failed
+
+
+def test_specific_without_target_is_filled_only_when_one_target(tmp_path):
+    """docs/19: 대상이 하나뿐인 관측에서 '한 상품 전용'인데 대상을 비운 영역은 그 대상으로 채운다. 대상이 둘이면 미확정 그대로."""
+    one = observe_with([T("t1", "NH튼튼적금", "deposit_saving", "P1-R01", "NH튼튼적금")],
+                       {"P1-R01": {"scope": "specific", "targets": ["t1"]}, "P1-R03": {"scope": "specific", "targets": []}})
+    rep, d, tr = run(tmp_path / "one", one)
+    r3 = next(r for r in d["regions"] if r["text"] == "가입기간 12개월")
+    assert rep["checks"]["passed"] and r3["product_assignment"]["scope"] == "specific" and r3["product_assignment"]["product_ids"] == ["product_001"]
+    assert tr["units"][0]["regions"]["P1-R03"]["note"] == "specific_filled_single_target"
+    two = observe_with([T("t1", "NH튼튼적금", "deposit_saving", "P1-R01", "NH튼튼적금"),
+                        T("t2", "NH든든예금", "deposit_term", "P1-R02", "NH든든예금")],
+                       {"P1-R01": {"scope": "specific", "targets": ["t1"]}, "P1-R02": {"scope": "specific", "targets": ["t2"]},
+                        "P1-R03": {"scope": "specific", "targets": []}})
+    _, d2, _ = run(tmp_path / "two", two)
+    assert next(r for r in d2["regions"] if r["text"] == "가입기간 12개월")["product_assignment"]["scope"] == "unknown"

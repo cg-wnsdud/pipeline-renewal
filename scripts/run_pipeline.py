@@ -38,6 +38,7 @@ from layout_pipeline.file_result import build_file_results, write_file_results  
 from layout_pipeline.final_viewer import build_file_viewer, build_final_viewer  # noqa: E402
 from layout_pipeline.jsonio import dump, load  # noqa: E402
 from layout_pipeline.read_stage import Reader  # noqa: E402
+from layout_pipeline import vlm_tasks  # noqa: E402
 from layout_pipeline.vlm_client import VlmClient  # noqa: E402
 from layout_pipeline.vlm_tasks import (GENERAL_REQUEST_VERSIONS, MARGIN_RULE, TABLE_REQUEST_VERSION,  # noqa: E402
                                        TABLE_REQUEST_VERSIONS)
@@ -85,6 +86,13 @@ def main() -> int:
     ap.add_argument("--supplement", action=argparse.BooleanOptionalAction, default=True,
                     help="(기본 켬) 판독 뒤 놓친 영역 보충(docs/16 §9, supplement/1): 레이아웃 상자 밖 OCR 묶음과 낮은 문턱(0.3) 표 상자로 "
                          "보충 영역을 만들어 원본에서 읽고, 기존 영역과 중복이 아니면 더한다. 끄면 레이아웃 상자 영역만")
+    # docs/18 문구 순서 오류 수정 비교. 기본값은 이전 동작(비교 결과로 정한다).
+    ap.add_argument("--ocr-candidate-order", choices=["text", "position"], default="text",
+                    help="VLM 에 주는 OCR 후보 목록 순서: text(문자열 순 정렬) | position(위→아래, 같은 줄 왼쪽→오른쪽)")
+    ap.add_argument("--supplement-reread", action=argparse.BooleanOptionalAction, default=False,
+                    help="보충 문자 영역도 본 판독과 같은 확인 조건에 걸리면 재판독(region-reread/1)")
+    ap.add_argument("--table-text-fallback", action=argparse.BooleanOptionalAction, default=False,
+                    help="표 셀 재판독이 셀 구조만 실패하면 그 문구를 쓰고 표 구조는 없음(text-only)으로 둔다")
     ap.add_argument("--semantic", action=argparse.BooleanOptionalAction, default=True,
                     help="(기본 켬) 파싱 snapshot 저장 뒤 상품·템플릿 분류·영역 배정·라벨링(docs/14, <out>/semantic). "
                          "같은 --vlm-concurrency 상한을 쓴다. 끄면 파싱까지만")
@@ -134,9 +142,11 @@ def main() -> int:
                        cache_bust=nonce)
     if args.general_request in ("crop/2", "crop/3") and args.general_crop_margin != "none":
         ap.error(f"{args.general_request} 는 여백 없는 crop 에서만 정의됨")
+    vlm_tasks.CANDIDATE_ORDER = args.ocr_candidate_order
     reader = Reader(client, args.out / "trace", args.vlm_concurrency, args.general_request, args.table_request)
     reader.verify_mode = args.verify_mode
     reader.table_read = args.table_read
+    reader.table_text_fallback = args.table_text_fallback
     if args.resume:
         if not args.from_stage1 or args.read_mode == "crop":
             ap.error("--resume 는 --from-stage1 과 page-first 판독에서만 쓴다")
@@ -154,7 +164,7 @@ def main() -> int:
         sup_reader = Reader(client, args.out / "trace", args.vlm_concurrency, "crop/3", args.table_request)
         sup_reader.table_read = "cells"
         probe = supplement.TableProbe(load(stage1_dir / "run.json").get("layout_options"), args.out / "trace")
-        sup = supplement.run(records, reads, sup_reader, probe, args.out / "trace", args.max_images)
+        sup = supplement.run(records, reads, sup_reader, probe, args.out / "trace", args.max_images, reread=args.supplement_reread)
         timing["supplement"] = {"wall_seconds": round(time.perf_counter() - t_s, 3), "ocr_calls": sup["ocr_calls"],
                                 "vlm_calls": client.count - n0, "added": sup["added"], "dropped": sup["dropped"]}
     settings = {"stage1": str(stage1_dir), "layout_options": load(stage1_dir / "run.json").get("layout_options"),
@@ -164,9 +174,11 @@ def main() -> int:
                 "table_request": args.table_request, "max_images_per_request": args.max_images,
                 "vlm_concurrency": args.vlm_concurrency, "temperature": 0, "cache_bust": nonce,
                 "read_mode": args.read_mode, "run_candidate_boundaries": args.run_candidate_boundaries,
-                "table_read": args.table_read if args.table_read == "legacy" else "table-cells/1"}
+                "table_read": args.table_read if args.table_read == "legacy" else "table-cells/1",
+                "ocr_candidate_order": vlm_tasks.CANDIDATE_ORDER_VERSIONS[args.ocr_candidate_order],
+                "table_text_fallback": args.table_text_fallback}
     if args.supplement:
-        settings["supplement"] = supplement.settings()
+        settings["supplement"] = supplement.settings() | {"reread": args.supplement_reread}
     if args.read_mode != "crop":
         from layout_pipeline import page_read
         settings |= {"page_request": page_read.PAGE_VERSION if args.read_mode == "page-first" else page_read.PAGE_VERSION_NO_OCR,

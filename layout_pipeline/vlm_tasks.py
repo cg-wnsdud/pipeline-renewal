@@ -45,14 +45,14 @@ def region_context(record: dict, region: dict) -> dict:
             weak = "low_ocr_overlap" in a.get("assignment_review", [])
             cands.append({"ocr_id": a["ocr_id"], "text": a["ocr_text"],
                           "source": "boundary_assigned" if weak else "assigned",
-                          "inside_ratio": a.get("inside_ratio", 1.0)})
+                          "inside_ratio": a.get("inside_ratio", 1.0), "bbox": a.get("ocr_bbox")})
     for u in record["unassigned_texts"]:
         if not u["ocr_text"].strip():
             continue
         for c in u["candidates"]:
             if c["region_id"] == region["region_id"]:
                 cands.append({"ocr_id": u["ocr_id"], "text": u["ocr_text"], "source": "boundary_unassigned",
-                              "inside_ratio": c["inside_ratio"], "reason": u["reason"]})
+                              "inside_ratio": c["inside_ratio"], "reason": u["reason"], "bbox": u.get("ocr_bbox")})
     cands.sort(key=lambda c: _ocr_order(c["ocr_id"]))
     return {"ocr_candidates": cands,
             "ocr_draft": [c["text"] for c in cands if c["source"] == "assigned"],
@@ -71,22 +71,68 @@ BOUNDARY_CANDIDATE_MIN_INSIDE = 0.5   # crop/3·table-check/5: 이보다 적게 
 
 
 def candidate_context(record: dict, region: dict, version: str = "crop/2") -> dict:
-    """crop/2·3, table-check/4·5 의 OCR 참고 표현: 순서 없는 후보 목록(문자열 순 정렬)과 출처.
+    """crop/2·3, table-check/4·5 의 OCR 참고 표현: 후보 목록과 출처. 목록 순서는 CANDIDATE_ORDER 로 정한다.
 
-    OCR 배열 순서가 읽기 순서로 쓰이지 않도록 원래 OCR 순서를 일부러 감춘다. 같은 문구가 여러 번 검출되면 그대로 둔다.
+    text(기본): 문자열 순 정렬. OCR 배열 순서가 읽기 순서로 쓰이지 않도록 원래 OCR 순서를 일부러 감춘다.
+    position: 위치 순(위→아래, 같은 줄은 왼쪽→오른쪽). 문자열 순 목록을 모델이 그대로 따라 쓴 사례(docs/18: tp02 S004 줄 섞임,
+    tp06 L002 '(' 로 시작하는 줄이 맨 앞에 중복) 때문에 비교한다. 같은 문구가 여러 번 검출되면 그대로 둔다.
     v3(crop/3·table-check/5): 경계 OCR 은 영역 안 비율 0.5 이상만 주고 그 비율을 함께 적는다. crop/2 에서 영역 안 비율
     0.002 인 경계 OCR(f01 L008 'NH더퍼스트기업대출')을 그림만 있는 crop 의 문구로 옮긴 사례 때문이다."""
     ctx = region_context(record, region)
     v3 = version in ("crop/3", "table-check/5")
-    cands = []
+    pairs = []
     for c in ctx["ocr_candidates"]:
         if c["source"] == "assigned":
-            cands.append({"text": c["text"], "source": "in_region"})
+            pairs.append((c, {"text": c["text"], "source": "in_region"}))
         elif not v3:
-            cands.append({"text": c["text"], "source": "boundary"})
+            pairs.append((c, {"text": c["text"], "source": "boundary"}))
         elif c["inside_ratio"] >= BOUNDARY_CANDIDATE_MIN_INSIDE:
-            cands.append({"text": c["text"], "source": "boundary", "inside_ratio": round(c["inside_ratio"], 2)})
-    return {"ocr_candidates": sorted(cands, key=lambda c: (c["text"], c["source"]))}
+            pairs.append((c, {"text": c["text"], "source": "boundary", "inside_ratio": round(c["inside_ratio"], 2)}))
+    if CANDIDATE_ORDER == "position":
+        rank = {id(c): k for k, c in enumerate(position_order([c for c, _ in pairs]))}
+        return {"ocr_candidates": [item for c, item in sorted(pairs, key=lambda p: rank[id(p[0])])]}
+    return {"ocr_candidates": sorted((item for _, item in pairs), key=lambda c: (c["text"], c["source"]))}
+
+
+SAME_LINE_OVERLAP = 0.5   # 세로 겹침이 작은 상자 높이의 이 비율 이상이면 같은 줄
+
+
+def position_order(cands: list[dict]) -> list[dict]:
+    """OCR 상자를 위→아래 줄로 묶고 줄 안은 왼쪽→오른쪽으로 놓는다(위치만 쓰고 의미로 재배열하지 않는다)."""
+    lines: list[list[dict]] = []
+    for c in sorted((c for c in cands if c.get("bbox")), key=lambda c: (c["bbox"][1], c["bbox"][0])):
+        b = c["bbox"]
+        for line in lines:
+            ref = line[0]["bbox"]
+            overlap = min(b[3], ref[3]) - max(b[1], ref[1])
+            if overlap >= SAME_LINE_OVERLAP * min(b[3] - b[1], ref[3] - ref[1]):
+                line.append(c)
+                break
+        else:
+            lines.append([c])
+    return [c for line in lines for c in sorted(line, key=lambda c: c["bbox"][0])] + [c for c in cands if not c.get("bbox")]
+
+
+# 후보 목록 순서 설정(run_pipeline --ocr-candidate-order). 프롬프트의 순서 설명 문구도 이 값으로 바꾼다(order_prompt).
+CANDIDATE_ORDER = "text"
+CANDIDATE_ORDER_VERSIONS = {"text": "text-sorted/1", "position": "position/1"}
+_ORDER_WORDING = [
+    ("OCR 후보 목록의 순서는 읽기 순서가 아닙니다(문자열 순으로 정렬해 둔 목록입니다).",
+     "OCR 후보 목록은 위치 순(위→아래, 같은 줄은 왼쪽→오른쪽)으로 나열했습니다. 단·표·도해·각주에서는 읽기 순서와 다를 수 있으니 순서는 이미지로 정합니다."),
+    ("OCR 후보 목록의 순서는 읽기 순서가 아닙니다.",
+     "OCR 후보 목록은 위치 순(위→아래, 같은 줄은 왼쪽→오른쪽)이며 단·표·도해·각주에서는 읽기 순서와 다를 수 있습니다."),
+    ("(문자열 순 정렬, 틀릴 수 있음)", "(위치 순 나열, 틀릴 수 있음)"),
+    ("(순서 없음, 틀릴 수 있음)", "(위치 순 나열, 읽기 순서와 다를 수 있음, 틀릴 수 있음)"),
+]
+
+
+def order_prompt(text: str) -> str:
+    """CANDIDATE_ORDER=position 이면 프롬프트의 '문자열 순 정렬' 설명을 위치 순 설명으로 바꾼다(text 이면 그대로)."""
+    if CANDIDATE_ORDER != "position":
+        return text
+    for old, new in _ORDER_WORDING:
+        text = text.replace(old, new)
+    return text
 
 
 def short(region_id: str) -> str:

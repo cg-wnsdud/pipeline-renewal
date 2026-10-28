@@ -144,6 +144,10 @@ def validate(call, req: dict) -> dict[str, dict]:
         if not isinstance(p.get("uncertain"), bool):
             errs.append("uncertain 타입")
         out["contract_errors"] += errs
+        if errs and isinstance(text, str) and text.strip() and isinstance(p.get("uncertain"), bool):
+            # 셀 구조만 계약에 어긋나고 문구 자체는 온전한 응답. 문구만 따로 남긴다(쓸지는 병합 단계의 text_fallback 설정이 정한다).
+            out["text_only"] = {"text": text, "uncertain": p["uncertain"],
+                                "is_table": p["is_table"] if isinstance(p.get("is_table"), bool) else None}
         if not errs:
             cells = sorted(p["cells"], key=lambda c: (c["row"], c["col"]))
             out.update(text=text, uncertain=p["uncertain"], is_table=p["is_table"], cells=cells,

@@ -355,6 +355,11 @@ def validate_observe(call, req: dict, b: dict) -> dict:
         scope, note = item["scope"], None
         if scope == "unknown":
             ts = []
+        elif scope in ("specific", "mixed") and not ts and len(live := [t for t in tids if t not in dropped]) == 1:
+            # 관측 단위에 남은 대상이 하나뿐이면, 상품 전용·혼합인데 대상을 비웠거나 버려진 대상(근거·이름 없음)만 가리킨 영역은 그 대상밖에
+            # 될 수 없다(docs/19, whole-test 대출 광고2 2쪽: 보증료할인 영역을 근거 없는 두 번째 대상에 묶은 응답).
+            scope, ts = "specific", live
+            note = "dropped_target_filled_single_target" if set(item["targets"]) & dropped else "specific_filled_single_target"
         elif scope == "specific" and len(ts) != 1:
             scope, note = ("mixed", "specific_multi") if ts else (
                 "unknown", "dropped_target" if set(item["targets"]) & dropped else "specific_without_target")
@@ -547,7 +552,38 @@ def _name(names: list[str | None], b: dict, codes: list[str]) -> str | None:
     return next(n for n in valid if count[canon(n)] == best)
 
 
+# 결정 신호 검사(decisive-signal/1, docs/19): 정책에 '결정 신호:' 특징이 있는 템플릿은 그 특징으로 인용한 문구에 결정 신호 낱말이
+# 실제로 있어야 유지한다. 없으면 그 템플릿을 빼고, 정책의 대체 규칙(DECISIVE_FALLBACK)이 있으면 그 템플릿으로 둔다.
+# whole-test 대출 광고2: 지점 담당자 '강남중앙금융센터 류지선 과장'(보조 신호 상담사 이름)을 결정 신호로 인용해 대출모집인이 붙었다.
+DECISIVE_RULES_VERSION = "decisive-signal/1"
+DECISIVE_FALLBACK = {"loan_broker": "loan_named"}     # loan_named 규칙: '대출모집인 결정 신호가 없으면 이 템플릿으로 판단한다'
+
+
+def decisive_terms(code: str) -> list[str]:
+    """템플릿의 '결정 신호:' 특징 설명에 나열된 낱말(비교 열쇠). 그런 특징이 없으면 빈 목록."""
+    t = next((t for t in A.templates() if t["code"] == code), None)
+    for f in (t or {}).get("features") or []:
+        if f["desc"].startswith("결정 신호:"):
+            return [canon(w) for w in f["desc"].split(":", 1)[1].split(",") if canon(w)]
+    return []
+
+
+def _decisive_filter(codes: list[str], evidence: list[dict], review: list[str]) -> list[str]:
+    out = list(codes)
+    for c in [c for c in codes if decisive_terms(c)]:
+        terms = decisive_terms(c)
+        if any(e["valid"] and A.feature_template(e["feature"]) == c and any(t in canon(e["quote"]) for t in terms) for e in evidence):
+            continue
+        out = [x for x in out if x != c]
+        review.append("decisive_signal_missing")
+        fb = DECISIVE_FALLBACK.get(c)
+        if fb and fb not in out:
+            out.append(fb)
+    return out
+
+
 def _template_codes(codes: list[str], evidence: list[dict], review: list[str]) -> list[str]:
+    codes = _decisive_filter(codes, evidence, review)
     real = [c for c in codes if c not in A.SPECIAL_CODES]
     supported = {A.feature_template(e["feature"]) for e in evidence if e["valid"]}
     if any(c not in supported for c in real):
@@ -631,6 +667,8 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
                 scope = "specific"
             codes = [] if scope != "unknown" or not item["note"] else [
                 "target_without_evidence" if item["note"] == "dropped_target" else "assignment_invalid"]
+            if item["note"] == "dropped_target_filled_single_target":
+                codes.append("target_without_evidence")      # 남은 대상 하나로 채웠지만 원래 응답은 근거 없는 대상을 가리켰다(검토 표시 유지)
             if scope == "unknown":
                 codes.append("assignment_unknown")
             assign[a] = {"status": "partial" if scope == "unknown" else "completed", "scope": scope, "groups": gs,

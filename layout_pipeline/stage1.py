@@ -24,6 +24,10 @@ from .routing import RouteDecision, decide, load_plans, load_policy
 
 CONTRACT = "layout-stage1/1"
 LARGE_REGION_FRAC = 0.25   # 진단 표시 기준. 영역을 바꾸지 않는다.
+# 문서 틀 표(docs/19): 레이아웃이 표로 검출했지만 OCR 글자가 이만큼 이상이면 본문 전체를 담은 틀로 보고 글 영역으로 읽는다.
+# 기존 실행의 표 후보 52개 중 실제 표는 800자 미만, 본문 틀(HWP t07 4개, whole-test 대출 광고2 1쪽)은 950~2,200자였다.
+CONTAINER_TABLE_MIN_CHARS = 900
+CONTAINER_RULE = "table-container-as-text/1"
 
 
 def _issue(code: str, severity: str, message: str, refs: list | None = None) -> dict:
@@ -59,13 +63,24 @@ def build_page(page: Page, decision: RouteDecision, calls: list[dict], responses
     overlaps = diagnostics.region_overlaps(regions)
     tile_edges = diagnostics.tile_edge_regions(regions, decision.views, page.width, page.height)
     region_rows = []
+    containers = []
     for r in regions:
         texts = [a["ocr_text"] for a in assignment["assigned"] if a["region_id"] == r.region_id]
-        region_rows.append(r.to_dict() | {"assigned_ocr_ids": rel[r.region_id]["assigned"],
-                                          "crossing_ocr_ids": rel[r.region_id]["crossing"],
-                                          "ambiguous_ocr_ids": rel[r.region_id]["ambiguous"],
-                                          "ocr_draft": "\n".join(t for t in texts if t.strip()),
-                                          "text": None, "text_status": "not_read"})
+        row = r.to_dict() | {"assigned_ocr_ids": rel[r.region_id]["assigned"],
+                             "crossing_ocr_ids": rel[r.region_id]["crossing"],
+                             "ambiguous_ocr_ids": rel[r.region_id]["ambiguous"],
+                             "ocr_draft": "\n".join(t for t in texts if t.strip()),
+                             "text": None, "text_status": "not_read"}
+        chars = sum(len(t.strip()) for t in texts)
+        if row["table_candidate"] and chars >= CONTAINER_TABLE_MIN_CHARS:
+            # 문서 틀 표(docs/19): 본문 전체를 담은 표 상자는 표 셀 판독이 안쪽 작은 표 하나만 읽고 나머지를 버린다. 글 영역으로 읽는다.
+            row |= {"table_candidate": False,
+                    "table_container": {"rule": CONTAINER_RULE, "ocr_chars": chars, "ocr_lines": len(texts)}}
+            containers.append(r.region_id)
+        region_rows.append(row)
+    if containers:
+        issues.append(_issue("TABLE_CONTAINER_READ_AS_TEXT", "info",
+                             f"OCR 글자 {CONTAINER_TABLE_MIN_CHARS}자 이상인 표 상자 {len(containers)}개를 글 영역으로 판독", containers))
     if executed:
         nonempty = [u for u in assignment["unassigned_texts"] if not u["empty_text"]]
         weak = [a["ocr_id"] for a in assignment["assigned"] if "low_ocr_overlap" in a.get("assignment_review", [])

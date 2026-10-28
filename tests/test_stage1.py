@@ -259,6 +259,39 @@ class FakeResponse:
         return self._body
 
 
+def test_document_frame_table_is_read_as_text(tmp_path):
+    """table-container-as-text/1(docs/19): OCR 글자가 많은 표 상자(본문 틀)는 표 후보에서 빼고 글 영역으로 읽는다. 작은 표는 그대로."""
+    page = make_page(tmp_path, 1654, 2339)
+    d = decide(page, POLICY, {})
+    long_lines = [(f"대출대상 안내 문장 {i:02d} 계약금 5% 이상 납부한 분양계약자 중 소득 증빙 가능자", [120, 120 + i * 25, 880, 140 + i * 25])
+                  for i in range(30)]
+    p = pruned(1654, 2339, [("table", [100, 100, 900, 900]), ("table", [100, 1000, 900, 1100])],
+               long_lines + [("기간 12개월", [120, 1010, 400, 1040])])
+
+    def post(url, json, timeout):
+        return FakeResponse({"logId": "x", "errorCode": 0, "result": {"layoutParsingResults": [{"prunedResult": p}]}})
+    client = OcrClient("http://fake", 5, {"useTableRecognition": False}, tmp_path / "raw", tmp_path / "views", post=post)
+    rec, pr = client.call(page, d.views[0])
+    from dataclasses import asdict
+    record = build_page(page, d, [asdict(rec)], {d.views[0].view_id: pr}, RULE)
+    big, small = record["regions"]
+    assert big["table_candidate"] is False and big["table_container"]["ocr_lines"] == 30 and big["raw_label"] == "table"
+    assert small["table_candidate"] is True and "table_container" not in small
+    assert any(i["code"] == "TABLE_CONTAINER_READ_AS_TEXT" for i in record["issues"])
+
+
+def test_hwp_front_layer_covering_page_is_detected():
+    """docs/19: 쪽 대부분을 덮는 '글 앞으로' 레이어만 본문을 가리는 것으로 본다(글 뒤로·작은 그림은 제외)."""
+    from layout_pipeline.hwp_bridge import covering_layers
+    surface = {"page_css_size": [793.71, 1122.51], "layer_items": [
+        {"kind": "floating_image", "page_no": 1, "wrap": "IN_FRONT_OF_TEXT", "box_pt": [0.0, 0.0, 619.06, 857.15]},
+        {"kind": "floating_image", "page_no": 1, "wrap": "BEHIND_TEXT", "box_pt": [0.0, 0.0, 595.0, 842.0]},
+        {"kind": "floating_image", "page_no": 2, "wrap": "IN_FRONT_OF_TEXT", "box_pt": [10.0, 10.0, 200.0, 100.0]}]}
+    hit = covering_layers({"review_surface": surface})
+    assert [(h["page_no"], h["wrap"]) for h in hit] == [(1, "IN_FRONT_OF_TEXT")] and hit[0]["cover"] == 1.0
+    assert covering_layers({"review_surface": {"layer_items": surface["layer_items"]}}) == []
+
+
 def test_whole_page_single_call_and_vlm_plan(tmp_path):
     page = make_page(tmp_path, 1654, 2339)
     d = decide(page, POLICY, {})

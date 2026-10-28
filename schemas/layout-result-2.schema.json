@@ -68,7 +68,7 @@
    "properties": {
     "status": {"enum": ["table", "not_table", "unknown"]},
     "rows": {"type": ["array", "null"], "items": {"type": "array", "items": {"type": "string"}}},
-    "structure": {"type": "string", "description": "table-cells/1(셀 구조가 원본 결과, rows 는 변환 보기) | rows/legacy"},
+    "structure": {"type": "string", "description": "table-cells/1(셀 구조가 원본 결과, rows 는 변환 보기) | rows/legacy | text-only(셀 구조 실패, 표 셀 재판독 문구만 채택)"},
     "n_rows": {"type": ["integer", "null"]}, "n_cols": {"type": ["integer", "null"]},
     "cells": {"type": ["array", "null"], "items": {"type": "object", "additionalProperties": false,
               "required": ["row", "col", "rowspan", "colspan", "text"],
