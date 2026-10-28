@@ -144,7 +144,6 @@ def page_request(record: dict, view: dict, page_img: Image.Image, with_ocr: bool
 # (나) page-band/1: 서버 리사이즈 배율이 이보다 낮은 페이지는 VLM 입력만 영역을 가로지르지 않는 위치에서 나눈다.
 BAND_SPLIT_BELOW = 0.7
 BAND_TARGET_FACTOR = 0.8
-BAND_VERSION = "page-band/1"
 
 
 def vlm_bands(view: dict, regions: list[dict], budget: int = 2_580_480) -> dict:

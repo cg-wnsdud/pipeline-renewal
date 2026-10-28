@@ -12,7 +12,7 @@
 """
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import asdict
 from pathlib import Path
 
@@ -207,8 +207,49 @@ class Reader:
                                        "verify_reasons": {r["region_id"]: reasons.get(r["region_id"])}}))
         return out
 
+    def verify_work(self, record: dict, view: dict, regs: list[dict], parsed: dict, max_images: int) -> list[tuple]:
+        """판독 단위(페이지·타일·띠) 하나의 1차 판독 결과로 영역 확인 작업 목록을 만든다."""
+        work = []
+        patch, full, tables, reasons, texts = [], [], [], {}, {}
+        for r in regs:
+            res = parsed[r["region_id"]]
+            why = page_read.verify_reasons(record, r, view, res)
+            if self.table_read == "cells" and r["table_candidate"]:
+                # table-cells/1: 표 후보는 모두 표 하나씩 text·셀 구조를 함께 다시 읽는다(일반 재판독으로 보내지 않음).
+                work.append((record, [r], "table_cells", {}, {r["region_id"]: why or ["table_structure_read"]}, view))
+                continue
+            if why:
+                reasons[r["region_id"]] = why
+                texts[r["region_id"]] = res.get("text")
+                table_bad = r["table_candidate"] and (
+                    not res.get("contract_ok") or res.get("is_table") is None
+                    or bool({"table_rows_missing", "table_rows_incomplete"} & set(why)))
+                if table_bad:
+                    tables.append(r)       # 페이지 판독의 표 결과가 없거나 불완전할 때만 표 crop 재판독
+                elif res.get("contract_ok") and res.get("text") is not None:
+                    patch.append(r)        # (가) 1차 판독이 있으면 보완만
+                else:
+                    full.append(r)         # 1차 판독이 없으면 crop 전체 판독
+        if self.verify_mode == "reread":
+            for r in patch + full:     # 1차 판독이 없어도(출력 실패·ID 누락) 같은 재판독으로 완결 후보를 받는다
+                work.append((record, [r], "reread", {r["region_id"]: texts[r["region_id"]]},
+                             {r["region_id"]: reasons[r["region_id"]]}, view))
+        else:
+            for group, kind in ((patch, "patch"), (full, "verify")):
+                for i in range(0, len(group), max_images):
+                    chunk = group[i:i + max_images]
+                    work.append((record, chunk, kind, {k["region_id"]: texts[k["region_id"]] for k in chunk},
+                                 {k["region_id"]: reasons[k["region_id"]] for k in chunk}, view))
+        for r in tables:
+            work.append((record, [r], "table", {}, {r["region_id"]: reasons[r["region_id"]]}, view))
+        return work
+
     def read_pages_page_first(self, records: list[dict], max_images: int, with_ocr: bool = True) -> dict[str, dict]:
-        """1) 페이지(긴 이미지는 타일) 전체 판독 → 2) 일반 조건에 걸린 영역만 영역 crop 확인 → 3) 병합."""
+        """1) 페이지(긴 이미지는 타일) 전체 판독 → 2) 일반 조건에 걸린 영역만 영역 crop 확인 → 3) 병합.
+
+        판독 단위 하나의 1차 판독이 끝나면 그 단위의 영역 확인을 같은 작업 풀에 바로 넣는다(다른 단위의 1차 판독을 기다리지
+        않음). 풀은 넣은 순서대로 처리하므로 1차 판독이 먼저 나가고, 영역 확인은 빈 자리를 채운다. 같은 영역의 영역 확인은 항상
+        그 영역 1차 판독이 끝난 뒤에 호출되므로 호출 번호 순 병합(merge_entries) 결과는 단계를 나눠 기다릴 때와 같다."""
         images, page_jobs = {}, []
         for record in records:
             if record["status"] not in READABLE_STATUSES or not record["regions"]:
@@ -224,50 +265,20 @@ class Reader:
                             page_jobs.append((record, bview, bregs))
         entries: list = []
         with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
-            futures = [pool.submit(self.page_job, rec, images[rec["page"]["page_id"]], view, with_ocr, regs)
-                       for rec, view, regs in page_jobs]
-            done = [f.result() for f in futures]
-        verify_work = []
-        for (record, view, regs), calls in zip(page_jobs, done):
-            entries += calls
-            parsed = calls[-1][1]
-            patch, full, tables, reasons, texts = [], [], [], {}, {}
-            for r in regs:
-                res = parsed[r["region_id"]]
-                why = page_read.verify_reasons(record, r, view, res)
-                if self.table_read == "cells" and r["table_candidate"]:
-                    # table-cells/1: 표 후보는 모두 표 하나씩 text·셀 구조를 함께 다시 읽는다(일반 재판독으로 보내지 않음).
-                    verify_work.append((record, [r], "table_cells", {}, {r["region_id"]: why or ["table_structure_read"]}, view))
-                    continue
-                if why:
-                    reasons[r["region_id"]] = why
-                    texts[r["region_id"]] = res.get("text")
-                    table_bad = r["table_candidate"] and (
-                        not res.get("contract_ok") or res.get("is_table") is None
-                        or bool({"table_rows_missing", "table_rows_incomplete"} & set(why)))
-                    if table_bad:
-                        tables.append(r)       # 페이지 판독의 표 결과가 없거나 불완전할 때만 표 crop 재판독
-                    elif res.get("contract_ok") and res.get("text") is not None:
-                        patch.append(r)        # (가) 1차 판독이 있으면 보완만
-                    else:
-                        full.append(r)         # 1차 판독이 없으면 crop 전체 판독
-            if self.verify_mode == "reread":
-                for r in patch + full:     # 1차 판독이 없어도(출력 실패·ID 누락) 같은 재판독으로 완결 후보를 받는다
-                    verify_work.append((record, [r], "reread", {r["region_id"]: texts[r["region_id"]]},
-                                        {r["region_id"]: reasons[r["region_id"]]}, view))
-            else:
-                for group, kind in ((patch, "patch"), (full, "verify")):
-                    for i in range(0, len(group), max_images):
-                        chunk = group[i:i + max_images]
-                        verify_work.append((record, chunk, kind, {k["region_id"]: texts[k["region_id"]] for k in chunk},
-                                            {k["region_id"]: reasons[k["region_id"]] for k in chunk}, view))
-            for r in tables:
-                verify_work.append((record, [r], "table", {}, {r["region_id"]: reasons[r["region_id"]]}, view))
-        with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
-            futures = [pool.submit(self.verify_job, rec, images[rec["page"]["page_id"]], regs, kind, texts, why, view)
-                       for rec, regs, kind, texts, why, view in verify_work]
-            for f in futures:
-                entries += f.result()
+            pending = {pool.submit(self.page_job, rec, images[rec["page"]["page_id"]], view, with_ocr, regs): (rec, view, regs)
+                       for rec, view, regs in page_jobs}
+            while pending:
+                done, _ = wait(pending, return_when=FIRST_COMPLETED)
+                for f in done:
+                    job = pending.pop(f)
+                    calls = f.result()
+                    entries += calls
+                    if job is None:            # 영역 확인 작업
+                        continue
+                    record, view, regs = job
+                    for rec, regs2, kind, texts, why, view2 in self.verify_work(record, view, regs, calls[-1][1], max_images):
+                        pending[pool.submit(self.verify_job, rec, images[rec["page"]["page_id"]], regs2, kind, texts, why,
+                                            view2)] = None
         entries.sort(key=lambda e: e[0]["call_id"])
         return merge_entries(entries, region_index(records))
 

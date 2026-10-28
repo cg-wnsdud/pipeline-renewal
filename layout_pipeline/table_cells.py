@@ -13,13 +13,11 @@ import json
 from PIL import Image
 
 from . import page_read, vlm_tasks
-from .text_eval import similarity_cover
 
 # 지시 1회 수정 시도 /2(docs/11 R3: 병합 판단·text 범위·줄바꿈 지시 추가)는 계약 통과 9/12 로 /1(11/12)보다 나빠 기각했다.
 # /1 의 실패 유형(문맥 이미지에서만 보이는 문구·태그 유입, 위치 겹침)은 런타임 검사(상자 밖 문구·출력 잔여물·셀 계약)로 표시한다.
 VERSION = "table-cells/1"
 MAX_TOKENS = 6000
-CELLS_COVER_MIN = 0.85     # 셀 문구가 text 의 글자를 덮는 비율 하한(기존 rows_cover_text 와 같은 값). 미만이면 품질 검토
 
 RULES = (
     "할 일: 대상 영역의 표 여부와 문구, 표의 논리 셀 구조를 원본에서 직접 읽어 하나의 결과로 씁니다.\n"
@@ -153,14 +151,3 @@ def validate(call, req: dict) -> dict[str, dict]:
                        rows=to_rows(p["n_rows"], p["n_cols"], cells) if p["is_table"] else [])
     out["contract_ok"] = not out["contract_errors"]
     return {rid: out}
-
-
-def cells_text(cells: list[dict] | None) -> str:
-    return "\n".join(c["text"] for c in cells or [] if c["text"].strip())
-
-
-def cells_cover(text: str | None, cells: list[dict] | None) -> float | None:
-    """셀 문구가 text 의 글자를 덮는 비율(표 밖 캡션·각주가 있으면 1 보다 작을 수 있다)."""
-    if not text or not cells:
-        return None
-    return similarity_cover(text, cells_text(cells))

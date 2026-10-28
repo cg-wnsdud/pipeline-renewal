@@ -196,57 +196,6 @@ def validate_plan(plan: dict, page: Page) -> list[int]:
     return cuts
 
 
-def tile_length_bounds(max_len: int | None, cross: int | None, max_aspect: float | None) -> tuple[float, float]:
-    """정책 한도로부터 허용 타일 길이 [lo, hi]. 비율 한도는 너무 긴 타일과 너무 짧은 타일을 모두 막는다."""
-    lo, hi = 1.0, float("inf")
-    if max_len is not None:
-        hi = min(hi, max_len)
-    if max_aspect is not None and cross:
-        lo = max(lo, cross / max_aspect)
-        hi = min(hi, cross * max_aspect)
-    return lo, hi
-
-
-def compose_sequence(extent: int, safe_positions: list[int], max_len: int | None = None,
-                     protected: list[tuple[int, int]] | None = None, *, cross: int | None = None,
-                     max_aspect: float | None = None) -> dict:
-    """검증된 안전 위치들만으로 0~extent 를 덮고 모든 타일이 길이·비율 한도를 함께 만족하는 경계열을 찾는다.
-
-    경계를 하나씩 골라 이어 붙이지 않고 전체 경계열을 탐색한다(동적 계획법: 타일 수 최소, 같으면 가장 짧은 타일 최대).
-    가장 멀리 가는 위치만 고르면 마지막 타일이 너무 짧아 비율을 어기는데도 다른 합격 경계열을 놓칠 수 있다.
-    안전 위치 자체의 의미 검증은 이 함수가 하지 않는다."""
-    lo, hi = tile_length_bounds(max_len, cross, max_aspect)
-    nodes = [0] + sorted({p for p in safe_positions if 0 < p < extent}) + [extent]
-    best: dict[int, tuple[int, float, int | None]] = {0: (0, float("inf"), None)}   # 위치 → (타일 수, -최소길이 용 최소길이, 이전 위치)
-    for i, p in enumerate(nodes):
-        if p not in best:
-            continue
-        tiles, shortest, _ = best[p]
-        for q in nodes[i + 1:]:
-            length = q - p
-            if length > hi:
-                break
-            if length < lo:
-                continue
-            cand = (tiles + 1, min(shortest, length), p)
-            cur = best.get(q)
-            if cur is None or (cand[0], -cand[1]) < (cur[0], -cur[1]):
-                best[q] = cand
-    if extent in best:
-        cuts, cur = [], extent
-        while cur is not None:
-            cuts.append(cur)
-            cur = best[cur][2]
-        cuts.reverse()
-        return {"status": "composed", "cuts": cuts, "tile_lengths": tile_lengths(cuts), "length_bounds": [lo, hi]}
-    reach = max(best)
-    nxt = [p for p in nodes if p > reach]
-    gap = [reach, min(nxt) if nxt else extent]
-    oversized = [list(iv) for iv in (protected or []) if iv[1] - iv[0] > hi and iv[0] < gap[1] + hi and iv[1] > gap[0]]
-    return {"status": "oversized_region" if oversized else "no_safe_boundary", "reachable_until": reach,
-            "gap": gap, "oversized_intervals": oversized, "length_bounds": [lo, hi]}
-
-
 def candidate_views(plan: dict, page: Page) -> list[InputView]:
     """후보 경계 실험 실행용 타일. 원본을 빈틈·중복 없이 덮는지만 검사한다(타일 길이는 후보 정책의 목표값이라 강제하지 않음).
 

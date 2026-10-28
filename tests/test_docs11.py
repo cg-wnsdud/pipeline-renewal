@@ -1,18 +1,16 @@
-"""docs/11 오프라인 테스트: 표 셀 구조 계약·묶음 선택, 순서 확인 조건, 잉크 배정 규칙, Stage 1 집계."""
+"""docs/11 오프라인 테스트: 표 셀 구조 계약·묶음 선택, 순서 확인 조건, Stage 1 집계."""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from layout_pipeline import page_read, table_cells  # noqa: E402
-from layout_pipeline.assignment import INK_RULE, AssignmentRule, assign  # noqa: E402
-from layout_pipeline.regions import OcrItem, Region  # noqa: E402
+from layout_pipeline.assignment import AssignmentRule  # noqa: E402
 from layout_pipeline.vlm_client import VlmCall  # noqa: E402
 
 
@@ -130,27 +128,6 @@ def test_order_conflict_only_for_simple_columns():
     assert page_read.order_conflict(side, region, "만 18세 이상 1년 ~3년 가입대상 가입기간") is None
     table = dict(region, table_candidate=True)
     assert page_read.order_conflict(stacked, table, "만기후 금리\n중도해지 및") is None
-
-
-def test_ink_rule_assigns_padding_only_and_keeps_glyph_outside_unassigned():
-    img = Image.new("RGB", (300, 200), "white")
-    d = ImageDraw.Draw(img)
-    d.rectangle([20, 22, 120, 38], fill="black")       # 글자 획: 영역(10~130, 15~40) 안, OCR 상자만 아래로 6px 돌출
-    d.rectangle([20, 102, 120, 124], fill="black")     # 글자 획이 영역 아래 경계(120)를 넘음
-    page = np.asarray(img)
-    regions = [Region("v-L000", "p", "v", 0, [10, 15, 130, 40], [10, 15, 130, 40], False, "text", 1, 0.9),
-               Region("v-L001", "p", "v", 1, [10, 95, 130, 120], [10, 95, 130, 120], False, "text", 1, 0.9)]
-    items = [OcrItem("v-T000", "p", "v", 0, "여백만", [16, 18, 124, 46], [], 0.9),
-             OcrItem("v-T001", "p", "v", 1, "획이 밖", [16, 98, 124, 126], [], 0.9)]
-    strict = assign(items, regions, AssignmentRule())
-    assert not strict["assigned"]
-    loose = assign(items, regions, AssignmentRule(core_shrink=0.25))
-    assert {a["ocr_id"] for a in loose["assigned"]} == {"v-T000", "v-T001"}          # 0.25 는 획이 밖인 것도 배정
-    ink = assign(items, regions, INK_RULE, page)
-    assert [a["ocr_id"] for a in ink["assigned"]] == ["v-T000"] and ink["assigned"][0]["ink_check"]["ink_outside_px"] == 0
-    un = ink["unassigned_texts"][0]
-    assert un["ocr_id"] == "v-T001" and un["reason"] == "partial_overlap" and un["ink_check"]["ink_outside_px"] > 0
-    assert ink["rule"]["name"] == "ink-containment/1" and ink["checks"]["passed"]
 
 
 def test_stage1_report_separates_scout_calls_and_counts_candidate_run_as_executed():

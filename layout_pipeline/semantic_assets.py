@@ -65,12 +65,6 @@ def label_schema(key: str) -> dict:
 
 
 @lru_cache(maxsize=1)
-def catalog() -> dict:
-    manifest()
-    return load(ASSET_DIR / "ad_templates.json")["templates"]
-
-
-@lru_cache(maxsize=1)
 def retirement_context() -> dict:
     """product-contexts-v1 의 퇴직연금 공통 구성: 기본 템플릿과 운용상품(FUND·ETF·ELB) 템플릿."""
     manifest()

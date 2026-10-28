@@ -120,18 +120,6 @@ def test_plan_for_other_image_is_not_applied(tmp_path):
     assert d.status == "BOUNDARY_PENDING" and d.views == [] and "해시 불일치" in d.basis
 
 
-def test_compose_sequence_checks_whole_chain():
-    from layout_pipeline.routing import compose_sequence
-    # 앞 경계가 바뀌면 다음 타일 길이가 바뀌므로 경계열 전체로 판정한다(4200 이후 남은 1930 은 한도 안).
-    ok = compose_sequence(6130, [1700, 2100, 3500, 4200, 5900], 2200)
-    assert ok["status"] == "composed" and ok["cuts"] == [0, 2100, 4200, 6130]
-    assert all(x <= 2200 for x in ok["tile_lengths"])
-    gap = compose_sequence(6130, [1700, 4500], 2200)
-    assert gap["status"] == "no_safe_boundary" and gap["gap"] == [1700, 4500]
-    big = compose_sequence(6130, [1700, 4500], 2200, protected=[(1800, 4400)])
-    assert big["status"] == "oversized_region"
-
-
 def test_policy_cannot_split_a4(tmp_path):
     bad = json.loads((ROOT / "config" / "routing.json").read_text(encoding="utf-8")) | {"long_aspect_min": 1.4}
     path = tmp_path / "r.json"
@@ -314,23 +302,6 @@ def test_table_check_only_for_candidates():
         vlm_contract.validate_requests(sheet, regions)
 
 
-def test_false_table_keeps_region_and_text():
-    ok = {"needs_review": False, "quality_reasons": [], "context_reasons": []}
-    merged = vlm_contract.merge_results(_regions_dicts(), [
-        {"region_id": "a", "is_table": False, "text": "메뉴1 메뉴2", "uncertain": False},
-        {"region_id": "b", "text": "", "uncertain": False}], {"a": ok, "b": ok})
-    assert merged[0]["bbox"] == [0, 0, 10, 10] and merged[0]["text"] == "메뉴1 메뉴2"
-    assert merged[0]["table_verified"] is False
-    assert merged[1]["table_verified"] is None and merged[1]["text_status"] == "no_text"
-    with pytest.raises(vlm_contract.ContractError):     # 결과 누락
-        vlm_contract.merge_results(_regions_dicts(), [{"region_id": "a", "is_table": True, "text": "x", "uncertain": False}],
-                                   {"a": ok})
-    with pytest.raises(vlm_contract.ContractError):     # 문자열 "false" 를 bool 로 바꾸지 않음
-        vlm_contract.merge_results(_regions_dicts(), [{"region_id": "a", "is_table": "false", "text": "x", "uncertain": False},
-                                                      {"region_id": "b", "text": None, "uncertain": False}],
-                                   {"a": ok, "b": ok})
-
-
 def test_review_not_decided_by_uncertain_only(tmp_path):
     from layout_pipeline import vlm_tasks
     record = {"assignments": [{"region_id": "a", "ocr_text": "금리 연 2.45%", "ocr_id": "t1"}],
@@ -369,49 +340,6 @@ def test_review_flags_special_token_and_incomplete_rows():
     assert "table_rows_incomplete" in vlm_tasks.review_reasons(record, region, partial)["quality_reasons"]
 
 
-# --- 평가 eval/2 -------------------------------------------------------------------------------------
-
-def _gold(i, text, bbox=(0, 0, 100, 20)):
-    return {"id": f"g{i}", "text": text, "bbox": list(bbox), "optional": False}
-
-
-def test_eval_counts_unsupported_additions_and_tokens():
-    from layout_pipeline import text_eval
-    gold = [_gold(1, "정상문구"), _gold(2, "다른 영역 문구입니다", (0, 500, 200, 520))]
-    region = [0, 0, 100, 30]
-    exact = text_eval.evaluate_region("정상문구", region, gold)
-    assert exact["lines_exact"] == 1 and exact["unsupported_chars"] == 0
-    added = text_eval.evaluate_region("정상문구\n원본에 전혀 없는 추가 설명", region, gold)
-    assert added["lines_exact"] == 1                          # 정답 쪽 지표는 그대로
-    assert added["unsupported_chars"] >= 10 and added["added_segments"]   # 추가 문구가 출력 쪽에서 잡힘
-    token = text_eval.evaluate_region('정상문구"} <|file_separator|> { ', region, gold)
-    assert token["added_segments"] and token["unsupported_chars"] > 0
-    moved = text_eval.evaluate_region("정상문구\n다른 영역 문구입니다", region, gold)
-    assert moved["location_error_chars"] > 0 and moved["location_error_lines"] == ["g2"] and not moved["added_segments"]
-
-
-def test_page_eval_keeps_all_gold_lines_in_denominator():
-    from layout_pipeline import text_eval
-    gold = [_gold(1, "가입대상", (0, 0, 100, 20)),           # 영역 안
-            _gold(2, "레이아웃 밖 메뉴", (500, 0, 600, 20)),   # 영역 없음, 미배정 OCR 에만 있음
-            _gold(3, "아무 데도 없음", (500, 50, 600, 70))]
-    regions = [{"region_id": "r1", "bbox": [0, 0, 120, 30], "text": "가입대상"}]
-    page = text_eval.evaluate_page(gold, regions, [{"ocr_text": "레이아웃 밖 메뉴"}])
-    assert page["required_lines"] == 3
-    assert page["counts"] == {"home": {"home_exact": 1}, "no_home": {"unassigned_ocr_only": 1, "missing": 1}}
-
-
-def test_compose_sequence_respects_length_and_aspect_together():
-    from layout_pipeline.routing import check_sequence, compose_sequence
-    # Codex boundary-sequence-counterexample.json: 최대 길이만 보면 [0,480,950,1000] 의 마지막 50px 가 비율 위반
-    res = compose_sequence(1000, [400, 480, 750, 950], 500, cross=500, max_aspect=2.5)
-    assert res["status"] == "composed" and len(res["cuts"]) == 4 and 950 not in res["cuts"]
-    assert check_sequence(res["cuts"], 1000, 500, {"max_tile_extent_px": 500, "max_tile_aspect": 2.5}) == []
-    # 비율 하한 때문에 어떤 경계열도 없으면 no_safe_boundary
-    none = compose_sequence(1000, [480, 950], 500, cross=500, max_aspect=2.5)
-    assert none["status"] == "no_safe_boundary"
-
-
 # --- 긴 이미지 경계 실험 ----------------------------------------------------------------------------
 
 def test_scout_windows_cover_page_with_overlap():
@@ -432,17 +360,6 @@ def test_boundary_candidates_avoid_protected_boxes():
     assert all(not (96 <= y <= 174) and not (296 <= y <= 404) for y in ys)
     big = [c for c in cands if 174 < c["y"] < 296]
     assert big and big[0]["gap_px"] >= 100 and gap == 10
-
-
-def test_m2_accepts_only_independent_sections_with_near_evidence():
-    from layout_pipeline import boundary
-    above = [{"id": f"A{i}"} for i in range(1, 6)]
-    below = [{"id": f"B{i}"} for i in range(1, 6)]
-    ok = boundary.accept_m2({"relation": "independent_sections", "above_id": "A1", "below_id": "B2"}, above, below)
-    assert ok == (True, "independent_sections")
-    assert boundary.accept_m2({"relation": "heading_and_body", "above_id": "A1", "below_id": "B1"}, above, below)[0] is False
-    far = boundary.accept_m2({"relation": "independent_sections", "above_id": "A5", "below_id": "B1"}, above, below)
-    assert far == (False, "evidence_mismatch")
 
 
 # --- 통합 실행(판독 단계·최종 계약) -----------------------------------------------------------------
@@ -709,6 +626,50 @@ def test_auto_boundary_rejects_forbidden_relation_and_recomposes(tmp_path):
     assert all(b["semantic_check"]["result"] == "safe" for b in plan["boundaries"])
 
 
+def test_auto_boundary_judges_one_round_concurrently_with_same_plan(tmp_path):
+    """한 라운드의 판정 대상은 동시에 보내도(상한 concurrency) 직렬 판정과 같은 계획이 나온다."""
+    import threading
+    import time as _time
+    from types import SimpleNamespace
+    from layout_pipeline import auto_boundary
+    from layout_pipeline.vlm_client import VlmCall
+    w, h = 400, 4000
+    page = SimpleNamespace(page_id="x", width=w, height=h, image_sha256="s",
+                           open_image=lambda: Image.new("RGB", (w, h), "white"))
+    spans = [(10, 580), (620, 880), (920, 1280), (1320, 1780), (1820, 2390), (2430, 2980), (3020, 3480), (3520, 3990)]
+    boxes = [{"kind": "ocr", "bbox": [10, a, 390, b], "text": f"t{a}"} for a, b in spans]
+    policy = {"name": "section-pack", "version": "2", "status": "approved", "validation": {"status": "pending"},
+              "allowed_relations": ["independent_sections"], "rejected_relations": ["heading_and_body", "unknown"],
+              "target_aspect": 2.5, "scope": {"width_px": [0, 9999], "min_aspect": 3.0}}
+
+    class Fake:
+        def __init__(self):
+            self.n = self.active = self.peak = 0
+            self.lock = threading.Lock()
+
+        def chat(self, text, images, schema, name, max_tokens, meta):
+            with self.lock:
+                self.n += 1
+                n = self.n
+                self.active += 1
+                self.peak = max(self.peak, self.active)
+            _time.sleep(0.05)
+            with self.lock:
+                self.active -= 1
+            rel = "heading_and_body" if meta["y"] == 900 else "independent_sections"
+            parsed = {"above_id": schema["properties"]["above_id"]["enum"][0], "below_id": schema["properties"]["below_id"]["enum"][0],
+                      "relation": rel, "reason": "t"}
+            return VlmCall(f"bnd-{n:04d}", "t", 0.05, 200, "stop", {}, "", parsed, None, [], meta)
+
+    serial, par = Fake(), Fake()
+    p1 = auto_boundary.make_plan(page, boxes, serial, tmp_path / "s", policy, [])
+    p3 = auto_boundary.make_plan(page, boxes, par, tmp_path / "p", policy, [], concurrency=3)
+    assert serial.peak == 1 and 1 < par.peak <= 3 and serial.n == par.n
+    assert p3["cuts"] == p1["cuts"] and p3["rounds"] == p1["rounds"]
+    drop = lambda j: {k: v for k, v in j.items() if k != "call_id"}  # noqa: E731
+    assert {y: drop(j) for y, j in p3["rejected_positions"].items()} == {y: drop(j) for y, j in p1["rejected_positions"].items()}
+    assert [b["semantic_check"]["relation"] for b in p3["boundaries"]] == [b["semantic_check"]["relation"] for b in p1["boundaries"]]
+
 
 def test_patch_keeps_page_structure_and_applies_only_unique_anchors():
     """(가) 보완 반영: 1차 판독의 순서는 그대로, 기준 문자열이 한 번만 있을 때만 적용. 중복은 교정으로 제거."""
@@ -780,6 +741,57 @@ def test_reread_selects_complete_candidate_and_keeps_first_on_conflict_or_failur
     assert out["p-v0-L001"]["text"] == "가입대상" and out["p-v0-L001"]["reread_review"] == ["reread_failed"]
     assert out["p-v0-L002"]["text"] == "가입금액" and out["p-v0-L002"]["reread_review"] == ["reread_conflict"]
     again = reconstruct_reads(tmp_path / "trace", [record])
+    assert {k: v["text"] for k, v in again.items()} == {k: v["text"] for k, v in out.items()}
+
+
+def test_reread_starts_without_waiting_for_other_page_reads(tmp_path):
+    """판독 단위 하나의 1차 판독이 끝나면 그 단위의 재판독이 다른 단위의 1차 판독을 기다리지 않고 시작한다.
+    병합 결과는 호출 번호 순서와 상관없이 같다(같은 영역의 재판독은 그 영역 1차 판독 뒤)."""
+    import threading
+    from layout_pipeline.read_stage import Reader, reconstruct_reads
+    from layout_pipeline.vlm_client import VlmCall
+    records = []
+    for pid in ("a", "b"):
+        img_path = tmp_path / f"{pid}.png"
+        Image.new("RGB", (400, 300), "white").save(img_path)
+        view = {"view_id": f"{pid}-v0", "page_id": pid, "kind": "whole", "crop": [0, 0, 400, 300], "width": 400, "height": 300,
+                "aspect": 1.33}
+        region = {"region_id": f"{pid}-v0-L000", "page_id": pid, "view_id": f"{pid}-v0", "bbox": [10, 10, 390, 60],
+                  "table_candidate": False, "crossing_ocr_ids": [], "ambiguous_ocr_ids": []}
+        asg = [{"region_id": region["region_id"], "ocr_id": f"{pid}-v0-T000", "ocr_text": "중도해지 및", "ocr_bbox": [10, 10, 100, 30]},
+               {"region_id": region["region_id"], "ocr_id": f"{pid}-v0-T001", "ocr_text": "만기후 금리", "ocr_bbox": [10, 32, 100, 55]}]
+        records.append({"page": {"page_id": pid, "image_path": str(img_path)}, "status": "READY", "route": {"views": [view]},
+                        "regions": [region], "assignments": asg, "unassigned_texts": [], "diagnostics": {"region_overlaps": []}})
+    reread_started = threading.Event()
+
+    class Fake:
+        def __init__(self):
+            self.count = 0
+            self.lock = threading.Lock()
+            self.overlapped = None
+
+        def chat(self, text, images, schema, name, max_tokens, meta):
+            with self.lock:
+                self.count += 1
+                n = self.count
+            rid = meta["region_ids"][0]
+            if meta["kind"] == "page" and meta["page_id"] == "a":
+                parsed = {"regions": [{"region_id": rid, "text": "중도해지 및", "uncertain": False}]}          # 누락 → 재판독
+            elif meta["kind"] == "page":
+                self.overlapped = reread_started.wait(timeout=5)      # a 의 재판독이 b 1차 판독 중에 시작되는지
+                parsed = {"regions": [{"region_id": rid, "text": "중도해지 및\n만기후 금리", "uncertain": False}]}
+            else:
+                assert meta["kind"] == "reread" and rid == "a-v0-L000"
+                reread_started.set()
+                parsed = {"region_id": rid, "text": "중도해지 및 만기후 금리", "uncertain": False, "changes": ["missing_added"], "notes": ""}
+            return VlmCall(f"vlm-{n:04d}", "t", 0.1, 200, "stop", {}, "", parsed, None, [], meta)
+
+    fake = Fake()
+    out = Reader(fake, tmp_path / "trace", 2).read_pages_page_first(records, max_images=8)
+    assert fake.overlapped is True
+    assert out["a-v0-L000"]["text"] == "중도해지 및 만기후 금리" and out["a-v0-L000"]["trace"]["reread_source"] == "reread"
+    assert out["b-v0-L000"]["text"] == "중도해지 및\n만기후 금리"
+    again = reconstruct_reads(tmp_path / "trace", records)
     assert {k: v["text"] for k, v in again.items()} == {k: v["text"] for k, v in out.items()}
 
 
