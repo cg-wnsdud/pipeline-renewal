@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from layout_pipeline.jsonio import dump, sha256_file  # noqa: E402
+from layout_pipeline.jsonio import dump, sha256_text_file  # noqa: E402
 from layout_pipeline.semantic_assets import ASSET_DIR, LABEL_SCHEMA_KEYS, verify_assets  # noqa: E402
 
 FILES = {   # 복사본 경로(assets/semantic 기준) → 원본 경로(원본 저장소 기준)
@@ -46,7 +46,7 @@ def main() -> int:
     if args.refresh_local:
         man = json.loads((ASSET_DIR / "manifest.json").read_text(encoding="utf-8"))
         for rel, meta in man["local_files"].items():
-            meta["sha256"] = sha256_file(ASSET_DIR / rel)
+            meta["sha256"] = sha256_text_file(ASSET_DIR / rel)
         dump(ASSET_DIR / "manifest.json", man)
         print("local_files 해시 갱신: " + ", ".join(man["local_files"]))
         return 0
@@ -66,7 +66,7 @@ def main() -> int:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(src / orig, dest)
         files[rel] = {"source_path": orig, "source_commit": _git(src, "log", "-1", "--format=%H", "--", orig),
-                      "source_commit_date": _git(src, "log", "-1", "--format=%cs", "--", orig), "sha256": sha256_file(dest)}
+                      "source_commit_date": _git(src, "log", "-1", "--format=%cs", "--", orig), "sha256": sha256_text_file(dest)}
     head = _git(src, "rev-parse", "HEAD")
     schema_commit = max((files[f"label-schemas/{k}.json"] for k in LABEL_SCHEMA_KEYS), key=lambda f: f["source_commit_date"])
     manifest = {
@@ -79,7 +79,7 @@ def main() -> int:
         "files": files,
         "local_files": {"classification-policy.json": {
             "note": "2026-10-27 작업 지시 7절의 사용자 제공 식별 기준을 옮긴 분류 정책(이 저장소에서 관리)",
-            "sha256": sha256_file(ASSET_DIR / "classification-policy.json")}},
+            "sha256": sha256_text_file(ASSET_DIR / "classification-policy.json")}},
     }
     dump(ASSET_DIR / "manifest.json", manifest)
     print(json.dumps({"version": manifest["version"], "head": head[:7], "files": len(files)}, ensure_ascii=False))

@@ -32,7 +32,7 @@
    "source_path": "packages/rule-engine/src/nh_rule_engine/data/product-contexts-v1.json",
    "source_commit": "0633d91ce14b0090f655d8b1ba0cfce67f13ee3d",
    "source_commit_date": "2026-10-20",
-   "sha256": "6d02eeb1a8a9e5ca4438fbcdefe8c298658672112beb3aca903030ff0646cbf3"
+   "sha256": "94dd901da061452b7da416b1d68ee61a779a6c36f7a790b540fce476e2fd038d"
   },
   "label-schemas/loan-named.json": {
    "source_path": "parser-pipeline/nh_parser_fin/label_schema/schemas/loan-named.json",
@@ -110,7 +110,7 @@
  "local_files": {
   "classification-policy.json": {
    "note": "2026-10-27 작업 지시 7절의 사용자 제공 식별 기준을 옮긴 분류 정책(이 저장소에서 관리)",
-   "sha256": "aeb0b3272cfe1d06a2b403d4b49a63d9165aa3a9841f31b0842d2ad82d4c1b87"
+   "sha256": "690a2c8d0a92d8aae77c566fad1967819e518aae0125a6ceda20bf700fff3969"
   }
  }
 }

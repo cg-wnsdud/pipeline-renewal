@@ -133,3 +133,18 @@ def test_review_input_schema_file_is_valid():
     schema = json.loads((ROOT / "schemas" / "review-input-2.schema.json").read_text(encoding="utf-8"))
     jsonschema.Draft202012Validator.check_schema(schema)
     assert schema["$id"] == "review-input/2"
+
+
+def test_asset_hashes_do_not_depend_on_line_endings(tmp_path):
+    """자산 해시는 줄바꿈을 LF 로 맞춰 계산한다: Windows(CRLF) 체크아웃과 Linux(LF) 컨테이너가 같은 manifest 로 통과한다."""
+    from layout_pipeline import semantic_assets as A
+    from layout_pipeline.jsonio import sha256_text_file
+    lf, crlf = tmp_path / "lf.json", tmp_path / "crlf.json"
+    lf.write_bytes(b'{\n "a": 1\n}\n')
+    crlf.write_bytes(b'{\r\n "a": 1\r\n}\r\n')
+    assert sha256_text_file(lf) == sha256_text_file(crlf)
+    policy = (A.ASSET_DIR / "classification-policy.json").read_bytes()
+    other = tmp_path / "policy.json"
+    other.write_bytes(policy.replace(b"\r\n", b"\n") if b"\r\n" in policy else policy.replace(b"\n", b"\r\n"))
+    assert sha256_text_file(other) == sha256_text_file(A.ASSET_DIR / "classification-policy.json")
+    assert A.verify_assets() == []
