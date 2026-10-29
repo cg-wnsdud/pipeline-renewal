@@ -103,7 +103,9 @@ OBSERVE_PROFILE = "semantic-observe/1"
 def semantic_versions(classification_mode: str = "legacy") -> dict:
     """결과·보고서에 남기는 요청 지시 버전과 자산 버전."""
     rules = {"target_rules": classify.TARGET_RULES_VERSION} if classification_mode == "observe" else {}
-    return {"observe": classify.OBSERVE_VERSION, **rules, "decisive": classify.DECISIVE_RULES_VERSION, "first_input": classify.FIRST_INPUT_VERSION,
+    return {"observe": classify.OBSERVE_VERSION, "region_order": classify.REGION_ORDER_VERSION,
+            "mixed_check": classify.MIXED_CHECK_VERSION, **rules,
+            "decisive": classify.DECISIVE_RULES_VERSION, "first_input": classify.FIRST_INPUT_VERSION,
             "integrate": classify.INTEGRATE_VERSION, "label": labeling.LABEL_VERSION,
             "template_request": classify.TEMPLATE_REQUEST_VERSION, "deposit_marks": deposit_marks.VERSION,
             **A.versions()}

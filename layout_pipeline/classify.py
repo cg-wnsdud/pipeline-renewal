@@ -24,7 +24,9 @@ from collections import Counter
 from PIL import Image, ImageDraw, ImageFont
 
 from . import semantic_assets as A
+from .jsonio import load
 from .read_stage import reading_order
+from .vlm_client import SERVER_PIXEL_BUDGET
 from .vlm_tasks import COLORS, FONT
 
 # observe/2(2026-10-27 E1, docs/14): 상품명은 상품명 부분만, 템플릿마다 핵심 특징을 먼저, 대상 하나뿐인 광고에서도 대상의
@@ -41,6 +43,9 @@ from .vlm_tasks import COLORS, FONT
 # tmp 퇴직연금 ETF 라인업 쪽에서 pension.common 만 냈고, 합성 '마지막 쪽 ETF'·'국채·ELS·RP 만' 사례를 미노출로 냈다).
 # observe/7(E4): '이름·조건을 갖춘 별도 소개 상품은 대상' 과 '퇴직연금 운용상품은 근거' 지시의 충돌을 풀었다: 계좌·제도 광고 안의
 # 편입·운용 상품은 이름·금리가 있어도 독립 대상이 아니다(observe/6 은 tmp 안내장의 GIC·ELB·정기예금 라인업을 별도 대상으로 냈다).
+# (docs/23) 영역 순서 안내·배치(layout) 칸·'놓인 단·구역으로 배정' 지시를 더한 시안 두 개는 mx1306 에서 혼합 응답과 영역 대상
+# 배열 반복(같은 번호를 상한 8개까지)이 늘어 기각했다(관측 12회씩: 혼합 7→8·12, 반복 1→6·10). 지시는 그대로 두고 영역 순서
+# (layout-order/1)·이미지 크기·mixed-check/1 만 바꿨다.
 OBSERVE_VERSION = "observe/7"
 # integrate/2(E3): 서로 다른 파일이 각각 완결된 별도 광고면 따로 두고 한 광고의 탭·이어지는 화면이면 묶으라는 지시와, 대상마다
 # 그 대상 전용 짧은 영역 문구(제목 후보, 60자 이하·최대 3개, 자르지 않음)를 더했다(integrate/1 은 tmp 퇴직연금 광고 5개를 한 상품으로).
@@ -51,7 +56,16 @@ OBSERVE_VERSION = "observe/7"
 INTEGRATE_VERSION = "integrate/4"
 SCOPES = ("specific", "shared", "mixed", "unknown")
 MAX_TARGETS = 8
-IMAGE_MAX_PIXELS = 1_200_000        # 분류 이미지는 배치 확인용(문구는 최종 text 로 준다)
+# 분류 이미지는 배치 확인용(문구는 최종 text 로 준다). 서버가 이미지를 SERVER_PIXEL_BUDGET 으로 맞추므로(작으면 키움) 그보다 줄여
+# 보내면 토큰은 같고 상자 번호·글자만 흐려진다(이전 1,200,000: 1654×2339 쪽이 921×1303 으로 줄었다가 서버에서 1344×1872 로 커짐).
+IMAGE_MAX_PIXELS = SERVER_PIXEL_BUDGET
+# 관측 요청의 영역 순서(layout-order/1, docs/23). 위→아래 정렬(read_stage.reading_order)은 2단 광고의 좌우 단을 번갈아 놓아
+# 한 상품 단의 영역이 다른 상품 단 영역 사이에 끼었다(mx1306: 적금 단의 우대금리표가 통장 단 영역 사이 → 통장으로 배정, 3번 중 2번).
+# OCR 서버(PP-StructureV3)가 주는 블록 순서(parsing_res_list: 단·구역 단위 읽기 순서)를 쓴다. 기존 parser-pipeline 도 엔진 순서를
+# 유지하고 y 정렬을 쓰지 않았다. "position" 은 이전 순서(위→아래).
+REGION_ORDER_VERSION = "layout-order/1"
+SERVER_BLOCK_MIN_IOU = 0.7
+HWP_REGION_MARK = "-h0-H"           # HWP 구조 영역(hwp_structure, <page_id>-h0-H000): 원문(DOM) 순서가 기준
 # 묶음 전체를 한 요청으로 관측하는 상한. 넘으면 페이지별 관측 + 통합.
 SINGLE_UNIT_LIMITS = {"pages": 4, "regions": 80, "chars": 16000, "images": 6}
 READ_PAGE_STATUSES = ("READY", "CANDIDATE_RUN")
@@ -106,18 +120,75 @@ def _allowed(b: dict) -> list[str] | None:
     return req["codes"] if req.get("mode") in ("fixed", "restricted") else None
 
 
-def build_bundle(docs: list[dict], doc_paths: dict[str, str], template_ids: list[str] | None = None) -> dict:
+def _iou(a: list[float], b: list[float]) -> float:
+    w, h = min(a[2], b[2]) - max(a[0], b[0]), min(a[3], b[3]) - max(a[1], b[1])
+    inter = max(0.0, w) * max(0.0, h)
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def _gap(a: list[float], b: list[float]) -> float:
+    dx, dy = max(0.0, max(a[0], b[0]) - min(a[2], b[2])), max(0.0, max(a[1], b[1]) - min(a[3], b[3]))
+    return (dx * dx + dy * dy) ** 0.5
+
+
+def layout_order(regions: list[dict], blocks: list[dict]) -> tuple[list[dict], str]:
+    """페이지 영역의 관측 순서와 그 기준. blocks: 그 페이지 stage1 기록의 server_blocks(뷰 순서 → 서버 블록 순서).
+
+    기준 영역은 HWP 구조 영역이 있으면 그 원문 순서(H 번호), 없으면 같은 뷰의 서버 블록과 bbox 가 맞는(IoU ≥ SERVER_BLOCK_MIN_IOU)
+    영역의 블록 순서다. 기준이 아닌 영역(놓친 영역 보충, HWP 페이지의 그림 속 글자 영역, 맞는 블록이 없는 영역)은 가장 가까운 기준
+    영역 바로 뒤에 둔다(여럿이면 위→아래). 기준 영역이 없으면 위→아래 순서(position)."""
+    hwp = [r for r in regions if HWP_REGION_MARK in r["region_id"]]
+    if hwp:
+        anchors, basis = sorted(hwp, key=lambda r: r["region_id"]), "hwp_structure"
+    else:
+        keyed = []
+        for r in regions:
+            view = r["region_id"].rsplit("-", 1)[0]
+            hits = [(_iou(r["bbox"], b["bbox"]), i) for i, b in enumerate(blocks) if b.get("view_id") == view]
+            best = max(hits, default=(0.0, -1))
+            if best[0] >= SERVER_BLOCK_MIN_IOU:
+                keyed.append((best[1], r))
+        anchors, basis = [r for _, r in sorted(keyed, key=lambda x: x[0])], "server_blocks"
+    if not anchors:
+        return reading_order(regions), "position"
+    rank = {r["region_id"]: k for k, r in enumerate(anchors)}
+    after: dict[str, list[dict]] = {r["region_id"]: [] for r in anchors}
+    for r in reading_order([r for r in regions if r["region_id"] not in rank]):
+        near = min(anchors, key=lambda a: (_gap(a["bbox"], r["bbox"]), rank[a["region_id"]]))
+        after[near["region_id"]].append(r)
+    return [x for a in anchors for x in [a, *after[a["region_id"]]]], basis
+
+
+def _server_blocks(d: dict, path: str) -> dict[str, list[dict]]:
+    """layout-result/2 의 stage1 기록(trace_ref)에서 페이지별 server_blocks. 기록이 없으면(내보낸 결과만) 빈 값."""
+    out: dict[str, list[dict]] = {}
+    base = os.path.dirname(path)
+    for ref in (d.get("trace_ref") or {}).get("stage1_records") or []:
+        p = os.path.normpath(os.path.join(base, ref))
+        if os.path.isfile(p):
+            rec = load(p)
+            out.setdefault(rec["page"]["page_id"], []).extend(rec.get("server_blocks") or [])
+    return out
+
+
+def build_bundle(docs: list[dict], doc_paths: dict[str, str], template_ids: list[str] | None = None,
+                 region_order: str = REGION_ORDER_VERSION) -> dict:
     """제출 묶음 하나(파일별 layout-result/2 문서들)의 파일·페이지·영역을 입력 순서로 모으고 중립 별칭을 붙인다.
-    template_ids: 등록 템플릿 요청(없으면 자동 분류)."""
+    template_ids: 등록 템플릿 요청(없으면 자동 분류). region_order: 페이지 안 영역 순서(layout_order | "position")."""
     files, pages, regions = [], [], {}
     for d in sorted(docs, key=lambda d: d["source"]["input_order"]):
         fa = f"F{len(files) + 1}"
         fdir = os.path.dirname(doc_paths[d["source"]["file_id"]])
+        blocks = _server_blocks(d, doc_paths[d["source"]["file_id"]]) if region_order != "position" else {}
         pas = []
         for p in d["pages"]:
             pa = f"P{len(pages) + 1}"
             ras = []
-            for k, r in enumerate(reading_order([r for r in d["regions"] if r["page_id"] == p["page_id"]]), 1):
+            regs = [r for r in d["regions"] if r["page_id"] == p["page_id"]]
+            ordered, basis = (layout_order(regs, blocks.get(p["page_id"]) or []) if region_order != "position"
+                              else (reading_order(regs), "position"))
+            for k, r in enumerate(ordered, 1):
                 ra = f"{pa}-R{k:02d}"
                 regions[ra] = {"alias": ra, "page": pa, "file": fa, "region_id": r["region_id"], "bbox": r["bbox"],
                                "text": r["text"], "text_status": r["text_status"],
@@ -127,7 +198,7 @@ def build_bundle(docs: list[dict], doc_paths: dict[str, str], template_ids: list
             pages.append({"alias": pa, "file": fa, "file_id": d["source"]["file_id"], "page_id": p["page_id"],
                           "page_no": p["page_no"], "of": len(d["pages"]), "width": p["width"], "height": p["height"],
                           "status": p["execution_status"], "image": os.path.normpath(os.path.join(fdir, p["image"]["path"])),
-                          "segments": tiles or [[0, 0, p["width"], p["height"]]], "regions": ras,
+                          "segments": tiles or [[0, 0, p["width"], p["height"]]], "regions": ras, "order": basis,
                           "unassigned": [u["ocr_text"] for u in d["unassigned_texts"]
                                          if u["page_id"] == p["page_id"] and not u["empty_text"]]})
             pas.append(pa)
@@ -410,8 +481,36 @@ def validate_observe(call, req: dict, b: dict) -> dict:
         if x["target"] in tids:
             out["parts"].append({"region": x["region"], "target": x["target"], "quote": x["quote"],
                                  "valid": quote_where(x["quote"], b["regions"][x["region"]]) is not None})
+    if MIXED_CHECK:
+        mixed_by_neighbors(out, req, b)
     out["ok"] = True
     return out
+
+
+# mixed-check/1(docs/23): mixed 는 대상마다 그 영역 인용(parts)이 있어야 한다. 유효한 인용이 있는 대상이 둘 미만인 mixed 는 레이아웃
+# 순서(layout-order/1)에서 바로 앞·뒤 영역이 같은 한 대상의 specific 이고 그 대상이 이 영역의 대상이면 그 대상의 specific 으로 둔다.
+# mx1306 적금 단 우대금리표: 영역 순서를 바꾼 뒤에도 인용이 '「NH올원e통장」에서 출금하여 신규 시'(통장 몫) 하나뿐인 mixed 가
+# 관측 12번 중 7번(이 규칙으로 12번 모두 적금 specific).
+# 위→아래 순서(position)에서는 앞뒤가 다른 단일 수 있어 쓰지 않는다. 그 밖의 mixed 는 그대로 두고 resolve 가 mixed_parts_missing 을 붙인다.
+MIXED_CHECK_VERSION = "mixed-check/1"
+MIXED_CHECK = True
+
+
+def mixed_by_neighbors(obs: dict, req: dict, b: dict) -> None:
+    order = req["regions"]
+    for i, a in enumerate(order):
+        x = obs["regions"].get(a)
+        if not x or x["scope"] != "mixed" or b["pages"][b["regions"][a]["page"]]["order"] == "position":
+            continue
+        if len({q["target"] for q in obs["parts"] if q["region"] == a and q["valid"]}) >= 2:
+            continue
+        page = b["regions"][a]["page"]
+        side = []
+        for j in (i - 1, i + 1):
+            y = obs["regions"].get(order[j]) if 0 <= j < len(order) and b["regions"][order[j]]["page"] == page else None
+            side.append(y["targets"][0] if y and y["scope"] == "specific" else None)
+        if side[0] and side[0] == side[1] and side[0] in x["targets"]:
+            obs["regions"][a] = {"scope": "specific", "targets": [side[0]], "note": "mixed_unsupported_layout_neighbors"}
 
 
 # observe 모드의 '상품 ID 와 영역 연결 검증' 뒤 정리(docs/16 §6.4·§9). 작은 묶음 legacy 관측 응답 55개 오프라인 평가에서 기대 상품 수와

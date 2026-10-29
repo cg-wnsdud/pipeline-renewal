@@ -29,7 +29,10 @@ def png_part(image: Image.Image) -> tuple[dict, dict]:
                   "server_resize_estimate": server_resize(image.size)}
 
 
-def server_resize(size, budget: int = 2_580_480, multiple: int = 48) -> dict:
+SERVER_PIXEL_BUDGET = 2_580_480     # 서버 처리기가 이미지를 맞추는 픽셀 수(작은 입력은 키운다). 이보다 작게 줄여 보내도 토큰은 같다
+
+
+def server_resize(size, budget: int = SERVER_PIXEL_BUDGET, multiple: int = 48) -> dict:
     """서버 프로파일 기록의 처리기 리사이즈(√(예산/면적) 배율, 48 배수 내림, 작은 입력 확대) 추정치."""
     w, h = size
     factor = (budget / (w * h)) ** 0.5

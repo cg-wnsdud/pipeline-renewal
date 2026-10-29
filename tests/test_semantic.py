@@ -853,3 +853,62 @@ def test_deposit_marks_status_rules():
     img = Image.new("RGB", (100, 40), "white")
     assert M.crop(img, [10, 10, 30, 20]).size == (168, 128)          # 여백 12px 포함 42×32 → 짧은 변 320 을 향해 최대 4배
     assert M.crop(img, [10, 10, 10, 10]) is None
+
+
+# ---- 관측 영역 순서(layout-order/1)·observe/8(docs/23) ----
+
+def _reg(rid, box):
+    return {"region_id": rid, "bbox": box}
+
+
+def test_layout_order_follows_server_blocks_and_attaches_unmatched_regions():
+    """2단 광고: 위→아래 정렬은 좌우 단을 번갈아 놓는다. 서버 블록 순서(단 단위)를 쓰고, 맞는 블록이 없는 영역(보충)은 가장 가까운
+    영역 뒤에 둔다. HWP 구조 영역이 있으면 원문(H 번호) 순서가 기준이고, 기준이 없으면 위→아래."""
+    v = "p_p01-v0"
+    hero, lt, lb, rt, rb, foot = (_reg(f"{v}-L00{i}", b) for i, b in enumerate(
+        [[0, 0, 1000, 300], [50, 320, 450, 360], [50, 380, 450, 700], [550, 320, 950, 360], [550, 380, 950, 690], [0, 720, 1000, 800]]))
+    sup = _reg(f"{v}-S000", [60, 600, 440, 650])                        # 왼쪽 단 안의 보충 영역(서버 블록 없음)
+    blocks = [{"view_id": v, "bbox": r["bbox"]} for r in (hero, lt, lb, rt, rb, foot)]
+    regs = [foot, rb, sup, lt, hero, rt, lb]
+    ordered, basis = classify.layout_order(regs, blocks)
+    assert basis == "server_blocks"
+    assert [r["region_id"][-4:] for r in ordered] == ["L000", "L001", "L002", "S000", "L003", "L004", "L005"]
+    assert [r["region_id"][-4:] for r in classify.reading_order(regs)][:5] == ["L000", "L001", "L003", "L002", "L004"]  # 단 교차
+    assert classify.layout_order(regs, [])[1] == "position"
+    h = "p_p01-h0"
+    hwp = [_reg(f"{h}-H001", [0, 100, 500, 150]), _reg(f"{v}-L007", [0, 160, 200, 200]), _reg(f"{h}-H000", [0, 0, 500, 50])]
+    ordered, basis = classify.layout_order(hwp, blocks)
+    assert basis == "hwp_structure" and [r["region_id"][-4:] for r in ordered] == ["H000", "H001", "L007"]
+
+
+def test_mixed_without_parts_for_two_targets_follows_layout_neighbors(tmp_path):
+    """mixed-check/1: 대상별 인용이 둘 미만인 mixed 는 레이아웃 순서의 앞·뒤 영역이 같은 한 대상이면 그 대상의 specific 이다.
+    인용이 대상마다 있는 mixed, 앞뒤가 다른 mixed, 위→아래 순서(position)인 페이지는 그대로 둔다."""
+    from types import SimpleNamespace
+    texts = ["NH올원e적금 가입기간 12개월", "우대항목 NH올원e통장에서 출금하여 신규 시 0.10%p", "주1) 이 적금 가입 전 동의 필수",
+             "NH올원e통장 수수료 면제 / NH올원e적금 연 3.35%", "NH올원e통장 기본금리 연 0.1%"]
+    b = _bundle(tmp_path, [[R(x) for x in texts]])
+    req = {"regions": list(b["pages"]["P1"]["regions"])}
+    ev = lambda f, r, q: {"feature": f, "region": r, "quote": q}
+    parsed = {"targets": [{"tid": "t1", "name": "NH올원e통장", "group": "예금성", "templates": ["deposit_demand"],
+                           "evidence": [ev("deposit_demand.name", "P1-R05", "NH올원e통장")]},
+                          {"tid": "t2", "name": "NH올원e적금", "group": "예금성", "templates": ["deposit_saving"],
+                           "evidence": [ev("deposit_saving.name", "P1-R01", "NH올원e적금")]}],
+              "mentions": [],
+              "regions": {"P1-R01": {"scope": "specific", "targets": ["t2"]},
+                          "P1-R02": {"scope": "mixed", "targets": ["t2", "t1", "t2", "t2"]},      # 반복 출력 포함
+                          "P1-R03": {"scope": "specific", "targets": ["t2"]},
+                          "P1-R04": {"scope": "mixed", "targets": ["t1", "t2"]},
+                          "P1-R05": {"scope": "specific", "targets": ["t1"]}},
+              "parts": [{"region": "P1-R02", "target": "t1", "quote": "NH올원e통장에서 출금하여 신규 시"},
+                        {"region": "P1-R04", "target": "t1", "quote": "NH올원e통장 수수료 면제"},
+                        {"region": "P1-R04", "target": "t2", "quote": "NH올원e적금 연 3.35%"}]}
+    call = SimpleNamespace(error=None, parsed=parsed)
+    assert classify.validate_observe(call, req, b)["regions"]["P1-R02"]["scope"] == "mixed"      # position 순서: 그대로
+    b["pages"]["P1"]["order"] = "server_blocks"
+    obs = classify.validate_observe(call, req, b)
+    assert obs["regions"]["P1-R02"] == {"scope": "specific", "targets": ["t2"], "note": "mixed_unsupported_layout_neighbors"}
+    assert obs["regions"]["P1-R04"]["scope"] == "mixed"                                           # 대상마다 인용이 있음
+    v = semantic.semantic_versions("observe")
+    assert v["region_order"] == classify.REGION_ORDER_VERSION and v["mixed_check"] == classify.MIXED_CHECK_VERSION
+    assert v["observe"] == "observe/7"
