@@ -102,7 +102,7 @@ OBSERVE_PROFILE = "semantic-observe/1"
 def semantic_versions(classification_mode: str = "legacy") -> dict:
     """결과·보고서에 남기는 요청 지시 버전과 자산 버전."""
     rules = {"target_rules": classify.TARGET_RULES_VERSION} if classification_mode == "observe" else {}
-    return {"observe": classify.OBSERVE_VERSION, **rules, "decisive": classify.DECISIVE_RULES_VERSION,
+    return {"observe": classify.OBSERVE_VERSION, **rules, "decisive": classify.DECISIVE_RULES_VERSION, "first_input": classify.FIRST_INPUT_VERSION,
             "integrate": classify.INTEGRATE_VERSION, "label": labeling.LABEL_VERSION,
             **A.versions()}
 
@@ -231,7 +231,7 @@ def run_submission(sub: str, docs: list[dict], paths: dict[str, str], runner: _R
                     "regions": {a: r["region_id"] for a, r in b["regions"].items()}},
         "units": [{"unit": u["unit"], "pages": u["pages"], "call": u["call"]} | u["obs"] for u in units],
         "integration": integ,
-        "products": res["products"], "groups": res["groups"], "assignments": res["assignments"],
+        "products": res["products"], "groups": res["groups"], "merge_rules": res["merge_rules"], "assignments": res["assignments"],
         "labels": labels,
         "label_calls": [{"key": k, "call": r["call"], "product_id": j["product"]["product_id"], "regions": j["regions"],
                          "schemas": j["keys"], "ok": r["ok"], "errors": r["errors"], "missing": r["missing"]}

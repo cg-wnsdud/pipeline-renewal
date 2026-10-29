@@ -185,6 +185,7 @@ def main() -> int:
                      "verify_request": page_read.REREAD_VERSION if args.verify_mode == "reread" else page_read.PATCH_VERSION,
                      "reread_select": page_read.REREAD_SELECT_VERSION if args.verify_mode == "reread" else None,
                      "general_request": None,
+                     "page_max_tokens_rule": page_read.PAGE_TOKENS_RULE, "page_partial": page_read.PAGE_PARTIAL_VERSION,
                      "verify_conditions": {"min_effective_text_px": page_read.MIN_EFFECTIVE_TEXT_PX,
                                            "missing_ocr_cover": page_read.MISSING_OCR_COVER,
                                            "reading_order": page_read.ORDER_CHECK_VERSION}}
@@ -238,7 +239,7 @@ def rebuild(out: Path) -> int:
     supplement.reapply(records, out / "trace")      # 보충 영역(채택분)을 저장 근거대로 다시 더한다(호출 없음)
     reads = reconstruct_reads(out / "trace", records)
     settings = old["settings"] | {"rebuilt_from_trace": True}
-    if settings.get("verify_request") == page_read.REREAD_VERSION:      # 재구성은 지금 코드의 선택 정책을 쓴다
+    if settings.get("verify_request") in page_read.REREAD_VERSIONS:      # 재구성은 지금 코드의 선택 정책을 쓴다
         settings["reread_select"] = page_read.REREAD_SELECT_VERSION
     result, regions = build_result(records, reads, settings)
     dump(out / "result.json", result)

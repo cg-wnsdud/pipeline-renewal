@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import json
+import re
 import statistics
 
 from PIL import Image, ImageDraw, ImageFont
@@ -23,6 +24,11 @@ PAGE_VERSION = "page/2"
 PAGE_VERSION_NO_OCR = "page/2-noocr"
 VERIFY_VERSION = "region-verify/1"
 PAGE_MAX_TOKENS = 12000
+# 페이지 판독 출력 한도(page-tokens/1, docs/20): 판독 단위 OCR 글자 수에 비례. 고정 12,000 일 때 정상 응답 345건의 최대 출력은
+# 3,844토큰이었고(이 식의 한도를 넘는 정상 응답 0건), 반복 퇴화 응답 6건은 12,000까지 가며 건마다 160~250초를 썼다.
+PAGE_TOKENS_RULE = {"name": "page-tokens/1", "base": 1500, "per_ocr_char": 2.5, "min": 6000, "max": PAGE_MAX_TOKENS}
+# 잘린 페이지 응답에서 완성된 영역 항목만 쓴다(page-partial/1). 이 표시가 있는 요청 기록에만 적용해 이전 실행 재구성은 그대로다.
+PAGE_PARTIAL_VERSION = "page-partial/1"
 VERIFY_MAX_TOKENS = 8000
 
 # 영역 추가 확인 조건(실행 전 고정, docs/08). 모두 일반 조건이다.
@@ -78,7 +84,8 @@ TAIL_RULES = (
 
 
 def view_regions(record: dict, view: dict) -> list[dict]:
-    return [r for r in record["regions"] if r["view_id"] == view["view_id"]]
+    """판독 단위의 VLM 판독 대상 영역. HWP 구조 Region(text_source, 문구 = HWP 원문)은 읽지 않는다(docs/20)."""
+    return [r for r in record["regions"] if r["view_id"] == view["view_id"] and not r.get("text_source")]
 
 
 def _to_view(bbox, view: dict) -> list[int]:
@@ -135,7 +142,8 @@ def page_request(record: dict, view: dict, page_img: Image.Image, with_ocr: bool
     w, h = img.size
     text = (PAGE_RULES + (OCR_RULES if with_ocr else "") + TAIL_RULES
             + f"원본 이미지 크기: {w}x{h}px. 영역 목록:\n" + json.dumps(items, ensure_ascii=False))
-    return {"mode": "page2", "version": PAGE_VERSION if with_ocr else PAGE_VERSION_NO_OCR, "view_id": view["view_id"],
+    return {"mode": "page2", "version": PAGE_VERSION if with_ocr else PAGE_VERSION_NO_OCR, "partial_salvage": PAGE_PARTIAL_VERSION,
+            "view_id": view["view_id"],
             "region_ids": ids, "table_ids": table_ids, "images": [img, marked_copy(img, items)],
             "image_roles": [f"view_original:{view['view_id']}", f"view_marked_copy:{view['view_id']}"],
             "text": text, "schema": page_schema(ids, table_ids), "items": items}
@@ -200,12 +208,48 @@ def band_views(view: dict, regions: list[dict]) -> list[tuple[dict, list[dict]]]
     return out
 
 
+def page_max_tokens(record: dict, regions: list[dict]) -> int:
+    """판독 단위의 출력 한도(PAGE_TOKENS_RULE): base + per_ocr_char × 그 단위 영역들의 OCR 글자 수, [min, max]."""
+    r = PAGE_TOKENS_RULE
+    chars = sum(len(o["ocr_text"].strip()) for reg in regions for o in region_ocr(record, reg))
+    return int(max(r["min"], min(r["max"], r["base"] + r["per_ocr_char"] * chars)))
+
+
+_PARTIAL_HEAD = re.compile(r'\s*\{\s*"regions"\s*:\s*\[')
+_PARTIAL_SEP = re.compile(r'\s*,?\s*')
+
+
+def salvage_regions(content: str | None) -> list[dict]:
+    """출력 한도에서 잘린 page2 응답의 regions 배열에서 끝까지 쓴 항목만(앞에서부터). 반복 퇴화는 마지막 항목 안에서 잘린다."""
+    head = _PARTIAL_HEAD.match(content or "")
+    if not head:
+        return []
+    dec, i, out = json.JSONDecoder(), head.end(), []
+    while True:
+        i = _PARTIAL_SEP.match(content, i).end()
+        try:
+            item, i = dec.raw_decode(content, i)
+        except ValueError:
+            return out
+        if isinstance(item, dict):
+            out.append(item)
+
+
 def validate_page(call, request: dict) -> dict[str, dict]:
-    """page2 응답 계약 검사. region_id → {text, uncertain, is_table, rows, contract_errors}."""
+    """page2 응답 계약 검사. region_id → {text, uncertain, is_table, rows, contract_errors}.
+    page-partial/1 요청이 출력 한도에서 잘렸으면 끝까지 쓴 영역 항목은 쓰고(page_output_partial) 나머지 영역만 실패로 둔다."""
     ids, table_ids = request["region_ids"], request["table_ids"]
     out = {i: {"region_id": i, "text": None, "uncertain": None, "contract_errors": []} for i in ids}
     errors = [call.error] if call.error else []
     parsed = call.parsed if isinstance(call.parsed, dict) else {}
+    partial_err = []
+    if (not parsed and request.get("partial_salvage") == PAGE_PARTIAL_VERSION
+            and getattr(call, "finish_reason", None) == "length"):
+        items = [r for r in salvage_regions(getattr(call, "content", None)) if r.get("region_id") in out]
+        if items:
+            parsed, partial_err, errors = {"regions": items}, errors, []
+            for r in items:
+                out[r["region_id"]]["page_output_partial"] = True
     regs = parsed.get("regions")
     if not isinstance(regs, list):
         errors.append("regions 배열 없음")
@@ -215,7 +259,7 @@ def validate_page(call, request: dict) -> dict[str, dict]:
     missing = set(ids) - set(seen)
     dup = {x for x in seen if seen.count(x) > 1}
     for i in missing:
-        out[i]["contract_errors"].append("페이지 응답에 없음")
+        out[i]["contract_errors"] += partial_err + ["페이지 응답에 없음"]
     for i in dup & set(ids):
         out[i]["contract_errors"].append("페이지 응답에 중복")
     if set(seen) - set(ids):
@@ -536,11 +580,16 @@ def apply_patch(text: str, patch: dict) -> tuple[str, list[dict], list[dict]]:
 
 
 # region-reread/1(docs/10): 1차 구조를 고정하지 않고, 대상 영역 하나의 완결된 text 후보를 원본에서 다시 읽는다.
-REREAD_VERSION = "region-reread/1"
+# region-reread/2(docs/20): changes 를 분류별 참/거짓 객체로 받는다. /1 의 배열(enum 반복 가능)은 문구를 다 쓴 뒤 같은 값을
+# 끝없이 반복해 출력 한도에서 잘렸고(whole-test 재판독 21건 전부), 완성된 text 까지 버려졌다. /2 는 잘린 응답이라도 text 가
+# 완성돼 있으면 그 값을 꺼내 같은 선택 정책으로 고른다(reread_text_salvaged).
+REREAD_VERSION = "region-reread/2"
+REREAD_VERSIONS = ("region-reread/1", REREAD_VERSION)      # 재구성·기본 프로필이 받는 기록
 REREAD_SELECT_VERSION = "reread-select/2"   # select_reread 선택 정책(/1: 상자 안 OCR 덮임만, /2: + 상자 밖 문구 유입 거부)
 REREAD_MAX_TOKENS = 4000
 REREAD_CHANGES = ["outside_text_removed", "order_or_block_fixed", "label_value_fixed", "duplicate_removed",
                   "missing_added", "chars_fixed", "none"]
+REREAD_CHANGE_KEYS = [c for c in REREAD_CHANGES if c != "none"]
 CONFLICT_DROP = 0.05            # 선택 정책: 재판독의 OCR 근거 덮임이 1차보다 이만큼 넘게 낮고
 CONFLICT_FLOOR = 0.85           # 동시에 이 값 미만이면 1차 유지 + reread_conflict
 
@@ -557,7 +606,7 @@ REREAD_RULES = (
     "않으며, OCR 에 없다는 이유로 원본 글자를 버리지 않습니다.\n"
     "- 원본 표기·금액은 맞춤법이 어색해도 바꾸지 않고 상품 지식으로 채우지 않습니다. 요약·번역하지 않습니다. '항목명:' 같은 "
     "꼬리표를 붙이지 않고 원문 줄을 자연스러운 순서와 줄바꿈으로 씁니다.\n"
-    "- changes: first_pass_text 대비 바뀐 점의 분류(없으면 none). notes: 근거를 짧게.\n"
+    "- changes: first_pass_text 대비 바뀐 점의 분류마다 true/false(바뀐 점이 없으면 모두 false). notes: 근거를 짧게.\n"
     "- 읽을 수 없거나 어느 영역 문구인지 불명확하면 uncertain=true 로 두고 notes 에 이유를 씁니다.\n")
 
 
@@ -596,19 +645,57 @@ def reread_request(record: dict, region: dict, page_img: Image.Image, first_text
               "required": ["region_id", "text", "uncertain", "changes", "notes"],
               "properties": {"region_id": {"type": "string", "enum": [region["region_id"]]}, "text": {"type": ["string", "null"]},
                              "uncertain": {"type": "boolean"},
-                             "changes": {"type": "array", "items": {"type": "string", "enum": REREAD_CHANGES}},
+                             "changes": {"type": "object", "additionalProperties": False, "required": REREAD_CHANGE_KEYS,
+                                         "properties": {k: {"type": "boolean"} for k in REREAD_CHANGE_KEYS}},
                              "notes": {"type": "string"}}}
     return {"mode": "reread", "version": REREAD_VERSION, "condition": "B" if context_view is not None else "A",
             "region_ids": [region["region_id"]], "images": images, "image_roles": roles,
             "text": head + REREAD_RULES + "입력:\n" + json.dumps(item, ensure_ascii=False), "schema": schema, "items": [item]}
 
 
+_SALVAGE_HEAD = re.compile(r'\{\s*"region_id"\s*:\s*')
+_SALVAGE_TEXT = re.compile(r'\s*,\s*"text"\s*:\s*')
+
+
+def _changes_list(changes) -> list[str] | None:
+    """/2 객체(분류별 참/거짓) → /1 과 같은 목록(참인 분류, 없으면 ['none']). /1 목록은 그대로."""
+    if isinstance(changes, dict):
+        return [k for k in REREAD_CHANGE_KEYS if changes.get(k) is True] or ["none"]
+    return changes
+
+
+def salvage_text(content: str | None, rid: str) -> str | None:
+    """출력 한도에서 잘린 재판독 응답에서 완성된 text 값만 꺼낸다(뒤 필드에서 잘린 경우). text 자체가 잘렸으면 None."""
+    s = (content or "").lstrip()
+    head = _SALVAGE_HEAD.match(s)
+    if not head:
+        return None
+    dec = json.JSONDecoder()
+    try:
+        got, i = dec.raw_decode(s, head.end())
+        key = _SALVAGE_TEXT.match(s, i)
+        if got != rid or not key:
+            return None
+        text, _ = dec.raw_decode(s, key.end())
+    except ValueError:
+        return None
+    return text if isinstance(text, str) else None
+
+
 def validate_reread(call, request: dict) -> dict[str, dict]:
     rid = request["region_ids"][0]
     out = {"region_id": rid, "text": None, "uncertain": None, "changes": None, "notes": None, "contract_errors": []}
+    p = call.parsed if isinstance(call.parsed, dict) else None
+    salvaged = None
+    if p is None and request.get("version") == REREAD_VERSION and getattr(call, "finish_reason", None) == "length":
+        salvaged = salvage_text(getattr(call, "content", None), rid)
+    if salvaged is not None:
+        # 잘린 뒤쪽 필드(uncertain·changes·notes)는 모른다. 문구는 같은 선택 정책(OCR 근거·상자 밖 유입)으로 고른다.
+        out.update(text=salvaged, salvaged=True, notes=call.error)
+        out["contract_ok"] = True
+        return {rid: out}
     if call.error:
         out["contract_errors"].append(call.error)
-    p = call.parsed if isinstance(call.parsed, dict) else None
     if p is None:
         out["contract_errors"].append("응답 없음")
     elif p.get("region_id") != rid:
@@ -621,7 +708,7 @@ def validate_reread(call, request: dict) -> dict[str, dict]:
         if not isinstance(p.get("uncertain"), bool):
             out["contract_errors"].append("uncertain 타입")
         out.update(text=text, uncertain=p.get("uncertain") if isinstance(p.get("uncertain"), bool) else None,
-                   changes=p.get("changes"), notes=p.get("notes"))
+                   changes=_changes_list(p.get("changes")), notes=p.get("notes"))
     out["contract_ok"] = not out["contract_errors"]
     return {rid: out}
 
@@ -651,5 +738,6 @@ def select_reread(record: dict, region: dict, first_text: str | None, reread: di
     if c1 is not None and c2 is not None and c2 < c1 - CONFLICT_DROP and c2 < CONFLICT_FLOOR:
         return {"text": first_text, "source": "first_pass", "review": ["reread_conflict"],
                 "measures": {"ocr_cover_first": round(c1, 3), "ocr_cover_reread": round(c2, 3)}}
-    return {"text": reread["text"], "source": "reread", "review": ["vlm_uncertain"] if reread.get("uncertain") else [],
+    review = (["vlm_uncertain"] if reread.get("uncertain") else []) + (["reread_text_salvaged"] if reread.get("salvaged") else [])
+    return {"text": reread["text"], "source": "reread", "review": review,
             "measures": {"ocr_cover_first": None if c1 is None else round(c1, 3), "ocr_cover_reread": None if c2 is None else round(c2, 3)}}

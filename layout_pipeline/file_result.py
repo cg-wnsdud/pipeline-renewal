@@ -14,6 +14,7 @@ import json
 import os
 from pathlib import Path
 
+from . import page_read
 from .jsonio import dump, load
 
 CONTRACT = "layout-result/2"
@@ -39,7 +40,7 @@ def parser_profile(settings: dict, stage1_run: dict) -> dict:
     rule = settings.get("assignment_rule") or stage1_run.get("assignment_rule") or {}
     pol = stage1_run.get("routing_policy") or {}
     table_mode = settings.get("table_read") if settings.get("table_read") not in (None, "legacy") else settings.get("table_request")
-    default = page_first and settings.get("verify_request") == "region-reread/1" and table_mode == "table-cells/1" \
+    default = page_first and settings.get("verify_request") in page_read.REREAD_VERSIONS and table_mode == "table-cells/1" \
         and rule.get("core_shrink") == 0
     return {
         "name": PROFILE_NAME if default else "custom",

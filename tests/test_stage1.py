@@ -777,6 +777,28 @@ def test_reread_selects_complete_candidate_and_keeps_first_on_conflict_or_failur
     assert {k: v["text"] for k, v in again.items()} == {k: v["text"] for k, v in out.items()}
 
 
+def test_reread2_changes_object_and_truncated_text_salvage():
+    """region-reread/2(docs/20): changes 는 분류별 참/거짓 객체(→ 목록). 뒤 필드에서 잘린 응답은 완성된 text 만 꺼낸다.
+    text 자체가 잘렸거나 /1 기록이면 꺼내지 않는다(기존 실행 재구성은 그대로)."""
+    from types import SimpleNamespace
+    from layout_pipeline import page_read
+    rid = "p-v0-L000"
+    req = {"region_ids": [rid], "version": page_read.REREAD_VERSION}
+    ok = SimpleNamespace(error=None, finish_reason="stop", content="", parsed={
+        "region_id": rid, "text": "가", "uncertain": False, "notes": "",
+        "changes": {k: k == "order_or_block_fixed" for k in page_read.REREAD_CHANGE_KEYS}})
+    assert page_read.validate_reread(ok, req)[rid]["changes"] == ["order_or_block_fixed"]
+    cut = '{"region_id": "%s", "text": "매년 3월\\n※ 예금의 \\"이자\\"", "uncertain": false, "changes": ["missing_added", "missing_' % rid
+    trunc = SimpleNamespace(error="finish_reason=length (출력 잘림 가능)", finish_reason="length", content=cut, parsed=None)
+    out = page_read.validate_reread(trunc, req)[rid]
+    assert out["contract_ok"] and out["salvaged"] and out["text"] == '매년 3월\n※ 예금의 "이자"'
+    assert not page_read.validate_reread(trunc, {"region_ids": [rid], "version": "region-reread/1"})[rid]["contract_ok"]
+    half = SimpleNamespace(error="x", finish_reason="length", content='{"region_id": "%s", "text": "매년 3월 반복 반복' % rid, parsed=None)
+    assert not page_read.validate_reread(half, req)[rid]["contract_ok"]
+    other = SimpleNamespace(error="x", finish_reason="length", content=cut.replace(rid, "p-v0-L009"), parsed=None)
+    assert not page_read.validate_reread(other, req)[rid]["contract_ok"]
+
+
 def test_reread_starts_without_waiting_for_other_page_reads(tmp_path):
     """판독 단위 하나의 1차 판독이 끝나면 그 단위의 재판독이 다른 단위의 1차 판독을 기다리지 않고 시작한다.
     병합 결과는 호출 번호 순서와 상관없이 같다(같은 영역의 재판독은 그 영역 1차 판독 뒤)."""
@@ -845,3 +867,33 @@ def test_reread_that_brings_text_from_outside_the_box_is_not_selected():
     assert outside["measures"]["reread_outside_lines"] == ["가입금액 월 1만원 이상"]
     kept = page_read.select_reread(record, region, "중도해지 및\n가입금액 월 1만원 이상", ok | {"text": "중도해지 및\n만기후 금리\n가입금액 월 1만원 이상"})
     assert kept["source"] == "reread"          # 1차에도 있던 상자 밖 줄은 새 유입이 아니다(최종 검토 표시는 text_from_outside_box 가 맡음)
+
+
+def test_hwp_structure_regions_replace_duplicate_visual_regions(tmp_path):
+    """hwp-structure/1(docs/20): HWP 페이지는 기존 parser-pipeline hybrid 경로대로 DOM 행을 구조 Region(문구 = HWP 원문, VLM 판독 없음)
+    으로 쓰고, 구조 Region 이 이미 담은 화면 검출 영역은 버리고 그 밖(그림 속 글자)만 시각 Region 으로 남긴다."""
+    from layout_pipeline import hwp_structure, page_read
+    from layout_pipeline.read_stage import merge_entries
+    rows = [{"node_id": f"r{i}", "page_no": 1, "bbox": [10, 10 + 40 * i, 390, 40 + 40 * i],
+             "cells": [{"text": f"항목{i}", "bbox": [10, 10 + 40 * i, 100, 40 + 40 * i], "node_id": f"c{i}a"},
+                       {"text": f"값 {i}원", "bbox": [100, 10 + 40 * i, 390, 40 + 40 * i], "node_id": f"c{i}b"}]} for i in range(3)]
+    (tmp_path / "rows.json").write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
+    page = Page("h_p01", "s", "h", 1, 400, 300, str(tmp_path / "p.png"), "x",
+                {"kind": "hwp", "page_pt": [300, 225], "conversion": {"dom_rows": {"path": str(tmp_path / "rows.json"),
+                                                                                    "page_css_size": [400, 300]}}})
+    dup = Region("h_p01-v0-L000", "h_p01", "h_p01-v0", 0, [12.0, 52.0, 388.0, 78.0], [12.0, 52.0, 388.0, 78.0], False, "text", 1, 0.9)
+    logo = Region("h_p01-v0-L001", "h_p01", "h_p01-v0", 1, [10.0, 200.0, 120.0, 260.0], [10.0, 200.0, 120.0, 260.0], False, "image", 2, 0.9)
+    items = [OcrItem("h_p01-v0-T000", "h_p01", "h_p01-v0", 0, "항목1 값 1원", [14, 55, 380, 75], [], 0.9),
+             OcrItem("h_p01-v0-T001", "h_p01", "h_p01-v0", 1, "NH농협은행", [20, 210, 110, 250], [], 0.9)]
+    out = hwp_structure.apply(page, "h_p01-v0", [dup, logo], items)
+    ids = [r.region_id for r in out["regions"]]
+    assert ids == ["h_p01-h0-H000", "h_p01-h0-H001", "h_p01-h0-H002", "h_p01-v0-L001"]
+    assert out["summary"]["visual_suppressed"] == 1 and out["summary"]["structured_regions"] == 3
+    region = out["regions"][1].to_dict() | {"text_source": hwp_structure.VERSION, "hwp": out["meta"]["h_p01-h0-H001"]}
+    rec = {"regions": [region, logo.to_dict()], "page": {"page_id": "h_p01"}}
+    assert page_read.view_regions(rec, {"view_id": "h_p01-v0"}) == [logo.to_dict()]          # 구조 Region 은 VLM 판독 대상 아님
+    got = merge_entries([], {r["region_id"]: (rec, r) for r in rec["regions"]})["h_p01-h0-H001"]
+    assert got["text"] == "항목1\n값 1원" and got["contract_ok"] and got["trace"]["kinds"] == ["hwp_structure"]
+    assert got["is_table"] and [c["text"] for c in got["cells"]] == ["항목1", "값 1원"] and got["trace"]["table_read"] == "hwp-dom-row/1"
+    plain = Page("x_p01", "s", "x", 1, 400, 300, "x.png", "x", {"kind": "pdf"})
+    assert hwp_structure.apply(plain, "x_p01-v0", [dup], items) is None

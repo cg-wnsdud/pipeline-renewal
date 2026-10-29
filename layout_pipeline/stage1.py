@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-from . import diagnostics, gold_eval, vlm_contract
+from . import diagnostics, gold_eval, hwp_structure, vlm_contract
 from .assignment import AssignmentRule, assign
 from .geometry import area
 from .config import PROJECT_ROOT, Settings
@@ -58,6 +58,17 @@ def build_page(page: Page, decision: RouteDecision, calls: list[dict], responses
         issues.append(_issue("BOUNDARY_CANDIDATE_RUN", "review", decision.basis))
     elif status != "READY":
         issues.append(_issue(status, "pending", decision.basis))
+    # HWP(docs/20): 기존 parser-pipeline hybrid 경로 — DOM 행 구조 Region + 구조에 없는 시각 영역만(hwp_structure)
+    hwp = None
+    if executed and decision.views and page.source.get("kind") in ("hwp", "hwpx"):
+        hwp = hwp_structure.apply(page, decision.views[0].view_id, regions, items)
+    if hwp:
+        regions = hwp["regions"]
+        hs = hwp["summary"]
+        issues.append(_issue("HWP_STRUCTURE_REGIONS", "info",
+                             f"HWP 구조 Region {hs['structured_regions']}개(문구 = HWP 원문) + 시각 영역 {hs['visual_regions']}개"
+                             f"(검출 {hs['visual_total']}개 중 구조와 중복 {hs['visual_suppressed']}개·표 행 보완 {hs['visual_attached']}개 제외)",
+                             list(hwp["meta"])))
     assignment = assign(items, regions, rule)
     rel = diagnostics.region_text_relations(regions, assignment)
     overlaps = diagnostics.region_overlaps(regions)
@@ -71,8 +82,10 @@ def build_page(page: Page, decision: RouteDecision, calls: list[dict], responses
                              "ambiguous_ocr_ids": rel[r.region_id]["ambiguous"],
                              "ocr_draft": "\n".join(t for t in texts if t.strip()),
                              "text": None, "text_status": "not_read"}
+        if hwp and r.region_id in hwp["meta"]:
+            row |= {"text_source": hwp_structure.VERSION, "hwp": hwp["meta"][r.region_id]}
         chars = sum(len(t.strip()) for t in texts)
-        if row["table_candidate"] and chars >= CONTAINER_TABLE_MIN_CHARS:
+        if row["table_candidate"] and chars >= CONTAINER_TABLE_MIN_CHARS and not row.get("text_source"):
             # 문서 틀 표(docs/19): 본문 전체를 담은 표 상자는 표 셀 판독이 안쪽 작은 표 하나만 읽고 나머지를 버린다. 글 영역으로 읽는다.
             row |= {"table_candidate": False,
                     "table_container": {"rule": CONTAINER_RULE, "ocr_chars": chars, "ocr_lines": len(texts)}}
@@ -153,6 +166,7 @@ def build_page(page: Page, decision: RouteDecision, calls: list[dict], responses
         "unassigned_texts": assignment["unassigned_texts"],
         "partition_checks": assignment["checks"],
         "server_blocks": blocks,
+        **({"hwp_structure": hwp["summary"]} if hwp else {}),
         "diagnostics": {"region_overlaps": overlaps, "tile_edge_regions": tile_edges,
                         "regions_without_text": [r.region_id for r in regions
                                                  if not any(rel[r.region_id].values())],

@@ -378,7 +378,7 @@ def validate_observe(call, req: dict, b: dict) -> dict:
 
 # observe 모드의 '상품 ID 와 영역 연결 검증' 뒤 정리(docs/16 §6.4·§9). 작은 묶음 legacy 관측 응답 55개 오프라인 평가에서 기대 상품 수와
 # 같은 응답이 45 → 53(남은 오류는 회사명·운용상품을 이름 있는 대상으로 낸 2건).
-TARGET_RULES_VERSION = "unnamed-target-rules/1"
+TARGET_RULES_VERSION = "unnamed-target-rules/2"     # /2: + R3(docs/20)
 
 
 def _tid_no(tid: str) -> int:
@@ -392,6 +392,7 @@ def apply_target_rules(obs: dict) -> dict:
         남은 대상으로 둔다(g01 고정·변동 금리 표 칸, tt05 영역 없는 unsupported 대상).
     R2: 이름 없는 대상의 템플릿 묶음이 같은 관측의 다른 대상과 같으면 같은 상품으로 합친다(이름 있는 대상 우선, 없으면 먼저 나온 이름
         없는 대상). 참고 구현의 '이름이나 종류가 다를 때만 새 상품'. 합친 대상의 근거는 남은 대상에 더한다(t09 같은 퇴직연금 대상 2개).
+    R3: 이름·상품명·유형 근거 없이 영역 하나의 문구만 근거인 대상은 같은 관측의 유일한 이름 있는 대상에 합친다(아래 설명).
     정리 내역은 target_rules 에, R1 로 뺀 대상은 dropped_targets 에 남긴다."""
     if not obs.get("ok"):
         return obs
@@ -414,19 +415,39 @@ def apply_target_rules(obs: dict) -> dict:
             keep["evidence"] += [e for e in t["evidence"] if e not in keep["evidence"]]
         else:
             obs.setdefault("dropped_targets", []).append(t | {"why": "R1_unnamed_without_own_regions"})
-        obs["targets"] = [o for o in obs["targets"] if o["tid"] != tid]
-        for x in obs["regions"].values():
-            if tid not in x["targets"]:
-                continue
-            x["targets"] = list(dict.fromkeys(into if y == tid else y for y in x["targets"] if into or y != tid))
-            if x["scope"] == "mixed" and len(x["targets"]) == 1:
-                x["scope"], x["note"] = "specific", x["note"] or f"{rule}_mixed_single"
-            elif not x["targets"] and x["scope"] in ("specific", "mixed"):
-                x["scope"], x["note"] = "unknown", x["note"] or f"{rule}_without_target"
-        obs["parts"] = [p | {"target": into} if p["target"] == tid and into else p for p in obs["parts"] if into or p["target"] != tid]
+        _drop_target(obs, tid, into, rule)
         actions.append({"rule": rule, "tid": tid, "into": into, "templates": t["templates"]})
+    # R3(docs/20): 이름도 상품명·유형 근거도 없이 영역 하나의 문구만 근거로 생긴 대상은 별도 상품이 아니다. 같은 관측에 이름 있는
+    # 대상이 하나뿐이면 그 대상에 합친다(템플릿은 이름 있는 대상 그대로). whole-test 적립식 광고 2: 적금 유의사항('이 예금은
+    # 예금자보호법에 따라…')을 퇴직연금 유의 특징으로 인용한 이름 없는 대상이 그 유의사항 영역을 가져갔다.
+    named = [o for o in obs["targets"] if o["name"]]
+    for t in [o for o in obs["targets"] if not o["name"]] if len(named) == 1 else []:
+        valid = [e for e in t["evidence"] if e.get("valid")]
+        weak = len({e["region"] for e in valid}) <= 1 and not any(e["feature"].rsplit(".", 1)[-1] in IDENTITY_FEATURES for e in valid)
+        if weak and sorted(set(t["templates"])) != sorted(set(named[0]["templates"])):
+            into = named[0]["tid"]
+            named[0]["evidence"] += [e for e in t["evidence"] if e not in named[0]["evidence"]]
+            _drop_target(obs, t["tid"], into, "R3")
+            actions.append({"rule": "R3", "tid": t["tid"], "into": into, "templates": t["templates"]})
     obs["target_rules"] = actions
     return obs
+
+
+IDENTITY_FEATURES = {"name", "type"}      # R3: 상품을 따로 세우는 근거(상품명·상품 유형) 특징 이름
+
+
+def _drop_target(obs: dict, tid: str, into: str | None, rule: str) -> None:
+    """대상 tid 를 관측에서 빼고 그 대상을 가리키던 영역·부분 인용을 into 로 옮긴다(into 가 없으면 지운다)."""
+    obs["targets"] = [o for o in obs["targets"] if o["tid"] != tid]
+    for x in obs["regions"].values():
+        if tid not in x["targets"]:
+            continue
+        x["targets"] = list(dict.fromkeys(into if y == tid else y for y in x["targets"] if into or y != tid))
+        if x["scope"] == "mixed" and len(x["targets"]) == 1:
+            x["scope"], x["note"] = "specific", x["note"] or f"{rule}_mixed_single"
+        elif not x["targets"] and x["scope"] in ("specific", "mixed"):
+            x["scope"], x["note"] = "unknown", x["note"] or f"{rule}_without_target"
+    obs["parts"] = [p | {"target": into} if p["target"] == tid and into else p for p in obs["parts"] if into or p["target"] != tid]
 
 
 # ---- B: 통합(페이지별 관측이 여럿일 때) ----
@@ -636,6 +657,60 @@ def _pension(product: dict, b: dict, units: list[dict], evidence: list[dict]) ->
     return {"investment_products": exposure, "plans": plans, "components": comps}, codes
 
 
+FIRST_INPUT_VERSION = "first-input/1"
+
+
+def first_input_rules(b: dict, targets: dict[str, dict], groups: list[dict]) -> tuple[list[dict], list[dict]]:
+    """first-input/1(docs/20): 상품 그룹(관측·통합 결과)을 묶음 단위로 정리한다. 모델을 부르지 않는다.
+
+    M1 같은 이름: 이름(canon: 공백·표기 통일)이 같은 그룹은 한 상품이다(띄어쓰기만 다른 '…동행예금'/'…동행 예금').
+    M2 첫 입력 기준(파일이 둘 이상): 한 상품의 여러 입력은 첫 입력에서 상품·템플릿이 정해지고 뒤 입력은 이어지는 화면이다.
+       - 첫 파일에 나온 대상이 있는 그룹의 템플릿은 첫 파일 대상들의 템플릿을 쓴다(뒤 화면만 보고 다르게 판단해도 바꾸지 않음).
+       - 뒤 입력에만 있는 이름 없는 대상 그룹은 첫 입력의 상품(이름 있는 첫 그룹)에 잇는다. 이름 있는 다른 상품은 그대로 둔다.
+    정리 내역(merge_rules)을 남기고 해당 상품 검토 코드(merged_same_name·template_from_first_input·unnamed_attached)를 붙인다."""
+    rules: list[dict] = []
+    order = {pa: i for i, pa in enumerate(b["page_order"])}
+    first = lambda g: min(order.get(pa, 1 << 30) for m in g["members"] for pa in targets[m]["pages"])  # noqa: E731
+    names = lambda g: {canon(targets[m]["name"]) for m in g["members"] if targets[m]["name"]}  # noqa: E731
+    groups = sorted((dict(g, members=list(g["members"]), codes=list(g["codes"])) for g in groups), key=first)
+    merged: list[dict] = []
+    for g in groups:                                   # M1(입력 순서로: 앞 그룹이 남는다)
+        into = next((k for k in merged if names(k) & names(g)), None)
+        if into is None:
+            merged.append(g)
+            continue
+        into["members"] += g["members"]
+        into["codes"] = list(dict.fromkeys(into["codes"] + g["codes"] + ["merged_same_name"]))
+        rules.append({"rule": "M1", "members": g["members"], "into": into["members"][0], "templates": g["templates"],
+                      "kept": into["templates"]})
+    if len(b["files"]) < 2:
+        return merged, rules
+    first_pages = set(b["files"][0]["pages"])
+    in_first = lambda m: bool(set(targets[m]["pages"]) & first_pages)  # noqa: E731
+    anchors = [g for g in merged if any(in_first(m) for m in g["members"])]
+    if not anchors:
+        return merged, rules
+    for g in anchors:                                  # M2 템플릿: 첫 파일 대상들의 템플릿
+        tpl = list(dict.fromkeys(c for m in g["members"] if in_first(m) for c in targets[m]["templates"] if c not in A.SPECIAL_CODES))
+        if tpl and sorted(tpl) != sorted(c for c in g["templates"] if c not in A.SPECIAL_CODES):
+            rules.append({"rule": "M2_template", "group": g["members"][0], "templates": g["templates"], "kept": tpl})
+            g["templates"] = tpl
+            g["codes"] = list(dict.fromkeys(g["codes"] + ["template_from_first_input"]))
+        elif tpl:
+            g["templates"] = tpl
+    main = next((g for g in anchors if names(g)), anchors[0])
+    out = []
+    for g in merged:                                   # M2 이름 없는 뒤 입력 대상 → 첫 입력 상품
+        if any(g is a for a in anchors) or names(g):
+            out.append(g)
+            continue
+        main["members"] += g["members"]
+        main["codes"] = list(dict.fromkeys(main["codes"] + g["codes"] + ["unnamed_attached"]))
+        rules.append({"rule": "M2_unnamed", "members": g["members"], "into": main["members"][0], "templates": g["templates"],
+                      "kept": main["templates"]})
+    return out, rules
+
+
 def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
     """관측(+통합) 결과 → 상품 목록과 영역별 배정. 상품 ID 는 묶음 안 첫 등장 순서(product_001…)."""
     targets = global_targets(units)
@@ -647,6 +722,7 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
                    for t in integ.get("missing", [])]
     else:                                   # 통합 실패: 관측 대상을 그대로 두고 검토 표시(잇지 못했을 수 있음)
         groups = [{"members": [t], "templates": targets[t]["templates"], "codes": ["integration_failed"]} for t in targets]
+    groups, merge_rules = first_input_rules(b, targets, groups)
     owner = {}                              # (단위 번호, t번호) → 그룹 번호
     for gi, g in enumerate(groups):
         for m in g["members"]:
@@ -754,7 +830,7 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
         assignments[b["regions"][a]["region_id"]] = {"status": x["status"], "scope": x["scope"], "product_ids": pids,
                                                      "basis": "model" if x["status"] in ("completed", "partial") else None,
                                                      "codes": list(dict.fromkeys(codes)), "alias": a, "parts": parts}
-    return {"products": products, "assignments": assignments, "targets": targets,
+    return {"products": products, "assignments": assignments, "targets": targets, "merge_rules": merge_rules,
             "groups": [{"members": g["members"], "templates": g["templates"], "product_id": pid[gi]} for gi, g in enumerate(groups)]}
 
 

@@ -361,7 +361,8 @@ def test_integration_failure_keeps_targets_separate_with_review(tmp_path, monkey
     d1 = load(out / "files" / "b01" / "result.json")
     assert rep["checks"]["passed"] and d1["semantic"]["status"] == "partial"
     prods = {p["product_id"]: p for f in ("b01", "b02") for p in load(out / "files" / f / "result.json")["products"]}
-    assert len(prods) == 2 and all("integration_failed" in p["review"]["codes"] for p in prods.values())
+    # first-input/1(docs/20): 뒤 입력의 이름 없는 대상은 통합 실패여도 첫 입력 상품에 잇는다(검토 코드 유지)
+    assert len(prods) == 1 and {"integration_failed", "unnamed_attached"} <= set(prods["product_001"]["review"]["codes"])
 
 
 def test_failed_observation_marks_regions_failed_not_empty(tmp_path, monkeypatch):
@@ -652,9 +653,11 @@ def test_integration_product_without_templates_uses_member_proposals_with_review
     integ = lambda m, s, t: {"targets": {"T1": {"product": "p1"}, "T2": {"product": "p2"}}, "products": [{"product": "p1", "templates": ["deposit_demand"]}]}  # noqa: E731
     rep, out = run_fake(tmp_path, TWO_FILES, Fake(observe=observe_pages, integrate=integ, label=EMPTY_LABELS))
     prods = {p["product_id"]: p for f in ("b01", "b02") for p in load(out / "files" / f / "result.json")["products"]}
-    assert rep["checks"]["passed"] and len(prods) == 2
-    p2 = next(p for p in prods.values() if "b02" in p["files"])
-    assert p2["templates"][0]["template_id"] == "예금성상품-입출식" and "integration_templates_missing" in p2["review"]["codes"]
+    # first-input/1: 뒤 입력의 이름 없는 대상(p2)은 첫 입력 상품에 이어지고 그 대상의 검토 코드도 함께 남는다
+    assert rep["checks"]["passed"] and len(prods) == 1
+    p1 = prods["product_001"]
+    assert p1["files"] == ["b01", "b02"] and p1["templates"][0]["template_id"] == "예금성상품-입출식"
+    assert {"integration_templates_missing", "unnamed_attached"} <= set(p1["review"]["codes"])
 
 
 def test_broker_template_needs_decisive_word_in_its_quote(tmp_path):
@@ -669,3 +672,59 @@ def test_broker_template_needs_decisive_word_in_its_quote(tmp_path):
     ok = classify.resolve(b2, _units(b2, {"P1": [_t(None, ["loan_broker"], [("loan_broker.decisive", "P1-R01", "대출상담사 홍길동")], "대출성")]}),
                           None)["products"][0]
     assert ok["codes"] == ["loan_broker"] and "decisive_signal_missing" not in ok["review"]
+
+
+def _files_bundle(tmp, pages_per_file):
+    """파일마다 1쪽(영역 문구 목록)인 묶음 하나."""
+    files = [{"sub": "m", "fid": f"m{i + 1:02d}", "name": f"{i + 1}.png", "kind": "image", "pages": [regs], "status": "READY",
+              "unassigned": [[]]} for i, regs in enumerate(pages_per_file)]
+    docs, paths = semantic.load_parse(make_parse(tmp, files))
+    return classify.build_bundle(docs, paths)
+
+
+def _named(tid, name, codes, ev, group="예금성"):
+    return {"tid": tid, "name": name, "group": group, "templates": codes,
+            "evidence": [{"feature": f, "region": r, "quote": q} for f, r, q in ev]}
+
+
+def test_first_input_rules_merge_same_name_keep_first_template_and_attach_unnamed(tmp_path):
+    """first-input/1(docs/20, whole-test 거치식 9장): 띄어쓰기만 다른 같은 이름은 한 상품, 템플릿은 첫 입력 판정, 뒤 입력의 이름 없는
+    대상은 첫 입력 상품에 잇는다. 뒤 입력에만 있는 이름 있는 다른 상품은 그대로 둔다."""
+    b = _files_bundle(tmp_path, [[R("NH동행예금"), R("가입기간 12개월")], [R("NH동행 예금 금리표")], [R("유의사항")], [R("NH튼튼적금")]])
+    units = _units(b, {"P1": [_named("t1", "NH동행예금", ["deposit_term"], [("deposit_term.name", "P1-R01", "NH동행예금")])],
+                       "P2": [_named("t1", "NH동행 예금", ["deposit_saving"], [("deposit_saving.name", "P2-R01", "NH동행 예금")])],
+                       "P3": [_named("t1", None, ["undetermined"], [("other.product", "P3-R01", "유의사항")])],
+                       "P4": [_named("t1", "NH튼튼적금", ["deposit_saving"], [("deposit_saving.name", "P4-R01", "NH튼튼적금")])]})
+    res = classify.resolve(b, units, {"ok": True, "products": [{"members": [t], "templates": [c], "codes": []} for t, c in
+                                                               (("T1", "deposit_term"), ("T2", "deposit_saving"), ("T3", "undetermined"),
+                                                                ("T4", "deposit_saving"))], "missing": []})
+    p1, p2 = res["products"]
+    assert p1["codes"] == ["deposit_term"] and {"merged_same_name", "unnamed_attached"} <= set(p1["review"])
+    assert p1["files"] == [f["file_id"] for f in b["files"][:3]] and p2["name"] == "NH튼튼적금"
+    assert [r["rule"] for r in res["merge_rules"]] == ["M1", "M2_unnamed"]
+    # 통합이 첫 입력 대상과 뒤 입력 대상을 한 상품으로 묶으며 다른 템플릿을 골라도 첫 입력 대상의 템플릿을 쓴다
+    res2 = classify.resolve(b, units, {"ok": True, "missing": [], "products": [
+        {"members": ["T1", "T2", "T3"], "templates": ["deposit_saving"], "codes": []},
+        {"members": ["T4"], "templates": ["deposit_saving"], "codes": []}]})
+    assert res2["products"][0]["codes"] == ["deposit_term"] and "template_from_first_input" in res2["products"][0]["review"]
+
+
+def test_r3_weak_unnamed_target_merges_into_only_named_target():
+    """R3(docs/20, whole-test 적립식 광고 2): 이름·상품명·유형 근거 없이 영역 하나의 문구만 근거인 대상은 유일한 이름 있는 대상에
+    합친다. 상품명·유형 근거가 있거나 이름 있는 대상이 둘이면 그대로 둔다."""
+    def obs(t2_ev, named2=False):
+        ts = [{"tid": "t1", "name": "NH대박적금", "group": "예금성", "templates": ["deposit_saving"],
+               "evidence": [{"feature": "deposit_saving.name", "region": "P1-R01", "quote": "NH대박적금", "valid": True}]},
+              {"tid": "t2", "name": None, "group": "투자성", "templates": ["pension"], "evidence": t2_ev}]
+        if named2:
+            ts.append({"tid": "t3", "name": "NH든든예금", "group": "예금성", "templates": ["deposit_term"], "evidence": []})
+        return {"ok": True, "errors": [], "mentions": [], "parts": [], "missing": [], "targets": ts,
+                "regions": {"P1-R01": {"scope": "specific", "targets": ["t1"], "note": None},
+                            "P1-R02": {"scope": "specific", "targets": ["t2"], "note": None}}}
+    weak = [{"feature": "pension.notice_investment", "region": "P1-R02", "quote": "이 예금은 예금자보호법에 따라", "valid": True}]
+    out = classify.apply_target_rules(obs(weak))
+    assert [t["tid"] for t in out["targets"]] == ["t1"] and out["regions"]["P1-R02"]["targets"] == ["t1"]
+    assert out["target_rules"][-1]["rule"] == "R3"
+    strong = weak + [{"feature": "pension.plan_irp", "region": "P1-R03", "quote": "IRP", "valid": True}]
+    assert len(classify.apply_target_rules(obs(strong))["targets"]) == 2
+    assert len(classify.apply_target_rules(obs(weak, named2=True))["targets"]) == 3

@@ -8,6 +8,11 @@
   pipeline_timing.json    묶음별 파이프라인 시간(각 실행 trace/timing.json)
   report.json             묶음별 의미 단계 요약·시간·검사(각 실행 semantic/report.json 을 모음)
   report.html             입력 검토 화면(의미 단계 report.html 과 같은 양식 + 입력별 전체 소요)
+  gold.json               --gold 를 주면 묶음별 정답 템플릿·결과 템플릿·판정(화면의 채점 열과 입력별 정답 칸)
+
+--gold <meta.json>: [{submission_id, files, gold: {templates: [템플릿 코드], group, level}}] (예: whole_test_manifest.py 출력).
+  level 이 template 인 묶음만 채점한다. 결과 템플릿 = 묶음 상품들의 템플릿(퇴직연금 운용상품 component 제외)을 코드로 바꾼 집합.
+  판정: 같으면 correct, 겹치면 partial(빠짐·더함 표시), 안 겹치면 wrong. 그 밖의 level(카드 등)은 unscored(파싱 품질만 본다).
 """
 from __future__ import annotations
 
@@ -22,18 +27,41 @@ sys.path.insert(0, str(ROOT))
 from layout_pipeline.jsonio import dump, load  # noqa: E402
 from layout_pipeline.report_html import build_report, pipeline_entry  # noqa: E402
 
-OWN = {"files", "pipeline_timing.json", "report.json", "report.html"}
+OWN = {"files", "pipeline_timing.json", "report.json", "report.html", "gold.json"}
+POLICY = ROOT / "assets" / "semantic" / "classification-policy.json"
+
+
+def score(meta: list[dict], results: dict[str, list[dict]]) -> dict:
+    """묶음별 정답 대 결과 템플릿. results: submission_id → 그 묶음 파일들의 result.json."""
+    names = {t["code"]: t["template_id"] for t in load(POLICY)["templates"]}
+    code = {v: k for k, v in names.items()}
+    out = {}
+    for m in meta:
+        sid, g = m["submission_id"], m["gold"]
+        if sid not in results:
+            continue
+        prods = {p["product_id"]: p for d in results[sid] for p in d.get("products") or []}
+        pred = sorted({code.get(t["template_id"], t["template_id"]) for p in prods.values() for t in p["templates"]
+                       if t.get("role") != "component"})
+        gold, scored = sorted(g["templates"]), g["level"] == "template"
+        verdict = ("correct" if set(gold) == set(pred) else "partial" if set(gold) & set(pred) else "wrong") if scored else "unscored"
+        out[sid] = {"files": m["files"], "level": g["level"], "group": g.get("group"), "gold": gold, "predicted": pred,
+                    "missing": sorted(set(gold) - set(pred)) if scored else [], "extra": sorted(set(pred) - set(gold)) if scored else [],
+                    "verdict": verdict, "names": {c: names.get(c, c) for c in {*gold, *pred}},
+                    "product_groups": sorted({p["product_group"] for p in prods.values() if p.get("product_group")})}
+    return out
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--gold", type=Path, help="정답 목록(meta.json). 주면 묶음별 템플릿 채점(gold.json)")
     ap.add_argument("runs", nargs="+", type=Path)
     args = ap.parse_args()
     out = args.out
     if out.exists() and {p.name for p in out.iterdir()} - OWN:
         ap.error(f"합본 폴더에 이 스크립트가 만들지 않은 파일이 있습니다(덮어쓰기 방지): {out}")
-    files, reps, timing, contract = [], [], {}, None
+    files, reps, timing, contract, results = [], [], {}, None, {}
     for run in args.runs:
         sem = run / "semantic"
         idx, rep = load(sem / "files" / "index.json"), load(sem / "report.json")
@@ -47,6 +75,9 @@ def main() -> int:
             timing[s] = entry
         files += [f | {"result": os.path.relpath(sem / f["result"], out).replace(os.sep, "/")} for f in idx["files"]]
         reps.append(rep)
+        if args.gold:
+            for f in idx["files"]:
+                results.setdefault(f["submission_id"], []).append(load(sem / f["result"]))
     w = [r["timing"] for r in reps]
     report = {"contract": reps[0].get("contract"), "semantic_profile": reps[0].get("semantic_profile"), "versions": reps[0].get("versions"),
               "parse_dir": "입력별 run_pipeline 실행: " + ", ".join(r.name for r in args.runs),
@@ -61,6 +92,8 @@ def main() -> int:
     dump(out / "files" / "index.json", {"contract": contract, "files": files})
     dump(out / "pipeline_timing.json", {"runs": [str(r) for r in args.runs], "submissions": timing})
     dump(out / "report.json", report)
+    if args.gold:
+        dump(out / "gold.json", {"source": str(args.gold), "submissions": score(load(args.gold), results)})
     print(build_report(out))
     return 0
 

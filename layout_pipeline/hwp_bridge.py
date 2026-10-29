@@ -1,12 +1,12 @@
 """HWP/HWPX → PDF: 기존 parser-pipeline 의 변환 경로만 별도 프로세스로 호출한다.
 
-출처: new-pipeline/parser_next/hwp_bridge.py 를 그대로 옮긴 변환 연결 어댑터(2026-10-24).
-이 저장소에서 기존 코드로부터 가져온 것은 이 파일뿐이다. 파싱 알고리즘은 가져오지 않았다.
+출처: new-pipeline/parser_next/hwp_bridge.py 를 옮긴 변환 연결 어댑터(2026-10-24). 2026-10-29 부터 변환 코드 자체도 이 저장소의
+hwp_legacy(기존 레포 HWP 경로 복사본)를 쓴다.
 
-재사용 범위는 `nh_parser_fin.ingest.hwp_render.render_hwp_to_pdf(path, output)` 하나다.
-기존 원본 미리보기(`render_hwp_preview`)와 같은 호출이며, 기존 구조 파싱·DOM 행·triage·
-OCR 보정·라벨링 결과는 사용하지 않는다. 변환된 PDF 는 이 파서의 PDF 경로와 같은 방식으로
-렌더한다. 기존 변환기는 JVM/Chromium 을 띄우므로 별도 프로세스·별도 가상환경에서 실행한다.
+변환 코드는 기존 레포에서 이 저장소로 옮긴 `layout_pipeline.hwp_legacy.hwp_render.render_hwp_to_pdf(path, output)` 이다(docs/20).
+JVM/Chromium 을 띄우고 사내 `document-processor` 가 필요하므로, 그 패키지가 설치된 가상환경(PN_HWP_PYTHON)에서 별도 프로세스로
+실행하며 옮긴 패키지 폴더만 지정해 불러온다. 결과의 DOM 행(문단·표 행의 문구와 화면 좌표, dom_rows)은 구조 Region 의 근거로
+돌려준다(hwp_structure.py). 변환된 PDF 는 이 파서의 PDF 경로와 같은 방식으로 렌더한다.
 
 Windows 경로 주의: 기존 변환기의 JPype 는 JVM 시작 시 비ASCII 경로(예: '농협프로젝트')의
 네이티브 라이브러리를 읽지 못한다(2026-10-24 확인: UnsatisfiedLinkError, 경로가 한글 앞에서 잘림).
@@ -28,12 +28,19 @@ import tempfile
 import time
 from pathlib import Path
 
+from .hwp_legacy import SOURCE
+
 _MARKER = "@@PN_HWP_BRIDGE@@"
+VENDORED = Path(__file__).resolve().parent / "hwp_legacy"   # 변환 프로세스가 이 폴더만 `hwp_legacy` 패키지로 불러온다
 
 _SCRIPT = "\n".join([
     "import json, sys",
     "from pathlib import Path",
-    "from nh_parser_fin.ingest.hwp_render import render_hwp_to_pdf",
+    "import importlib.util",
+    "_spec = importlib.util.spec_from_file_location('hwp_legacy', sys.argv[4] + '/__init__.py', submodule_search_locations=[sys.argv[4]])",
+    "sys.modules['hwp_legacy'] = importlib.util.module_from_spec(_spec)",
+    "_spec.loader.exec_module(sys.modules['hwp_legacy'])",
+    "from hwp_legacy.hwp_render import render_hwp_to_pdf",
     "info = render_hwp_to_pdf(Path(sys.argv[1]), Path(sys.argv[2]))",
     "surface = info.get('review_surface') or {}",
     "slim = {k: v for k, v in info.items() if k != 'review_surface'}",
@@ -44,6 +51,7 @@ _SCRIPT = "\n".join([
     "slim['review_surface']['layer_items'] = [{k: l.get(k) for k in ('kind', 'page_no', 'wrap', 'box_pt')}",
     "                                         for l in surface.get('layers') or []]",
     "slim['review_surface']['drawings'] = len(surface.get('drawings') or [])",
+    "slim['dom_rows'] = surface.get('dom_rows') or []",
     "print(sys.argv[3] + json.dumps(slim, ensure_ascii=False, default=str))",
 ])
 
@@ -140,7 +148,7 @@ def _convert(source: Path, output_pdf: Path, *, python: str | None, project: str
         env["HWP_REVIEW_DIR"] = str(work / "review-html")
         env.update(env_extra or {})
         completed = subprocess.run(
-            [str(run_python), "-c", _SCRIPT, str(staged_in), str(staged_out), _MARKER],
+            [str(run_python), "-c", _SCRIPT, str(staged_in), str(staged_out), _MARKER, str(VENDORED)],
             cwd=str(run_project), env=env, capture_output=True, text=True, encoding="utf-8",
             errors="replace", timeout=timeout_s, check=False,
         )
@@ -160,7 +168,7 @@ def _convert(source: Path, output_pdf: Path, *, python: str | None, project: str
         review = work / "review-html"
         if review.is_dir():
             shutil.copytree(review, output_pdf.parent / f"{output_pdf.stem}-review-html", dirs_exist_ok=True)
-        info.update(bridge_seconds=seconds, converter="nh_parser_fin.ingest.hwp_render.render_hwp_to_pdf",
+        info.update(bridge_seconds=seconds, converter="layout_pipeline.hwp_legacy.hwp_render.render_hwp_to_pdf", vendored=SOURCE,
                     ascii_junction=junction, source_name=source.name)
         return info
     finally:

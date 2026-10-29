@@ -160,15 +160,22 @@ def _pdf_pages(sub: Submission, item: InputFile, pdf_path: Path, out_dir: Path, 
 
 def _hwp_pdf(item: InputFile, out_dir: Path, source_sha: str, hwp_python: str | None,
              hwp_project: str | None) -> tuple[Path, dict]:
-    """변환 PDF 는 원본 해시가 같을 때만 재사용한다(JVM/Chromium 변환 비용)."""
+    """변환 PDF 는 원본 해시가 같을 때만 재사용한다(JVM/Chromium 변환 비용).
+    변환기의 DOM 행(문단·표 행 문구와 화면 좌표)은 <file_id>.dom_rows.json 에 따로 두고 경로만 남긴다(hwp_structure, docs/20).
+    DOM 행 기록이 없는 이전 변환은 다시 변환한다."""
     pdf_path = out_dir / "hwp" / f"{item.file_id}.pdf"
     meta_path = pdf_path.with_suffix(".conversion.json")
-    if pdf_path.is_file() and meta_path.is_file():
+    rows_path = pdf_path.with_suffix(".dom_rows.json")
+    if pdf_path.is_file() and meta_path.is_file() and rows_path.is_file():
         meta = load(meta_path)
-        if meta.get("source_sha256") == source_sha:
+        if meta.get("source_sha256") == source_sha and meta.get("dom_rows"):
             return pdf_path, meta | {"reused_conversion": True}
     info = convert_hwp_to_pdf(item.path, pdf_path, python=hwp_python, project=hwp_project)
-    meta = {"source_sha256": source_sha, "conversion": info}
+    rows = info.pop("dom_rows", None) or []
+    dump(rows_path, rows)
+    meta = {"source_sha256": source_sha, "conversion": info,
+            "dom_rows": {"path": str(rows_path), "rows": len(rows),
+                         "page_css_size": (info.get("review_surface") or {}).get("page_css_size")}}
     dump(meta_path, meta)
     return pdf_path, meta | {"reused_conversion": False}
 

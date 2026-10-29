@@ -18,7 +18,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from . import page_read, table_cells, vlm_tasks
+from . import hwp_structure, page_read, table_cells, vlm_tasks
 from .jsonio import dump
 
 GENERAL_MAX_TOKENS = 8000
@@ -164,8 +164,9 @@ class Reader:
         if view["view_id"] in self.resume:
             return [self.resume[view["view_id"]]]
         req = page_read.page_request(record, view, img, with_ocr, regions)
-        rec, parsed = self._send(record, req, "page", page_read.PAGE_MAX_TOKENS,
+        rec, parsed = self._send(record, req, "page", page_read.page_max_tokens(record, regions),
                                  {"view_id": view["view_id"], "view_crop": view["crop"], "table_ids": req["table_ids"],
+                                  "partial_salvage": req["partial_salvage"],
                                   "band_of": view.get("band_of"), "band_plan": view.get("band_plan"), "attempt": "page"})
         return [(rec, parsed)]
 
@@ -313,6 +314,8 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
             if meta.get("kind") == "page":
                 tr["page_text"] = res.get("text")
                 tr["page_view"] = meta.get("view_id")
+                if res.get("page_output_partial"):
+                    tr["page_output_partial"] = True    # 잘린 페이지 응답에서 끝까지 쓴 항목(page-partial/1)
                 if res.get("rows") is not None or res.get("is_table") is not None:
                     tr["page_rows"], tr["page_is_table"] = res.get("rows"), res.get("is_table")
             if meta.get("kind") == "table_cells":
@@ -357,11 +360,14 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
                 continue
             keep = {k: prev[k] for k in ("is_table", "rows") if prev and k in prev and k not in res}
             out[rid] = prev_fields(prev, res, meta) | keep | {"trace": tr}
+    for rid, (_, region) in (index or {}).items():
+        if region.get("text_source") == hwp_structure.VERSION:
+            out[rid] = hwp_structure.read_result(region)     # HWP 구조 Region: DOM 행 문구(VLM 호출 없음, docs/20)
     return out
 
 
 def apply_reread(prev: dict | None, res: dict, tr: dict, meta: dict, record: dict, region: dict) -> dict:
-    """재판독(region-reread/1) 응답과 1차 판독 중 하나를 page_read.select_reread 의 고정 정책으로 고른다(둘 다 trace 에 보존).
+    """재판독(region-reread/1·2) 응답과 1차 판독 중 하나를 page_read.select_reread 의 고정 정책으로 고른다(둘 다 trace 에 보존).
     본 판독 병합과 보충 영역 재판독(supplement)이 같이 쓴다."""
     first = (prev or {}).get("text")
     sel = page_read.select_reread(record, region, first, res)
@@ -383,6 +389,8 @@ def prev_fields(prev: dict | None, res: dict, meta: dict) -> dict:
 
 def read_path(trace: dict | None) -> str:
     kinds = (trace or {}).get("kinds") or []
+    if kinds == ["hwp_structure"]:
+        return "hwp_structure"
     if "page" not in kinds:
         return "crop+table_cells" if "table_cells" in kinds else "crop"
     if len(kinds) == 1:
@@ -399,13 +407,14 @@ def reconstruct_reads(trace_dir: Path, records: list[dict] | None = None) -> dic
     for path in sorted((trace_dir / "vlm").glob("*.json")):
         rec = load(path)
         meta = rec["request_meta"]
-        call = SimpleNamespace(error=rec["error"], parsed=rec["parsed"])
+        call = SimpleNamespace(error=rec["error"], parsed=rec["parsed"], content=rec.get("content"), finish_reason=rec.get("finish_reason"))
         if meta["kind"] == "page":
-            parsed = page_read.validate_page(call, {"region_ids": meta["region_ids"], "table_ids": meta.get("table_ids") or []})
+            parsed = page_read.validate_page(call, {"region_ids": meta["region_ids"], "table_ids": meta.get("table_ids") or [],
+                                                    "partial_salvage": meta.get("partial_salvage")})
         elif meta["kind"] == "patch":
             parsed = page_read.validate_patch(call, {"region_ids": meta["region_ids"]})
         elif meta["kind"] == "reread":
-            parsed = page_read.validate_reread(call, {"region_ids": meta["region_ids"]})
+            parsed = page_read.validate_reread(call, {"region_ids": meta["region_ids"], "version": meta.get("version")})
         elif meta["kind"] == "table_cells":
             parsed = table_cells.validate(call, {"region_ids": meta["region_ids"]})
         else:
@@ -433,8 +442,14 @@ def integrate_region(record: dict, region: dict, res: dict | None) -> dict:
             review["context_reasons"].append(region["supplement_note"])
     if res.get("text_from_rows"):
         review["context_reasons"].append("text_from_table_rows")
+    if (res.get("trace") or {}).get("page_output_partial"):
+        review["context_reasons"].append("page_output_partial")
     if region.get("table_container"):
         review["context_reasons"].append("layout_table_read_as_text")     # 문서 틀 표를 글 영역으로 판독(docs/19)
+    if region.get("text_source") == hwp_structure.VERSION:
+        # HWP 구조 Region(docs/20): 문구는 VLM 이 아니라 HWP 원문이다. OCR 대조 불일치는 원문과 렌더 OCR 의 차이로 표시한다.
+        review["quality_reasons"] = ["ocr_hwp_mismatch" if x == "ocr_vlm_mismatch" else x for x in review["quality_reasons"]]
+        review["context_reasons"].append("hwp_structure_text")
     if res.get("patch_not_applied"):
         review["quality_reasons"].append("patch_not_applied")
     review["quality_reasons"] += [x for x in (res.get("reread_review") or []) if x not in review["quality_reasons"]]
