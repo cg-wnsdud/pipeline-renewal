@@ -34,3 +34,8 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1 << 20), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def sha256_text_file(path: Path) -> str:
+    """텍스트 파일 해시(CRLF 를 LF 로 맞춘 뒤). 같은 커밋을 Windows(CRLF 체크아웃)와 Linux(LF)에서 같은 값으로 본다."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()

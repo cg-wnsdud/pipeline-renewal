@@ -9,10 +9,12 @@
 from __future__ import annotations
 
 import json
+from difflib import SequenceMatcher
 
 from PIL import Image
 
 from . import page_read, vlm_tasks
+from .text_eval import norm
 
 # 지시 1회 수정 시도 /2(docs/11 R3: 병합 판단·text 범위·줄바꿈 지시 추가)는 계약 통과 9/12 로 /1(11/12)보다 나빠 기각했다.
 # /1 의 실패 유형(문맥 이미지에서만 보이는 문구·태그 유입, 위치 겹침)은 런타임 검사(상자 밖 문구·출력 잔여물·셀 계약)로 표시한다.
@@ -125,6 +127,55 @@ def to_rows(n_rows: int, n_cols: int, cells: list[dict]) -> list[list[str]]:
     return rows
 
 
+LINE_BREAK_MIN_MATCH = 4   # 줄바꿈을 옮기는 글자는 이 길이 이상 같은 구간 안에 있어야 한다(우연한 한 글자 일치 제외)
+
+
+def with_line_breaks(first: str | None, text: str | None) -> tuple[str | None, int]:
+    """first(1차 판독)의 줄바꿈 위치를 text(셀 재판독 문구)에 옮긴다. text 의 글자는 바꾸지 않는다.
+
+    공백을 뺀 두 문구를 글자 단위로 맞춘다(같은 구간 LINE_BREAK_MIN_MATCH 자 이상만 대응으로 본다). first 의 줄바꿈마다
+    text 에서 (1) 줄바꿈 앞 글자의 바로 뒤, 그 자리에 공백이 없으면 (2) 줄바꿈 뒤 글자의 바로 앞 공백을 줄바꿈 하나로 바꾼다.
+    (1)을 먼저 보는 것은 재판독이 붙인 글머리 기호('계좌 · 3.')를 새 줄 앞에 두기 위해서고, (2)는 재판독이 붙인 마침표
+    ('있습니다. ※') 때문에 (1) 자리에 공백이 없을 때다. 이미 줄바꿈이 있거나 공백이 없는 자리는 건드리지 않는다.
+    반환: (문구, 옮긴 줄바꿈 수)."""
+    if not first or not text or "\n" not in first:
+        return text, 0
+    a, breaks = [], set()
+    for ch in first:
+        if ch == "\n":
+            if a:
+                breaks.add(len(a) - 1)
+        elif not ch.isspace():
+            a.append(norm(ch) or ch)
+    b, pos = [], []
+    for i, ch in enumerate(text):
+        if not ch.isspace():
+            b.append(norm(ch) or ch)
+            pos.append(i)
+    at = {}
+    for blk in SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+        if blk.size >= LINE_BREAK_MIN_MATCH:
+            at.update({blk.a + k: blk.b + k for k in range(blk.size)})
+    gaps = {}
+    for ka in sorted(breaks):
+        after_next = at.get(ka + 1)
+        for kb in (at.get(ka), None if after_next is None else after_next - 1):   # 공백 앞 글자(text 위치)
+            if kb is None or not 0 <= kb < len(b) - 1:
+                continue
+            start, end = pos[kb] + 1, pos[kb + 1]
+            if start < end:
+                if "\n" not in text[start:end]:
+                    gaps[start] = end
+                break
+    if not gaps:
+        return text, 0
+    out, last = [], 0
+    for start in sorted(gaps):
+        out += [text[last:start], "\n"]
+        last = gaps[start]
+    return "".join(out) + text[last:], len(gaps)
+
+
 def validate(call, req: dict) -> dict[str, dict]:
     rid = req["region_ids"][0]
     out = {"region_id": rid, "text": None, "uncertain": None, "is_table": None, "rows": None, "cells": None,
@@ -144,6 +195,10 @@ def validate(call, req: dict) -> dict[str, dict]:
         if not isinstance(p.get("uncertain"), bool):
             errs.append("uncertain 타입")
         out["contract_errors"] += errs
+        if errs and isinstance(text, str) and text.strip() and isinstance(p.get("uncertain"), bool):
+            # 셀 구조만 계약에 어긋나고 문구 자체는 온전한 응답. 문구만 따로 남긴다(쓸지는 병합 단계의 text_fallback 설정이 정한다).
+            out["text_only"] = {"text": text, "uncertain": p["uncertain"],
+                                "is_table": p["is_table"] if isinstance(p.get("is_table"), bool) else None}
         if not errs:
             cells = sorted(p["cells"], key=lambda c: (c["row"], c["col"]))
             out.update(text=text, uncertain=p["uncertain"], is_table=p["is_table"], cells=cells,

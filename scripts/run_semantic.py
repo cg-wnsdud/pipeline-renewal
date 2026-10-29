@@ -34,6 +34,7 @@ sys.path.insert(0, str(ROOT))
 
 from layout_pipeline import classify, semantic  # noqa: E402
 from layout_pipeline.config import load_env_file  # noqa: E402
+from layout_pipeline.pages import template_requests  # noqa: E402
 from layout_pipeline.vlm_client import VlmClient  # noqa: E402
 
 
@@ -64,6 +65,8 @@ def main() -> int:
                     help="observe(기본): 관측 한 호출에서 상품·템플릿·모든 영역 소속을 함께 결정 + 이름 없는 대상 정리. "
                          "legacy: 정리 규칙 없는 이전 관측·통합(이전 실행 재구성용)")
     ap.add_argument("--vlm-concurrency", type=int, default=2, help="GPU 동시 호출 상한(파싱 단계 기본값과 같은 2). 의미 단계 전체가 공유")
+    ap.add_argument("--manifest", action="append", type=Path, default=[],
+                    help="입력 정의(manifest). 묶음별 등록 템플릿 요청(template_request)을 쓴다(docs/21). 없으면 모두 자동 분류")
     ap.add_argument("--rebuild", action="store_true", help="<out> 의 저장 응답으로 결과·화면 재구성(호출 없음)")
     ap.add_argument("--dry-run", action="store_true", help="요청만 만들어 관측 단위·프롬프트 크기를 보인다(호출 없음)")
     args = ap.parse_args()
@@ -83,7 +86,8 @@ def main() -> int:
         load_env_file()
         client = VlmClient(os.environ["PN_VLM_URL"], os.environ["PN_VLM_MODEL"], float(os.environ.get("PN_VLM_TIMEOUT_S", "320")),
                            prefix="sem")
-        report = semantic.run(args.parse, args.out, client, args.vlm_concurrency, subs, classification_mode=args.classification_mode)
+        report = semantic.run(args.parse, args.out, client, args.vlm_concurrency, subs, classification_mode=args.classification_mode,
+                              template_requests=template_requests(args.manifest))
     print(json.dumps({"checks": report["checks"], "timing": report["timing"], "viewer": report["viewer"], "report_html": report["report_html"],
                       "submissions": [{k: s[k] for k in ("submission_id", "mode", "status", "products", "labeling")}
                                       for s in report["submissions"]]}, ensure_ascii=False, indent=1))

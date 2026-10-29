@@ -48,6 +48,7 @@ class Submission:
     submission_id: str
     files: tuple[InputFile, ...]
     description: str = ""
+    template_ids: tuple[str, ...] = ()       # 등록 템플릿 요청(manifest template_request.template_ids, 없으면 자동 분류, docs/21)
 
 
 @dataclass
@@ -97,8 +98,17 @@ def load_manifest(path: Path) -> list[Submission]:
             seen.add(item["file_id"])
             raw = Path(item["path"])
             files.append(InputFile(item["file_id"], raw if raw.is_absolute() else root / raw))
-        out.append(Submission(entry["submission_id"], tuple(files), entry.get("description", "")))
+        req = entry.get("template_request") or {}
+        ids = req.get("template_ids") or [] if isinstance(req, dict) else None
+        if not isinstance(ids, list) or not all(isinstance(t, str) and t for t in ids):
+            raise InputError(f"{entry['submission_id']}: template_request.template_ids 는 템플릿 ID 문자열 목록이어야 합니다")
+        out.append(Submission(entry["submission_id"], tuple(files), entry.get("description", ""), tuple(dict.fromkeys(ids))))
     return out
+
+
+def template_requests(manifests: list[Path]) -> dict[str, list[str]]:
+    """manifest 들의 묶음별 등록 템플릿 요청(요청이 있는 묶음만)."""
+    return {s.submission_id: list(s.template_ids) for m in manifests for s in load_manifest(m) if s.template_ids}
 
 
 def _flatten(image: Image.Image) -> Image.Image:
@@ -130,6 +140,11 @@ def _image_pages(sub: Submission, item: InputFile, out_dir: Path, source_sha: st
     })]
 
 
+def render_pdf_page(page, dpi: int) -> Image.Image:
+    """PDF 한 쪽(pypdfium2 page) → RGB 이미지(흰 배경, 지정 DPI). 파싱 페이지와 원본 미리보기(preview.py)가 같은 함수를 쓴다."""
+    return page.render(scale=dpi / 72.0, fill_color=(255, 255, 255, 255)).to_pil().convert("RGB")
+
+
 def _pdf_pages(sub: Submission, item: InputFile, pdf_path: Path, out_dir: Path, dpi: int, kind: str,
                extra: dict, source_sha: str) -> list[Page]:
     import pypdfium2 as pdfium
@@ -143,7 +158,7 @@ def _pdf_pages(sub: Submission, item: InputFile, pdf_path: Path, out_dir: Path, 
             try:
                 size_pt = [round(v, 3) for v in page.get_size()]
                 rotation = page.get_rotation()
-                image = page.render(scale=dpi / 72.0, fill_color=(255, 255, 255, 255)).to_pil().convert("RGB")
+                image = render_pdf_page(page, dpi)
             finally:
                 page.close()
             page_id = f"{item.file_id}_p{index + 1:02d}"
@@ -160,15 +175,22 @@ def _pdf_pages(sub: Submission, item: InputFile, pdf_path: Path, out_dir: Path, 
 
 def _hwp_pdf(item: InputFile, out_dir: Path, source_sha: str, hwp_python: str | None,
              hwp_project: str | None) -> tuple[Path, dict]:
-    """변환 PDF 는 원본 해시가 같을 때만 재사용한다(JVM/Chromium 변환 비용)."""
+    """변환 PDF 는 원본 해시가 같을 때만 재사용한다(JVM/Chromium 변환 비용).
+    변환기의 DOM 행(문단·표 행 문구와 화면 좌표)은 <file_id>.dom_rows.json 에 따로 두고 경로만 남긴다(hwp_structure, docs/20).
+    DOM 행 기록이 없는 이전 변환은 다시 변환한다."""
     pdf_path = out_dir / "hwp" / f"{item.file_id}.pdf"
     meta_path = pdf_path.with_suffix(".conversion.json")
-    if pdf_path.is_file() and meta_path.is_file():
+    rows_path = pdf_path.with_suffix(".dom_rows.json")
+    if pdf_path.is_file() and meta_path.is_file() and rows_path.is_file():
         meta = load(meta_path)
-        if meta.get("source_sha256") == source_sha:
+        if meta.get("source_sha256") == source_sha and meta.get("dom_rows"):
             return pdf_path, meta | {"reused_conversion": True}
     info = convert_hwp_to_pdf(item.path, pdf_path, python=hwp_python, project=hwp_project)
-    meta = {"source_sha256": source_sha, "conversion": info}
+    rows = info.pop("dom_rows", None) or []
+    dump(rows_path, rows)
+    meta = {"source_sha256": source_sha, "conversion": info,
+            "dom_rows": {"path": str(rows_path), "rows": len(rows),
+                         "page_css_size": (info.get("review_surface") or {}).get("page_css_size")}}
     dump(meta_path, meta)
     return pdf_path, meta | {"reused_conversion": False}
 

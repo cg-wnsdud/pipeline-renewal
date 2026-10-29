@@ -132,3 +132,32 @@ def test_table_read_failure_retries_then_falls_back_to_text_region(tmp_path):
     region = next(r for r in rec["regions"] if r["region_id"] == "p-v0-S000")
     assert not region["table_candidate"] and region["supplement_note"] == "supplement_table_structure_failed"
     assert reads["p-v0-S000"]["text"] == "기간 12개월 적용이자율 2.60%" and "is_table" not in reads["p-v0-S000"]
+
+
+class RereadReader(FakeReader):
+    """보충 문자 영역 재판독(docs/18). 재판독은 원본 OCR 문구 전체를 돌려준다."""
+
+    def __init__(self, answers):
+        super().__init__(answers)
+        self.rereads = []
+
+    def verify_job(self, rec, img, regions, kind, texts, reasons, view):
+        r = regions[0]
+        self.rereads.append((kind, r["region_id"], reasons[r["region_id"]], view["view_id"]))
+        ocr = " ".join(a["ocr_text"] for a in rec["assignments"] if a["region_id"] == r["region_id"])
+        call = {"call_id": "vlm-9002", "finish_reason": "stop", "request_meta": {"kind": "reread", "supplement": True}}
+        return [(call, {r["region_id"]: {"region_id": r["region_id"], "text": ocr, "uncertain": False, "contract_ok": True,
+                                          "contract_errors": [], "changes": ["missing_added"], "notes": ""}})]
+
+
+def test_supplement_reread_fixes_flagged_text_region_only_when_enabled(tmp_path):
+    answers = {"농협은행이 777명에게 쓴다": "농협은행이"}              # 보충 문자 영역 1차 판독이 뒷부분을 빠뜨림
+    off, on = RereadReader(answers), RereadReader(answers)
+    reads_off, reads_on = copy.deepcopy(READS), copy.deepcopy(READS)
+    S.run([record(tmp_path)], reads_off, off, None, tmp_path / "t0")
+    summary = S.run([record(tmp_path)], reads_on, on, None, tmp_path / "t1", reread=True)
+    rid = [k for k in reads_on if k.startswith("p-v0-S") and not reads_on[k].get("is_table")][0]
+    assert not off.rereads and reads_off[rid]["text"] == "농협은행이"
+    assert [(k, r) for k, r, _, _ in on.rereads] == [("reread", rid)] and "ocr_text_missing_in_page_read" in on.rereads[0][2]
+    assert reads_on[rid]["text"] == "농협은행이 777명에게 쓴다" and reads_on[rid]["trace"]["kinds"][-1] == "reread"
+    assert summary["rereads"][0]["source"] == "reread" and load(tmp_path / "t1" / S.PLAN_FILE)["settings"]["reread"] is True

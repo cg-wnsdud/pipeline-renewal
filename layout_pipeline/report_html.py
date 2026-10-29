@@ -4,7 +4,8 @@
 상자와 목록 항목은 서로 눌러 찾는다. 첫 화면은 전체 요약(파일별 Region·검토 수와 이번 실행의 소요시간).
 
 읽는 것: files/index.json, files/<file_id>/result.json(layout-result/3, 상품·라벨이 없는 /2 도 그린다),
-trace/semantic/<묶음>.json(라벨 근거 인용), report.json(시간). 모델을 호출하지 않는다.
+trace/semantic/<묶음>.json(라벨 근거 인용), report.json(시간), gold.json(있으면 묶음별 정답 템플릿 채점, make_pipeline_report --gold).
+모델을 호출하지 않는다.
 시간은 의미 단계 묶음(submission) 단위 기록이다. 묶음은 동시에 실행돼 서로 겹치고, 파싱 단계(OCR·판독) 시간은 들어 있지 않다.
 `report.rebuild.json`(저장 응답 재생)은 실제 시간이 아니라서 `report.json` 이 없을 때만 경고와 함께 쓴다.
 """
@@ -21,6 +22,8 @@ PALETTE = ["#1E88E5", "#8E24AA", "#F4511E", "#00897B", "#C0CA33", "#6D4C41", "#D
 SHARED, MIXED, UNKNOWN, NOT_RUN = "#546E7A", "#6A1B9A", "#C62828", "#78909C"
 PSTATUS = {"classified": "분류", "undetermined": "미확정", "unsupported": "미지원"}
 PENSION = {"included": "포함", "not_exposed": "미노출", "undetermined": "미확정"}
+VERDICT = {"correct": ("정답", "#2E7D32", "✓"), "partial": ("부분", "#EF6C00", "△"), "wrong": ("틀림", "#C62828", "✗"),
+           "unscored": ("채점 제외", "#78909C", "·")}
 PHASES = (("observe", "관측(상품·템플릿·영역 소속 결정)"), ("integrate", "통합(페이지별 상품 연결)"), ("label", "라벨링"))
 
 esc = html.escape
@@ -63,6 +66,7 @@ def build_report(out: Path) -> Path:
             rep, rep_path = load(out / name), name
             break
     run = load(out / "run.json") if (out / "run.json").is_file() else {}
+    gold = load(out / "gold.json")["submissions"] if (out / "gold.json").is_file() else {}
     sub_timing = {s["submission_id"]: s.get("timing") for s in rep.get("submissions", [])}
     pipe, run_pipe = _pipeline_timing(out, list(dict.fromkeys(f["submission_id"] for f in index["files"])))
     for s, e in pipe.items():
@@ -76,12 +80,14 @@ def build_report(out: Path) -> Path:
     panes, rows = [], []
     for f in files:
         d = load(out / f["result"])
-        pane, row = _pane(out, out / Path(f["result"]).parent, d, by_sub[f["submission_id"]], sub_timing.get(f["submission_id"]), rep)
+        pane, row = _pane(out, out / Path(f["result"]).parent, d, by_sub[f["submission_id"]], sub_timing.get(f["submission_id"]), rep,
+                          gold.get(f["submission_id"]))
         panes.append(pane)
         rows.append(row)
-    summary = _summary(out, rows, sub_timing, rep, rep_path, run, index)
+    summary = _summary(out, rows, sub_timing, rep, rep_path, run, index, gold)
+    mark = lambda r: (f"<b style='color:{VERDICT[r['verdict']][1]}'>{VERDICT[r['verdict']][2]}</b> " if r.get("verdict") else "")  # noqa: E731
     tabs = ["<button class='tab' data-key='summary' data-label='전체 요약'><b>전체 요약</b></button>"] + [
-        f"<button class='tab' data-key='{esc(r['fid'])}' data-label='{esc(r['label'])}'>{esc(r['label'])} "
+        f"<button class='tab' data-key='{esc(r['fid'])}' data-label='{esc(r['label'])}'>{mark(r)}{esc(r['label'])} "
         f"<small>{r['regions']} Region</small></button>" for r in rows]
     path = out / "report.html"
     path.write_text(_PAGE.replace("__TITLE__", esc(f"입력별 검토 — {out.name}")).replace("__TABS__", "".join(tabs))
@@ -145,6 +151,45 @@ def _time_block(sub: str, files: list[str], t: dict | None, rep: dict) -> str:
             + _time_rows(t)
             + f"</table><div class='note'>시간은 입력 묶음({esc(sub)}) 단위 기록이다{shared}. 묶음은 동시에 실행돼 경과 시간에 대기 시간이 섞이고, "
               "파싱 단계(OCR·판독) 시간은 포함되지 않는다.</div></details>")
+
+
+# ---- 정답 채점 ----
+
+def _tpl_list(g: dict, codes: list[str], hit: set[str], miss_cls: str) -> str:
+    if not codes:
+        return "<span class=mute>없음</span>"
+    return " ".join(_chip(g["names"].get(c, c), "lab" if c in hit else miss_cls, title=c) for c in codes)
+
+
+def _verdict_chip(g: dict) -> str:
+    name, color, _ = VERDICT[g["verdict"]]
+    return _chip(name, style=f"background:{color}")
+
+
+def _gold_cell(g: dict) -> str:
+    """요약 표 칸: 판정 + 정답·결과 템플릿(채점 제외면 상품군)."""
+    hit = set(g["gold"]) & set(g["predicted"])
+    body = (f"정답 {_tpl_list(g, g['gold'], hit, 'bad')}<br>결과 {_tpl_list(g, g['predicted'], hit, 'rev')}"
+            if g["verdict"] != "unscored" else f"정답 상품군 {esc(g.get('group') or '-')} · 파싱 품질만")
+    return f"{_verdict_chip(g)}<div class='note'>{body}</div>"
+
+
+def _gold_block(g: dict | None) -> str:
+    """입력 화면 위쪽: 파일명에서 읽은 정답 템플릿 대 결과 템플릿(묶음 단위)."""
+    if not g:
+        return ""
+    files = f"<div class='note'>원래 파일명: {esc(' / '.join(g['files']))}</div>"
+    if g["verdict"] == "unscored":
+        return (f"<div class='gold'>{_verdict_chip(g)} <span class='mute'>정답 상품군 {esc(g.get('group') or '-')}: 템플릿이 정해지지 않아 "
+                f"채점하지 않는다(파싱 품질만 본다). 결과 상품군 {esc(', '.join(g['product_groups']) or '-')} · 결과 템플릿 "
+                f"{_tpl_list(g, g['predicted'], set(), 'alt')}</span>{files}</div>")
+    hit = set(g["gold"]) & set(g["predicted"])
+    diff = ([f"빠짐 {', '.join(g['names'].get(c, c) for c in g['missing'])}"] if g["missing"] else []) + (
+        [f"더함 {', '.join(g['names'].get(c, c) for c in g['extra'])}"] if g["extra"] else [])
+    return (f"<div class='gold'>{_verdict_chip(g)} <span class='mute'>{esc(' · '.join(diff))}</span><table class='meta'>"
+            f"<tr><th>정답(파일명)</th><td>{_tpl_list(g, g['gold'], hit, 'bad')}</td></tr>"
+            f"<tr><th>결과</th><td>{_tpl_list(g, g['predicted'], hit, 'rev')}</td></tr></table>{files}"
+            "<div class='note'>묶음(같은 상품의 여러 입력) 단위로 상품들의 템플릿을 모아 채점한다(퇴직연금 운용상품 제외).</div></div>")
 
 
 # ---- 영역 ----
@@ -298,7 +343,8 @@ def _image(out: Path, fdir: Path, page: dict) -> str:
     return f"<img loading='lazy' alt='{esc(page['page_id'])}' src='{quote(os.path.relpath(p, out).replace(os.sep, '/'), safe='/')}'>"
 
 
-def _pane(out: Path, fdir: Path, d: dict, siblings: list[str], timing: dict | None, rep: dict) -> tuple[str, dict]:
+def _pane(out: Path, fdir: Path, d: dict, siblings: list[str], timing: dict | None, rep: dict,
+          gold: dict | None = None) -> tuple[str, dict]:
     fid, sub, src = d["source"]["file_id"], d["submission_id"], d["source"]
     prods = {p["product_id"]: p for p in d.get("products") or []}
     color = {pid: PALETTE[i % len(PALETTE)] for i, pid in enumerate(prods)}
@@ -353,9 +399,10 @@ def _pane(out: Path, fdir: Path, d: dict, siblings: list[str], timing: dict | No
                 pen = (f"<div class='note'>퇴직연금 금융투자상품 {PENSION.get(q['investment_products'], '')} · 제도 {esc('/'.join(q['plans']) or '-')}"
                        f" · 운용상품 {esc('/'.join(q['components']) or '-')}</div>")
             cntp = sum(p["product_id"] in r["product_assignment"]["product_ids"] for r in d["regions"])
+            pcodes = "".join(f"<span class='code s'>{esc(c)}</span>" for c in p["review"]["codes"]) or "<span class=mute>-</span>"
             ptab += (f"<tr><td>{_chip(p['product_id'], style='background:' + color[p['product_id']])}</td><td>{esc(p['name'] or '(이름 없음)')}</td>"
                      f"<td>{PSTATUS.get(p['status'], '')}</td><td>{esc(p['product_group'] or '')}</td><td>{tpl}{pen}</td>"
-                     f"<td>{cntp}개</td><td>{''.join(f'<span class=\"code s\">{esc(c)}</span>' for c in p['review']['codes']) or '<span class=mute>-</span>'}</td></tr>")
+                     f"<td>{cntp}개</td><td>{pcodes}</td></tr>")
         ptab += "</table>"
     issues = [(p["page_id"], i) for p in d["pages"] for i in p.get("issues", [])]
     itab = ("<details class='table-checks'><summary>페이지 이슈 %d</summary><ol>%s</ol></details>" % (
@@ -376,22 +423,28 @@ def _pane(out: Path, fdir: Path, d: dict, siblings: list[str], timing: dict | No
     label = f"{src['input_order']}. {src['file_name']}"
     pane = (f"<section class='pane' data-key='{esc(fid)}'><h2>{esc(fid)} · {esc(src['file_name'])}</h2>"
             f"<div class='mute sub'>{esc(sub)} · {esc(src['file_type'])} · {len(d['pages'])}쪽 · 입력 순서 {src['input_order']}</div>"
-            f"<div class='stats'>{stats}</div>{_time_block(sub, siblings, timing, rep)}{ptab}{itab}{otab}"
+            f"{_gold_block(gold)}<div class='stats'>{stats}</div>{_time_block(sub, siblings, timing, rep)}{ptab}{itab}{otab}"
             f"<div class='split'><div class='left'>{left}</div><div class='right'>"
             f"<div class='filters'>{flt} <select class='pf'>{opts}</select> <label><input type='checkbox' class='orph-toggle'>영역 밖 OCR 표시</label> "
             f"<span class='mute fcount'></span></div><ol class='regions'>{right}</ol></div></div></section>")
     return pane, {"fid": fid, "sub": sub, "label": f"{fid} · {src['file_name']}", "name": src["file_name"], "pages": len(d["pages"]),
                   "regions": n, "products": len(mine), "tables": cnt("table"), "nolabel": cnt("nolabel"), "parse": cnt("parse"), "sem": cnt("sem"),
-                  "unknown": cnt("unknown"), "fail": cnt("fail"), "timing": timing}
+                  "unknown": cnt("unknown"), "fail": cnt("fail"), "timing": timing, "verdict": (gold or {}).get("verdict")}
 
 
-def _summary(out: Path, rows: list[dict], sub_timing: dict, rep: dict, rep_path: str | None, run: dict, index: dict) -> str:
+def _summary(out: Path, rows: list[dict], sub_timing: dict, rep: dict, rep_path: str | None, run: dict, index: dict,
+             gold: dict | None = None) -> str:
+    gold = gold or {}
     wall = rep.get("timing") or {}
     totals = {s: (t or {}).get("total_wall_seconds") for s, t in sub_timing.items()}
     peak = max([v for v in totals.values() if v] or [0])
     stat = lambda v, k: f"<div class='stat'><b>{v}</b><span>{k}</span></div>"  # noqa: E731
     stats = [stat(len(rows), "파일(입력)"), stat(len({r["sub"] for r in rows}), "입력 묶음"), stat(sum(r["regions"] for r in rows), "Region"),
              stat(sum(r["parse"] for r in rows), "파싱 검토"), stat(sum(r["sem"] for r in rows), "의미 검토")]
+    if gold:
+        n = {k: sum(g["verdict"] == k for g in gold.values()) for k in VERDICT}
+        stats = [stat(f"{n['correct']} / {n['correct'] + n['partial'] + n['wrong']}", "템플릿 정답(묶음)"), stat(n["partial"], "부분"),
+                 stat(n["wrong"], "틀림"), stat(n["unscored"], "채점 제외")] + stats
     pipes = {r["sub"]: (r["timing"] or {}).get("pipeline") for r in rows if (r["timing"] or {}).get("pipeline")}
     if pipes:
         stats.append(stat(_fmt(sum(p.get("end_to_end_wall_seconds") or 0 for p in pipes.values())), "전체 소요 합(파싱+의미, 입력별)"))
@@ -405,6 +458,9 @@ def _summary(out: Path, rows: list[dict], sub_timing: dict, rep: dict, rep_path:
         tcells = ""
         if r["sub"] != last:
             n, t = len(group), r["timing"]
+            if gold:
+                g = gold.get(r["sub"])
+                tcells += f"<td rowspan='{n}' class='gd'>{_gold_cell(g)}</td>" if g else f"<td rowspan='{n}' class='mute'>-</td>"
             if pipes:
                 p = pipes.get(r["sub"])
                 tcells += (f"<td rowspan='{n}' class='tm'><b>{_fmt(p.get('end_to_end_wall_seconds'))}</b><div class='bar-t'><i style='width:"
@@ -460,6 +516,9 @@ def _summary(out: Path, rows: list[dict], sub_timing: dict, rep: dict, rep_path:
                  "경과 시간에는 모델 호출 대기 시간이 섞여 있다. 같은 묶음의 파일은 한 번에 처리해 시간을 나눌 수 없다. "
                  + ("파싱 시간은 위 '파이프라인(실행 전체)'에 있다.</div>" if run.get("pipeline") else
                     "파싱 단계(OCR·판독)는 저장된 결과를 읽기만 해서 이 시간에 포함되지 않는다.</div>"))
+    if gold:
+        meta.append(("정답", "파일명에서 읽은 템플릿(실행 중에는 파일명을 모델에 주지 않음) · 묶음 단위 채점 · 정답 = 결과 템플릿 집합이 같음, "
+                             "부분 = 겹치지만 빠지거나 더함, 틀림 = 안 겹침, 채점 제외 = 템플릿 미정(카드 등, 파싱 품질만)"))
     legend = ("<details class='table-checks'><summary>보는 법</summary><div class='note'>상자 색 — 상품별 색(파일 화면의 상품 표와 같음) · "
               f"<span class='dot' style='background:{SHARED}'></span>공통 · <span class='dot' style='background:{MIXED}'></span>혼합 · "
               f"<span class='dot' style='background:{UNKNOWN}'></span>소속 미확정·배정 실패(점선) · 상자 안 숫자는 오른쪽 목록 번호. "
@@ -467,7 +526,8 @@ def _summary(out: Path, rows: list[dict], sub_timing: dict, rep: dict, rep_path:
     return ("<section class='pane' data-key='summary'><h2>전체 요약</h2><div class='stats'>" + "".join(stats) + "</div>"
             "<table class='meta'>" + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in meta) + "</table>" + legend
             + "<table class='meta sum'><tr><th>파일</th><th>쪽</th><th>Region</th><th>상품</th><th>표</th><th>라벨 없음</th><th>파싱 검토</th><th>의미 검토</th>"
-              "<th>소속 미확정</th><th>판독 실패</th>" + ("<th>전체 소요(파싱+의미)</th>" if pipes else "")
+              "<th>소속 미확정</th><th>판독 실패</th>" + ("<th>템플릿 채점(묶음)</th>" if gold else "")
+            + ("<th>전체 소요(파싱+의미)</th>" if pipes else "")
             + "<th>묶음</th><th>의미 단계 소요(묶음)</th><th>호출</th></tr>" + body + "</table>" + notes + "</section>")
 
 
@@ -570,6 +630,10 @@ details.ev summary { cursor:pointer; color:var(--muted); }
 .table-checks ol { margin:8px 0 0; padding-left:24px; }
 .table-checks li { padding:4px 0; border-top:1px solid var(--line); }
 .warn, .bad { color:#B71C1C; font-size:12px; }
+.gold { background:#fff; border:1px solid var(--line); border-radius:6px; padding:8px 12px; margin:6px 0 8px; }
+.gold table.meta { margin:6px 0 0; }
+table.sum td.gd { min-width:200px; }
+table.sum td.gd .chip { display:inline-block; margin:1px 2px 1px 0; }
 .warn.top { padding:8px 16px; background:#FFEBEE; }
 ul.orphans { margin:8px 0 0; padding-left:18px; }
 .orphan-row { font-size:12px; color:#B71C1C; }

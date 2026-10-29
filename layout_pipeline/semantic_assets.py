@@ -2,7 +2,8 @@
 
 - 라벨 스키마·카탈로그·퇴직연금 구성은 nh-ad-compliance 에서 복사한 데이터다(scripts/import_semantic_assets.py,
   출처·커밋·SHA-256 은 manifest.json). 분류 정책(classification-policy.json)은 이 저장소에서 관리한다.
-- 실행·테스트는 같은 복사본을 읽는다. 로드할 때 manifest 해시와 비교해 다르면 멈춘다(다른 버전이 섞이지 않게).
+- 실행·테스트는 같은 복사본을 읽는다. 로드할 때 manifest 해시와 비교해 다르면 멈춘다(다른 버전이 섞이지 않게). 해시는 줄바꿈을 LF 로
+  맞춰 계산한다(Windows 체크아웃의 CRLF 와 Linux 컨테이너의 LF 가 같은 값, docs/21).
 - 라벨 지식 글(knowledge)은 스키마의 구분값별 템플릿 예시문구·실제 광고 예시·반례로만 만든다. 예시의 출처 광고 이름
   (source_ad)은 넣지 않고, 예시 문구를 중간에서 자르지 않는다.
 """
@@ -13,12 +14,13 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from .jsonio import load, sha256_file
+from .jsonio import load, sha256_text_file
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "assets" / "semantic"
-# 이번 범위의 템플릿 스키마(원본 라벨 스키마 19개 중 10개). 운용상품 ETF·ELB 전용 스키마는 원본에도 없다.
-LABEL_SCHEMA_KEYS = ("loan-named", "loan-broker-balance", "deposit-demand", "deposit-term", "deposit-saving",
-                     "deposit-index-linked", "investment-isa-general", "investment-isa-trust",
+# 이번 범위의 템플릿 스키마(원본 라벨 스키마 19개 중 12개 = nh-ad-compliance 운영 등록 화면의 대출·예금·투자 템플릿, docs/21).
+# 운용상품 ETF·ELB 전용 스키마는 원본에도 없다.
+LABEL_SCHEMA_KEYS = ("loan-named", "loan-unnamed", "loan-broker-balance", "deposit-demand", "deposit-term", "deposit-saving",
+                     "deposit-index-linked", "deposit-unnamed", "investment-isa-general", "investment-isa-trust",
                      "investment-isa-discretionary", "investment-pension-general")
 SPECIAL_CODES = ("unsupported", "undetermined")
 
@@ -34,7 +36,7 @@ def verify_assets() -> list[str]:
         f = ASSET_DIR / rel
         if not f.is_file():
             errs.append(f"{rel}: 파일 없음")
-        elif sha256_file(f) != meta["sha256"]:
+        elif sha256_text_file(f) != meta["sha256"]:
             errs.append(f"{rel}: SHA-256 이 manifest 와 다름")
     missing = set(LABEL_SCHEMA_KEYS) - set(man.get("label_schemas", []))
     if missing:
@@ -76,7 +78,7 @@ def versions() -> dict:
     """결과·trace 에 남길 자산 버전. digest 는 manifest 파일 해시(복사본 전체 해시를 담고 있음)."""
     man = manifest()
     return {"assets": man["version"], "policy": policy()["version"],
-            "assets_digest": sha256_file(ASSET_DIR / "manifest.json")[:16]}
+            "assets_digest": sha256_text_file(ASSET_DIR / "manifest.json")[:16]}
 
 
 def templates() -> list[dict]:
@@ -91,9 +93,19 @@ def template_codes() -> list[str]:
     return [t["code"] for t in templates()]
 
 
-def feature_ids() -> list[str]:
-    """템플릿 특징 ID + 범위 밖·미확정 대상의 근거 ID(other.*)."""
-    return [f["id"] for t in templates() for f in t["features"]] + [f["id"] for f in policy().get("other_features", [])]
+def feature_ids(codes: list[str] | None = None) -> list[str]:
+    """템플릿 특징 ID(codes 를 주면 그 템플릿만) + 범위 밖·미확정 대상의 근거 ID(other.*)."""
+    return ([f["id"] for t in templates() if codes is None or t["code"] in codes for f in t["features"]]
+            + [f["id"] for f in policy().get("other_features", [])])
+
+
+def request_codes(template_ids: list[str]) -> list[str]:
+    """등록 화면에서 고른 템플릿 ID → 분류 정책 코드(입력 순서). 이 파이프라인이 분류하지 않는 템플릿이면 ValueError."""
+    by_id = {t["template_id"]: t["code"] for t in templates()}
+    unknown = [t for t in template_ids if t not in by_id]
+    if unknown:
+        raise ValueError(f"분류할 수 없는 등록 템플릿: {unknown}")
+    return list(dict.fromkeys(by_id[t] for t in template_ids))
 
 
 def feature_template(feature_id: str) -> str:

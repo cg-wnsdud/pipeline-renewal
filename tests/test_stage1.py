@@ -259,6 +259,39 @@ class FakeResponse:
         return self._body
 
 
+def test_document_frame_table_is_read_as_text(tmp_path):
+    """table-container-as-text/1(docs/19): OCR 글자가 많은 표 상자(본문 틀)는 표 후보에서 빼고 글 영역으로 읽는다. 작은 표는 그대로."""
+    page = make_page(tmp_path, 1654, 2339)
+    d = decide(page, POLICY, {})
+    long_lines = [(f"대출대상 안내 문장 {i:02d} 계약금 5% 이상 납부한 분양계약자 중 소득 증빙 가능자", [120, 120 + i * 25, 880, 140 + i * 25])
+                  for i in range(30)]
+    p = pruned(1654, 2339, [("table", [100, 100, 900, 900]), ("table", [100, 1000, 900, 1100])],
+               long_lines + [("기간 12개월", [120, 1010, 400, 1040])])
+
+    def post(url, json, timeout):
+        return FakeResponse({"logId": "x", "errorCode": 0, "result": {"layoutParsingResults": [{"prunedResult": p}]}})
+    client = OcrClient("http://fake", 5, {"useTableRecognition": False}, tmp_path / "raw", tmp_path / "views", post=post)
+    rec, pr = client.call(page, d.views[0])
+    from dataclasses import asdict
+    record = build_page(page, d, [asdict(rec)], {d.views[0].view_id: pr}, RULE)
+    big, small = record["regions"]
+    assert big["table_candidate"] is False and big["table_container"]["ocr_lines"] == 30 and big["raw_label"] == "table"
+    assert small["table_candidate"] is True and "table_container" not in small
+    assert any(i["code"] == "TABLE_CONTAINER_READ_AS_TEXT" for i in record["issues"])
+
+
+def test_hwp_front_layer_covering_page_is_detected():
+    """docs/19: 쪽 대부분을 덮는 '글 앞으로' 레이어만 본문을 가리는 것으로 본다(글 뒤로·작은 그림은 제외)."""
+    from layout_pipeline.hwp_bridge import covering_layers
+    surface = {"page_css_size": [793.71, 1122.51], "layer_items": [
+        {"kind": "floating_image", "page_no": 1, "wrap": "IN_FRONT_OF_TEXT", "box_pt": [0.0, 0.0, 619.06, 857.15]},
+        {"kind": "floating_image", "page_no": 1, "wrap": "BEHIND_TEXT", "box_pt": [0.0, 0.0, 595.0, 842.0]},
+        {"kind": "floating_image", "page_no": 2, "wrap": "IN_FRONT_OF_TEXT", "box_pt": [10.0, 10.0, 200.0, 100.0]}]}
+    hit = covering_layers({"review_surface": surface})
+    assert [(h["page_no"], h["wrap"]) for h in hit] == [(1, "IN_FRONT_OF_TEXT")] and hit[0]["cover"] == 1.0
+    assert covering_layers({"review_surface": {"layer_items": surface["layer_items"]}}) == []
+
+
 def test_whole_page_single_call_and_vlm_plan(tmp_path):
     page = make_page(tmp_path, 1654, 2339)
     d = decide(page, POLICY, {})
@@ -311,6 +344,32 @@ def test_review_not_decided_by_uncertain_only(tmp_path):
     assert rv["needs_review"] and "digit_mismatch" in rv["quality_reasons"]
     rv = vlm_tasks.review_reasons(record, region, {"text": None, "uncertain": False, "contract_errors": []})
     assert "read_failed" in rv["quality_reasons"]
+
+
+def test_digit_check_ignores_separator_spacing_and_hwp_text_digits_are_context():
+    """숫자 비교는 천 단위 쉼표만 붙이고 그 밖의 쉼표·점은 구분자로 본다(2026-10-29 mx1306: OCR '3000,1522').
+    HWP 원문 문구의 숫자 불일치는 렌더 OCR 쪽 차이라 품질 사유가 아니라 맥락 사유다(td01: OCR '☎' → '8')."""
+    from layout_pipeline import hwp_structure, vlm_tasks
+    from layout_pipeline.read_stage import integrate_region
+    from layout_pipeline.text_eval import digit_groups
+    assert set(digit_groups("문의(1661-3000,1522-3000)")) == set(digit_groups("문의(1661-3000, 1522-3000)"))
+    assert digit_groups("3,000원 2026.10.29") == digit_groups("3000원 2026. 10. 29")
+    assert set(digit_groups("0.10%p")) != set(digit_groups("0.01%p"))
+    region = {"region_id": "a", "page_id": "p", "bbox": [0, 0, 10, 10], "source": "s", "source_index": 0,
+              "table_candidate": False, "crossing_ocr_ids": [], "ambiguous_ocr_ids": []}
+    record = {"assignments": [{"region_id": "a", "ocr_text": "기타 문의(1661-3000,1522-3000)", "ocr_id": "t1",
+                               "ocr_bbox": [0, 0, 10, 5]}],
+              "unassigned_texts": [], "diagnostics": {"region_overlaps": []}}
+    rv = vlm_tasks.review_reasons(record, region, {"text": "기타 문의(1661-3000, 1522-3000)", "uncertain": False,
+                                                   "contract_errors": []})
+    assert "digit_mismatch" not in rv["quality_reasons"]
+    record["assignments"][0]["ocr_text"] = "NH농협은행(81661-3000)"
+    res = {"text": "NH농협은행 (☎1661-3000)", "uncertain": False, "contract_ok": True, "contract_errors": [],
+           "trace": {"kinds": ["hwp_structure"]}}
+    review = integrate_region(record, region | {"text_source": hwp_structure.VERSION}, res)["review"]
+    assert "digit_mismatch" not in review["quality"] and "ocr_hwp_digit_mismatch" in review["context"]
+    review = integrate_region(record, region, res | {"trace": {"kinds": ["page"]}})["review"]
+    assert "digit_mismatch" in review["quality"]                                          # VLM 문구는 그대로 품질 사유
 
 
 def test_vlm_validate_rejects_missing_duplicate_and_string_bool():
@@ -744,6 +803,28 @@ def test_reread_selects_complete_candidate_and_keeps_first_on_conflict_or_failur
     assert {k: v["text"] for k, v in again.items()} == {k: v["text"] for k, v in out.items()}
 
 
+def test_reread2_changes_object_and_truncated_text_salvage():
+    """region-reread/2(docs/20): changes 는 분류별 참/거짓 객체(→ 목록). 뒤 필드에서 잘린 응답은 완성된 text 만 꺼낸다.
+    text 자체가 잘렸거나 /1 기록이면 꺼내지 않는다(기존 실행 재구성은 그대로)."""
+    from types import SimpleNamespace
+    from layout_pipeline import page_read
+    rid = "p-v0-L000"
+    req = {"region_ids": [rid], "version": page_read.REREAD_VERSION}
+    ok = SimpleNamespace(error=None, finish_reason="stop", content="", parsed={
+        "region_id": rid, "text": "가", "uncertain": False, "notes": "",
+        "changes": {k: k == "order_or_block_fixed" for k in page_read.REREAD_CHANGE_KEYS}})
+    assert page_read.validate_reread(ok, req)[rid]["changes"] == ["order_or_block_fixed"]
+    cut = '{"region_id": "%s", "text": "매년 3월\\n※ 예금의 \\"이자\\"", "uncertain": false, "changes": ["missing_added", "missing_' % rid
+    trunc = SimpleNamespace(error="finish_reason=length (출력 잘림 가능)", finish_reason="length", content=cut, parsed=None)
+    out = page_read.validate_reread(trunc, req)[rid]
+    assert out["contract_ok"] and out["salvaged"] and out["text"] == '매년 3월\n※ 예금의 "이자"'
+    assert not page_read.validate_reread(trunc, {"region_ids": [rid], "version": "region-reread/1"})[rid]["contract_ok"]
+    half = SimpleNamespace(error="x", finish_reason="length", content='{"region_id": "%s", "text": "매년 3월 반복 반복' % rid, parsed=None)
+    assert not page_read.validate_reread(half, req)[rid]["contract_ok"]
+    other = SimpleNamespace(error="x", finish_reason="length", content=cut.replace(rid, "p-v0-L009"), parsed=None)
+    assert not page_read.validate_reread(other, req)[rid]["contract_ok"]
+
+
 def test_reread_starts_without_waiting_for_other_page_reads(tmp_path):
     """판독 단위 하나의 1차 판독이 끝나면 그 단위의 재판독이 다른 단위의 1차 판독을 기다리지 않고 시작한다.
     병합 결과는 호출 번호 순서와 상관없이 같다(같은 영역의 재판독은 그 영역 1차 판독 뒤)."""
@@ -812,3 +893,33 @@ def test_reread_that_brings_text_from_outside_the_box_is_not_selected():
     assert outside["measures"]["reread_outside_lines"] == ["가입금액 월 1만원 이상"]
     kept = page_read.select_reread(record, region, "중도해지 및\n가입금액 월 1만원 이상", ok | {"text": "중도해지 및\n만기후 금리\n가입금액 월 1만원 이상"})
     assert kept["source"] == "reread"          # 1차에도 있던 상자 밖 줄은 새 유입이 아니다(최종 검토 표시는 text_from_outside_box 가 맡음)
+
+
+def test_hwp_structure_regions_replace_duplicate_visual_regions(tmp_path):
+    """hwp-structure/1(docs/20): HWP 페이지는 기존 parser-pipeline hybrid 경로대로 DOM 행을 구조 Region(문구 = HWP 원문, VLM 판독 없음)
+    으로 쓰고, 구조 Region 이 이미 담은 화면 검출 영역은 버리고 그 밖(그림 속 글자)만 시각 Region 으로 남긴다."""
+    from layout_pipeline import hwp_structure, page_read
+    from layout_pipeline.read_stage import merge_entries
+    rows = [{"node_id": f"r{i}", "page_no": 1, "bbox": [10, 10 + 40 * i, 390, 40 + 40 * i],
+             "cells": [{"text": f"항목{i}", "bbox": [10, 10 + 40 * i, 100, 40 + 40 * i], "node_id": f"c{i}a"},
+                       {"text": f"값 {i}원", "bbox": [100, 10 + 40 * i, 390, 40 + 40 * i], "node_id": f"c{i}b"}]} for i in range(3)]
+    (tmp_path / "rows.json").write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
+    page = Page("h_p01", "s", "h", 1, 400, 300, str(tmp_path / "p.png"), "x",
+                {"kind": "hwp", "page_pt": [300, 225], "conversion": {"dom_rows": {"path": str(tmp_path / "rows.json"),
+                                                                                    "page_css_size": [400, 300]}}})
+    dup = Region("h_p01-v0-L000", "h_p01", "h_p01-v0", 0, [12.0, 52.0, 388.0, 78.0], [12.0, 52.0, 388.0, 78.0], False, "text", 1, 0.9)
+    logo = Region("h_p01-v0-L001", "h_p01", "h_p01-v0", 1, [10.0, 200.0, 120.0, 260.0], [10.0, 200.0, 120.0, 260.0], False, "image", 2, 0.9)
+    items = [OcrItem("h_p01-v0-T000", "h_p01", "h_p01-v0", 0, "항목1 값 1원", [14, 55, 380, 75], [], 0.9),
+             OcrItem("h_p01-v0-T001", "h_p01", "h_p01-v0", 1, "NH농협은행", [20, 210, 110, 250], [], 0.9)]
+    out = hwp_structure.apply(page, "h_p01-v0", [dup, logo], items)
+    ids = [r.region_id for r in out["regions"]]
+    assert ids == ["h_p01-h0-H000", "h_p01-h0-H001", "h_p01-h0-H002", "h_p01-v0-L001"]
+    assert out["summary"]["visual_suppressed"] == 1 and out["summary"]["structured_regions"] == 3
+    region = out["regions"][1].to_dict() | {"text_source": hwp_structure.VERSION, "hwp": out["meta"]["h_p01-h0-H001"]}
+    rec = {"regions": [region, logo.to_dict()], "page": {"page_id": "h_p01"}}
+    assert page_read.view_regions(rec, {"view_id": "h_p01-v0"}) == [logo.to_dict()]          # 구조 Region 은 VLM 판독 대상 아님
+    got = merge_entries([], {r["region_id"]: (rec, r) for r in rec["regions"]})["h_p01-h0-H001"]
+    assert got["text"] == "항목1\n값 1원" and got["contract_ok"] and got["trace"]["kinds"] == ["hwp_structure"]
+    assert got["is_table"] and [c["text"] for c in got["cells"]] == ["항목1", "값 1원"] and got["trace"]["table_read"] == "hwp-dom-row/1"
+    plain = Page("x_p01", "s", "x", 1, 400, 300, "x.png", "x", {"kind": "pdf"})
+    assert hwp_structure.apply(plain, "x_p01-v0", [dup], items) is None

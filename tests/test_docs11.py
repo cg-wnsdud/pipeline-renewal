@@ -153,3 +153,71 @@ def test_stage1_report_separates_scout_calls_and_counts_candidate_run_as_execute
     assert t["raw_to_output"]["match"] and t["final_ocr_calls"] == 2 and t["scout_ocr_calls"] == 1
     assert t["executed_pages"] == 1 and t["pending_pages"] == [] and t["candidate_run_pages"] == 1
     assert rep["status_table"][2]["state"].startswith("미측정")
+
+
+def test_position_candidate_order_and_prompt_wording(monkeypatch, tmp_path):
+    """docs/18: position 이면 OCR 후보를 위→아래(같은 줄은 왼쪽→오른쪽)로 주고 프롬프트의 '문자열 순' 설명을 모두 바꾼다."""
+    from layout_pipeline import vlm_tasks
+    region = {"region_id": "p-v0-L000", "page_id": "p", "view_id": "p-v0", "bbox": [0, 0, 400, 200], "table_candidate": True,
+              "crossing_ocr_ids": [], "ambiguous_ocr_ids": []}
+    lines = [("p-v0-T000", "※ 각주", [10, 120, 200, 140]), ("p-v0-T001", "(직전 분기)", [10, 150, 200, 170]),
+             ("p-v0-T002", "가입기간", [10, 10, 100, 30]), ("p-v0-T003", "12개월", [150, 12, 250, 32])]
+    record = {"page": {"page_id": "p", "image_path": ""}, "regions": [region], "unassigned_texts": [],
+              "route": {"views": [{"view_id": "p-v0", "crop": [0, 0, 400, 200]}]}, "diagnostics": {"region_overlaps": []},
+              "assignments": [{"region_id": region["region_id"], "ocr_id": i, "ocr_text": t, "ocr_bbox": b} for i, t, b in lines]}
+    assert [c["text"] for c in vlm_tasks.candidate_context(record, region, "crop/3")["ocr_candidates"]][0] == "(직전 분기)"
+    monkeypatch.setattr(vlm_tasks, "CANDIDATE_ORDER", "position")
+    assert [c["text"] for c in vlm_tasks.candidate_context(record, region, "crop/3")["ocr_candidates"]] == \
+        ["가입기간", "12개월", "※ 각주", "(직전 분기)"]
+    img = Image.new("RGB", (400, 200), "white")
+    texts = [page_read.page_request(record, record["route"]["views"][0], img)["text"],
+             page_read.reread_request(record, region, img, "가입기간", record["route"]["views"][0])["text"],
+             table_cells.request(record, region, img, record["route"]["views"][0])["text"],
+             vlm_tasks.crop_request(record, [region], img, 0, "crop/3")["text"]]
+    for t in texts:
+        out = vlm_tasks.order_prompt(t)
+        assert "문자열 순" not in out and "순서 없음" not in out and "위치 순" in out
+
+
+def test_table_text_fallback_uses_cells_read_text_without_rows():
+    """docs/18: 표 셀 재판독이 셀 구조만 실패하면, text_fallback 일 때 그 문구를 쓰고 1차 판독 rows 와 섞지 않는다."""
+    from types import SimpleNamespace
+    from layout_pipeline.read_stage import merge_entries
+    rid = "p-v0-L002"
+    page = {"request_meta": {"kind": "page"}, "call_id": "vlm-0001", "finish_reason": "stop"}
+    first = {rid: {"region_id": rid, "text": "(직전 분기)\n표\n(직전 분기)", "uncertain": False, "is_table": True,
+                   "rows": [["표"]], "contract_ok": True, "contract_errors": []}}
+    bad = {"region_id": rid, "is_table": True, "text": "표\n(직전 분기)", "uncertain": False, "n_rows": 1, "n_cols": 1,
+           "cells": [{"row": 1, "col": 0, "rowspan": 1, "colspan": 1, "text": "표"}]}
+    req = {"region_ids": [rid]}
+    parsed = table_cells.validate(SimpleNamespace(error=None, parsed=bad), req)
+    assert not parsed[rid]["contract_ok"] and parsed[rid]["text_only"]["text"] == "표\n(직전 분기)"
+    for flag, want_text, want_rows in ((False, first[rid]["text"], [["표"]]), (True, "표\n(직전 분기)", None)):
+        cells = {"request_meta": {"kind": "table_cells", "text_fallback": flag}, "call_id": "vlm-0002", "finish_reason": "stop"}
+        out = merge_entries([(page, first), (cells, parsed)])[rid]
+        assert out["text"] == want_text and out["rows"] == want_rows and out["table_structure_failed"]
+
+
+def test_cells_read_that_is_not_a_table_keeps_the_first_read_line_breaks():
+    """셀 재판독이 '표 아님'이면 문구 글자는 재판독 그대로 쓰고 줄바꿈 위치는 1차 판독에서 옮긴다(2026-10-29 dm05 유의사항)."""
+    from types import SimpleNamespace
+    from layout_pipeline.read_stage import merge_entries
+    from layout_pipeline.text_eval import norm
+    rid = "p-v0-L003"
+    page = {"request_meta": {"kind": "page"}, "call_id": "vlm-0001", "finish_reason": "stop"}
+    first = {rid: {"region_id": rid, "text": "거래중지계좌 다음에 해당하는 계좌\n1. 잔액 1만원 미만인 계좌\n2. 잔액 5만원 미만인 계좌\n"
+                                               "확인 후 가능합니다\n※ 약관을 읽어보시기 바랍니다",
+                   "uncertain": False, "is_table": True, "rows": [], "contract_ok": True, "contract_errors": []}}
+    joined = ("거래중지계좌 다음에 해당하는 계좌 · 1. 잔액 1만원 미만인 계좌 · 2. 잔액 5만원 미만인 계좌 "
+              "확인 후 가능합니다. ※ 약관을 읽어보시기 바랍니다.")
+    cells = {"request_meta": {"kind": "table_cells"}, "call_id": "vlm-0002", "finish_reason": "stop"}
+    for is_table, want in ((False, "거래중지계좌 다음에 해당하는 계좌\n· 1. 잔액 1만원 미만인 계좌\n· 2. 잔액 5만원 미만인 계좌\n"
+                                   "확인 후 가능합니다.\n※ 약관을 읽어보시기 바랍니다."), (True, joined)):
+        resp = {"region_id": rid, "is_table": is_table, "text": joined, "uncertain": False,
+                "n_rows": 1 if is_table else 0, "n_cols": 1 if is_table else 0,
+                "cells": [_cell(0, 0, joined)] if is_table else []}
+        parsed = table_cells.validate(SimpleNamespace(error=None, parsed=resp), {"region_ids": [rid]})
+        out = merge_entries([(page, first), (cells, parsed)])[rid]
+        assert out["text"] == want and norm(out["text"]) == norm(joined)        # 글자는 재판독 그대로
+        assert out["trace"].get("line_breaks_from_first_read") == (4 if is_table is False else None)
+    assert table_cells.with_line_breaks("가나다라\n마바사아", "가나다라마바사아") == ("가나다라마바사아", 0)   # 공백 없는 자리

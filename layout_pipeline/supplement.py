@@ -281,7 +281,48 @@ def _decide(rec: dict, region: dict, res: dict | None, texts: dict[str, str]) ->
     return True, None
 
 
-def run(records: list[dict], reads: dict[str, dict], reader, probe, trace_dir: Path, max_images: int = 8) -> dict:
+# 문자 영역 판독 뒤 확인 조건(docs/18): 본 판독의 영역 확인과 같은 조건(page_read.verify_reasons)에 걸리면 같은 재판독
+# (region-reread/1, 원본 crop + 판독 단위 문맥 이미지)을 보내고 같은 선택 정책(read_stage.apply_reread)으로 고른다.
+# 페이지 축소에 따른 작은 글자 조건은 원본 crop 을 읽는 보충 판독에 해당하지 않아 뺀다.
+REREAD_SKIP = {"small_text_after_resize"}
+
+
+def reread_jobs(work: list, got: dict[str, dict], reader) -> list[dict]:
+    """보충 문자 영역 중 확인 조건에 걸린 것을 재판독하고 got 을 제자리에서 갱신한다. 반환: 재판독 기록."""
+    from . import page_read
+    from .read_stage import apply_reread
+    from .table_cells import context_view_for
+    todo = []
+    for tmp, img, job in work:
+        for r in job["regions"]:
+            res = got.get(r["region_id"])
+            if r["table_candidate"] or not res or not res.get("contract_ok") or not (res.get("text") or "").strip():
+                continue
+            view = context_view_for(tmp, r)
+            why = [x for x in page_read.verify_reasons(tmp, r, view, res) if x not in REREAD_SKIP]
+            if why:
+                todo.append((tmp, img, r, view, why))
+    if not todo:
+        return []
+    with ThreadPoolExecutor(max_workers=max(1, reader.concurrency)) as pool:
+        done = list(pool.map(lambda t: reader.verify_job(t[0], t[1], [t[2]], "reread", {t[2]["region_id"]: got[t[2]["region_id"]]["text"]},
+                                                         {t[2]["region_id"]: t[4]}, t[3]), todo))
+    out = []
+    for (tmp, img, r, view, why), calls in zip(todo, done):
+        rid = r["region_id"]
+        rec, parsed = calls[-1]
+        prev = got[rid]
+        tr = dict(prev.get("trace") or {})
+        tr |= {"calls": tr.get("calls", []) + [rec["call_id"]], "kinds": tr.get("kinds", []) + ["reread"],
+               "finish_reason": rec["finish_reason"], "verify_reasons": why}
+        got[rid] = apply_reread(prev, parsed[rid], tr, rec["request_meta"], tmp, r)
+        out.append({"region_id": rid, "verify_reasons": why, "call": rec["call_id"],
+                    "source": got[rid]["trace"]["reread_source"], "review": got[rid].get("reread_review")})
+    return out
+
+
+def run(records: list[dict], reads: dict[str, dict], reader, probe, trace_dir: Path, max_images: int = 8,
+        reread: bool = False) -> dict:
     """보충 단계 실행. records 와 reads 를 제자리에서 갱신(채택 후보만)하고 근거를 trace/supplement.json 에 쓴다."""
     texts = {rid: norm(r.get("text") or "") for rid, r in reads.items()}
     pages, work = [], []
@@ -311,6 +352,7 @@ def run(records: list[dict], reads: dict[str, dict], reader, probe, trace_dir: P
     fallback = failed()
     run_jobs([(tmp, img, {"regions": [r | {"table_candidate": False}], "kind": "general"}) for tmp, img, r in fallback])
     fallback_ids = {r["region_id"] for _, _, r in fallback}
+    rereads = reread_jobs(work, got, reader) if reread else []
     added = dropped = 0
     for rec, plan, _ in pages:
         accept = []
@@ -335,8 +377,8 @@ def run(records: list[dict], reads: dict[str, dict], reader, probe, trace_dir: P
         attach(rec, accept)
         for c in accept:
             reads[c["region_id"]] = got[c["region_id"]]
-    summary = {"version": VERSION, "settings": settings(), "ocr_calls": getattr(probe, "calls", 0), "added": added, "dropped": dropped,
-               "pages": [plan for _, plan, _ in pages]}
+    summary = {"version": VERSION, "settings": settings() | {"reread": reread}, "ocr_calls": getattr(probe, "calls", 0),
+               "added": added, "dropped": dropped, "rereads": rereads, "pages": [plan for _, plan, _ in pages]}
     dump(trace_dir / PLAN_FILE, summary)
     return summary
 

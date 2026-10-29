@@ -4,6 +4,7 @@
 - semiglobal: 한 문자열을 다른 문자열의 어느 부분과 맞출 때의 최소 편집거리(앞뒤 무료).
 - tolerance: 줄 길이 10% 이하(최소 1자)를 근사 일치로 보는 편집거리 허용치.
 - similarity_cover: a 의 글자가 b 에 덮이는 비율.
+- digit_groups: OCR↔VLM 숫자 비교용 숫자 덩어리(천 단위 쉼표만 붙이고 그 밖의 쉼표·점은 구분자).
 """
 from __future__ import annotations
 
@@ -12,6 +13,7 @@ import unicodedata
 
 FOUND_MAX_ERR = 0.10       # 줄 길이 대비 편집거리 10% 이하(최소 1자)면 근사 일치
 DIGIT_RE = re.compile(r"\d+(?:[.,]\d+)*")
+THOUSANDS_COMMA_RE = re.compile(r"(?<=\d),(?=\d{3}(?!\d))")
 _MAP = str.maketrans({"·": "·", "•": "·", "∙": "·", "‧": "·", "ㆍ": "·", "“": '"', "”": '"', "‘": "'", "’": "'",
                       "∼": "~", "〜": "~", "～": "~", "‐": "-", "–": "-", "—": "-", "−": "-", "：": ":"})
 
@@ -42,6 +44,13 @@ def tolerance(p: str) -> int:
 
 def digits(text: str) -> list[str]:
     return DIGIT_RE.findall(unicodedata.normalize("NFKC", text or ""))
+
+
+def digit_groups(text: str) -> list[str]:
+    """판독 검사의 OCR↔VLM 숫자 비교용. 천 단위 쉼표(3,000)만 붙이고 그 밖의 쉼표·점은 구분자로 본다.
+    digits 는 '1661-3000,1522-3000' 의 '3000,1522' 를 숫자 하나로 묶어, 띄어 쓴 '3000, 1522' 와 다르다고 판정했다
+    (2026-10-29 판정 비교 mx1306). 날짜·소수점의 띄어쓰기 차이('2026.10.29' vs '2026. 10. 29')도 같은 덩어리가 된다."""
+    return re.findall(r"\d+", THOUSANDS_COMMA_RE.sub("", unicodedata.normalize("NFKC", text or "")))
 
 
 def similarity_cover(a: str, b: str) -> float:

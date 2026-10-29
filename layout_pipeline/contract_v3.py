@@ -135,6 +135,21 @@ def check_submission(docs: list[dict]) -> list[str]:
                 errs.append(f"{sub}: {pid} pages 에 묶음에 없는 페이지")
             elif {page_file[pg] for pg in p["pages"]} != set(p["files"]):
                 errs.append(f"{sub}: {pid} files 와 pages 의 파일이 다름")
+        # 묶음 단위 값(등록 템플릿 요청·예금자보호 표시)은 모든 파일에 같고, 표시 근거는 묶음의 영역·페이지를 가리킨다
+        for key, get in (("semantic.template_request", lambda d: d["semantic"].get("template_request")),
+                         ("deposit_insurance_marks", lambda d: d.get("deposit_insurance_marks"))):
+            if len({json.dumps(get(d), ensure_ascii=False, sort_keys=True) for d in ds}) > 1:
+                errs.append(f"{sub}: {key} 가 파일마다 다름")
+        regions = {r["region_id"] for d in ds for r in d["regions"]}
+        marks = ds[0].get("deposit_insurance_marks") or {}
+        for kind in ("protected", "non_protected"):
+            m = marks.get(kind)
+            if not m:
+                continue
+            if (m["status"] == "PRESENT") != bool(m["region_ids"]) or (m["status"] == "UNKNOWN") != bool(m["code"]):
+                errs.append(f"{sub}: deposit_insurance_marks.{kind} 상태와 영역·코드가 맞지 않음")
+            if set(m["region_ids"]) - regions:
+                errs.append(f"{sub}: deposit_insurance_marks.{kind} 가 묶음에 없는 영역 {sorted(set(m['region_ids']) - regions)}")
     return errs
 
 

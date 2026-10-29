@@ -18,7 +18,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from . import page_read, table_cells, vlm_tasks
+from . import hwp_structure, page_read, table_cells, vlm_tasks
 from .jsonio import dump
 
 GENERAL_MAX_TOKENS = 8000
@@ -52,6 +52,8 @@ class Reader:
         self.verify_mode = "reread"
         # 표 판독 경로: legacy(기본, 재현용) | cells(table-cells/1, docs/11 §2)
         self.table_read = "legacy"
+        # 표 셀 재판독이 구조만 실패하면 그 문구를 쓴다(docs/18). 끄면 1차 판독 묶음(text·rows)을 유지한다.
+        self.table_text_fallback = False
 
     def load_resume(self) -> int:
         """중단된 실행의 페이지 판독 응답(trace/vlm, kind=page)을 다시 쓴다. 같은 페이지 요청을 반복 호출하지 않기 위함.
@@ -84,10 +86,11 @@ class Reader:
         else:
             req = vlm_tasks.crop_request(record, regions, img, margin_px, self.general_version)
             max_tokens = GENERAL_MAX_TOKENS
-        call = self.client.chat(req["text"], req["images"], req["schema"], f"{kind}_read", max_tokens,
+        call = self.client.chat(vlm_tasks.order_prompt(req["text"]), req["images"], req["schema"], f"{kind}_read", max_tokens,
                                 {"kind": kind, "page_id": record["page"]["page_id"], "region_ids": req["region_ids"],
                                  "version": req.get("version"), "margin_px": req.get("margin_px"),
-                                 "items": req.get("items"), "attempt": attempt})
+                                 "items": req.get("items"), "attempt": attempt,
+                                 "candidate_order": vlm_tasks.CANDIDATE_ORDER_VERSIONS[vlm_tasks.CANDIDATE_ORDER]})
         rec = asdict(call)
         dump(self.trace_dir / "vlm" / f"{call.call_id}.json", rec)
         parsed = vlm_tasks.validate(call, req)
@@ -140,8 +143,9 @@ class Reader:
     # ---- 페이지 우선 판독(page/2) ----
     def _send(self, record: dict, req: dict, kind: str, max_tokens: int, extra: dict) -> tuple[dict, dict]:
         meta = {"kind": kind, "page_id": record["page"]["page_id"], "region_ids": req["region_ids"],
-                "version": req.get("version"), "items": req.get("items"), "image_roles": req.get("image_roles")} | extra
-        call = self.client.chat(req["text"], req["images"], req["schema"], f"{kind}_read", max_tokens, meta)
+                "version": req.get("version"), "items": req.get("items"), "image_roles": req.get("image_roles"),
+                "candidate_order": vlm_tasks.CANDIDATE_ORDER_VERSIONS[vlm_tasks.CANDIDATE_ORDER]} | extra
+        call = self.client.chat(vlm_tasks.order_prompt(req["text"]), req["images"], req["schema"], f"{kind}_read", max_tokens, meta)
         rec = asdict(call)
         dump(self.trace_dir / "vlm" / f"{call.call_id}.json", rec)
         if kind == "page":
@@ -160,8 +164,9 @@ class Reader:
         if view["view_id"] in self.resume:
             return [self.resume[view["view_id"]]]
         req = page_read.page_request(record, view, img, with_ocr, regions)
-        rec, parsed = self._send(record, req, "page", page_read.PAGE_MAX_TOKENS,
+        rec, parsed = self._send(record, req, "page", page_read.page_max_tokens(record, regions),
                                  {"view_id": view["view_id"], "view_crop": view["crop"], "table_ids": req["table_ids"],
+                                  "partial_salvage": req["partial_salvage"],
                                   "band_of": view.get("band_of"), "band_plan": view.get("band_plan"), "attempt": "page"})
         return [(rec, parsed)]
 
@@ -171,13 +176,16 @@ class Reader:
             # docs/10 채택 조건 B: 원본 영역 crop + 1차 판독 단위(페이지·띠·타일) 문맥 이미지, 한 요청에 한 영역.
             r = regions[0]
             req = page_read.reread_request(record, r, img, page_texts.get(r["region_id"]), view)
+            supplement = str(r.get("source", "")).startswith("supplement:")
             return [self._send(record, req, "reread", page_read.REREAD_MAX_TOKENS,
-                               {"attempt": "region_reread_after_page", "verify_reasons": reasons, "condition": req["condition"],
-                                "context_view": view})]
+                               {"attempt": "supplement_reread_after_crop" if supplement else "region_reread_after_page",
+                                "verify_reasons": reasons, "condition": req["condition"], "context_view": view}
+                               | ({"supplement": True} if supplement else {}))]
         if kind == "table_cells":
             req = table_cells.request(record, regions[0], img, view)
             return [self._send(record, req, "table_cells", table_cells.MAX_TOKENS,
-                               {"attempt": "table_cells_after_page", "verify_reasons": reasons, "context_view": view})]
+                               {"attempt": "table_cells_after_page", "verify_reasons": reasons, "context_view": view,
+                                "text_fallback": self.table_text_fallback})]
         if kind == "table":
             req = vlm_tasks.table_request(record, regions[0], img, vlm_tasks.TABLE_REQUEST_VERSION)
             extra = {"attempt": "table_check_after_page", "verify_reasons": reasons}
@@ -306,6 +314,8 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
             if meta.get("kind") == "page":
                 tr["page_text"] = res.get("text")
                 tr["page_view"] = meta.get("view_id")
+                if res.get("page_output_partial"):
+                    tr["page_output_partial"] = True    # 잘린 페이지 응답에서 끝까지 쓴 항목(page-partial/1)
                 if res.get("rows") is not None or res.get("is_table") is not None:
                     tr["page_rows"], tr["page_is_table"] = res.get("rows"), res.get("is_table")
             if meta.get("kind") == "table_cells":
@@ -314,7 +324,17 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
                 tr |= {"table_read": meta.get("version") or table_cells.VERSION, "table_cells_errors": res.get("contract_errors") or None,
                        "table_notes": res.get("notes"), "context_view": (meta.get("context_view") or {}).get("view_id")}
                 if res.get("contract_ok"):
-                    out[rid] = {k: v for k, v in res.items() if k != "notes"} | {"trace": tr}
+                    text = first_read_breaks(prev, res["text"], res["is_table"], tr)
+                    out[rid] = {k: v for k, v in res.items() if k != "notes"} | {"text": text, "trace": tr}
+                elif meta.get("text_fallback") and res.get("text_only"):
+                    # text_fallback(docs/18): 셀 구조만 실패하고 문구는 온전하면 이 응답의 문구를 쓰고 표 구조는 없음으로 둔다.
+                    # 1차 판독의 rows 와 섞지 않는다(rows·cells 모두 비움).
+                    t = res["text_only"]
+                    text = first_read_breaks(prev, t["text"], t["is_table"], tr)
+                    out[rid] = {"region_id": rid, "text": text, "uncertain": t["uncertain"], "is_table": t["is_table"],
+                                "rows": None, "cells": None, "contract_ok": True, "contract_errors": [],
+                                "table_structure_failed": True, "table_text_only": True,
+                                "trace": tr | {"table_text_fallback": True}}
                 else:
                     base = prev if prev is not None and prev.get("contract_ok") else res
                     out[rid] = base | {"table_structure_failed": True, "trace": tr}
@@ -322,16 +342,10 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
             if meta.get("kind") == "reread":
                 record, region = (index or {}).get(rid, (None, None))
                 if record is None:
+                    if meta.get("supplement"):
+                        continue            # 판독 뒤 버려진 보충 후보의 재판독(영역이 결과에 없음)
                     raise RuntimeError(f"{rid}: 재판독 후보 선택에 Stage 1 기록이 필요하다")
-                first = (prev or {}).get("text")
-                sel = page_read.select_reread(record, region, first, res)
-                tr |= {"first_text": first, "reread_text": res.get("text"), "reread_source": sel["source"],
-                       "reread_changes": res.get("changes"), "reread_notes": res.get("notes"),
-                       "reread_measures": sel.get("measures"), "reread_condition": meta.get("condition")}
-                base = dict(prev or {"region_id": rid, "contract_errors": [], "contract_ok": False})
-                if sel["source"] == "reread":
-                    base |= {"text": sel["text"], "uncertain": res.get("uncertain"), "contract_ok": True, "contract_errors": []}
-                out[rid] = base | {"reread_review": sel["review"], "trace": tr}
+                out[rid] = apply_reread(prev, res, tr, meta, record, region)
                 continue
             if prev is not None and prev.get("contract_ok") and not res.get("contract_ok"):
                 out[rid] = prev | {"trace": tr | {"later_failed_call": rec["call_id"]}}
@@ -348,7 +362,36 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
                 continue
             keep = {k: prev[k] for k in ("is_table", "rows") if prev and k in prev and k not in res}
             out[rid] = prev_fields(prev, res, meta) | keep | {"trace": tr}
+    for rid, (_, region) in (index or {}).items():
+        if region.get("text_source") == hwp_structure.VERSION:
+            out[rid] = hwp_structure.read_result(region)     # HWP 구조 Region: DOM 행 문구(VLM 호출 없음, docs/20)
     return out
+
+
+def first_read_breaks(prev: dict | None, text: str | None, is_table, tr: dict) -> str | None:
+    """셀 재판독이 '표 아님'(is_table=false)으로 답하면 그 문구의 글자는 쓰고 줄바꿈 위치는 1차 판독에서 옮긴다.
+    셀 재판독은 행 단위로 한 줄에 이어 쓰는 경향이 있어(dm05 유의사항 '· 항목' 줄이 한 줄로 합쳐짐, 2026-10-29) 줄 구분이
+    판정(유의사항 줄바꿈)에 쓰이는 문구에서 사라진다. 옮긴 수는 trace 에 남긴다."""
+    if is_table is not False or prev is None:
+        return text
+    out, moved = table_cells.with_line_breaks(prev.get("text"), text)
+    if moved:
+        tr["line_breaks_from_first_read"] = moved
+    return out
+
+
+def apply_reread(prev: dict | None, res: dict, tr: dict, meta: dict, record: dict, region: dict) -> dict:
+    """재판독(region-reread/1·2) 응답과 1차 판독 중 하나를 page_read.select_reread 의 고정 정책으로 고른다(둘 다 trace 에 보존).
+    본 판독 병합과 보충 영역 재판독(supplement)이 같이 쓴다."""
+    first = (prev or {}).get("text")
+    sel = page_read.select_reread(record, region, first, res)
+    tr = tr | {"first_text": first, "reread_text": res.get("text"), "reread_source": sel["source"],
+               "reread_changes": res.get("changes"), "reread_notes": res.get("notes"),
+               "reread_measures": sel.get("measures"), "reread_condition": meta.get("condition")}
+    base = dict(prev or {"region_id": region["region_id"], "contract_errors": [], "contract_ok": False})
+    if sel["source"] == "reread":
+        base |= {"text": sel["text"], "uncertain": res.get("uncertain"), "contract_ok": True, "contract_errors": []}
+    return base | {"reread_review": sel["review"], "trace": tr}
 
 
 def prev_fields(prev: dict | None, res: dict, meta: dict) -> dict:
@@ -360,6 +403,8 @@ def prev_fields(prev: dict | None, res: dict, meta: dict) -> dict:
 
 def read_path(trace: dict | None) -> str:
     kinds = (trace or {}).get("kinds") or []
+    if kinds == ["hwp_structure"]:
+        return "hwp_structure"
     if "page" not in kinds:
         return "crop+table_cells" if "table_cells" in kinds else "crop"
     if len(kinds) == 1:
@@ -376,13 +421,14 @@ def reconstruct_reads(trace_dir: Path, records: list[dict] | None = None) -> dic
     for path in sorted((trace_dir / "vlm").glob("*.json")):
         rec = load(path)
         meta = rec["request_meta"]
-        call = SimpleNamespace(error=rec["error"], parsed=rec["parsed"])
+        call = SimpleNamespace(error=rec["error"], parsed=rec["parsed"], content=rec.get("content"), finish_reason=rec.get("finish_reason"))
         if meta["kind"] == "page":
-            parsed = page_read.validate_page(call, {"region_ids": meta["region_ids"], "table_ids": meta.get("table_ids") or []})
+            parsed = page_read.validate_page(call, {"region_ids": meta["region_ids"], "table_ids": meta.get("table_ids") or [],
+                                                    "partial_salvage": meta.get("partial_salvage")})
         elif meta["kind"] == "patch":
             parsed = page_read.validate_patch(call, {"region_ids": meta["region_ids"]})
         elif meta["kind"] == "reread":
-            parsed = page_read.validate_reread(call, {"region_ids": meta["region_ids"]})
+            parsed = page_read.validate_reread(call, {"region_ids": meta["region_ids"], "version": meta.get("version")})
         elif meta["kind"] == "table_cells":
             parsed = table_cells.validate(call, {"region_ids": meta["region_ids"]})
         else:
@@ -410,6 +456,19 @@ def integrate_region(record: dict, region: dict, res: dict | None) -> dict:
             review["context_reasons"].append(region["supplement_note"])
     if res.get("text_from_rows"):
         review["context_reasons"].append("text_from_table_rows")
+    if (res.get("trace") or {}).get("page_output_partial"):
+        review["context_reasons"].append("page_output_partial")
+    if region.get("table_container"):
+        review["context_reasons"].append("layout_table_read_as_text")     # 문서 틀 표를 글 영역으로 판독(docs/19)
+    if region.get("text_source") == hwp_structure.VERSION:
+        # HWP 구조 Region(docs/20): 문구는 VLM 이 아니라 HWP 원문이다. OCR 대조 불일치는 원문과 렌더 OCR 의 차이로 표시한다.
+        review["quality_reasons"] = ["ocr_hwp_mismatch" if x == "ocr_vlm_mismatch" else x for x in review["quality_reasons"]]
+        review["context_reasons"].append("hwp_structure_text")
+        if "digit_mismatch" in review["quality_reasons"]:
+            # 숫자는 HWP 원문이 정답이고 다른 쪽은 렌더 OCR 이다(td01 에서 '☎1661' 을 OCR 이 '81661' 로 읽음, 2026-10-29).
+            # 판독 품질 사유가 아니라 맥락 사유로 남긴다.
+            review["quality_reasons"].remove("digit_mismatch")
+            review["context_reasons"].append("ocr_hwp_digit_mismatch")
     if res.get("patch_not_applied"):
         review["quality_reasons"].append("patch_not_applied")
     review["quality_reasons"] += [x for x in (res.get("reread_review") or []) if x not in review["quality_reasons"]]
@@ -446,6 +505,8 @@ def integrate_region(record: dict, region: dict, res: dict | None) -> dict:
             table |= {"structure": (res.get("trace") or {}).get("table_read") or table_cells.VERSION,
                       "n_rows": res.get("n_rows"), "n_cols": res.get("n_cols"),
                       "cells": res.get("cells") if is_table is True else None}
+        elif res.get("table_text_only"):
+            table["structure"] = "text-only"         # 표 셀 재판독의 문구만 채택(셀 구조 실패), 행·셀 없음
         elif table["status"] != "unknown":
             table["structure"] = "rows/legacy"
     out = {"region_id": region["region_id"], "page_id": region["page_id"], "bbox": region["bbox"],

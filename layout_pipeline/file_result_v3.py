@@ -51,9 +51,14 @@ def result_id(parse_id: str, versions: dict, call_hashes: list, profile: str = S
 
 def build_docs(out_dir: Path, docs_v2: list[dict], paths_v2: dict[str, str], products: list[dict], assignments: dict,
                labels: dict, status: str, versions: dict, call_hashes: list, trace_path: Path,
-               profile: str = SEMANTIC_PROFILE, classification_mode: str = "legacy") -> list[dict]:
-    """묶음 하나의 파일별 layout-result/3 문서(입력 순서)."""
+               profile: str = SEMANTIC_PROFILE, classification_mode: str = "legacy", template_request: dict | None = None,
+               deposit_insurance_marks: dict | None = None) -> list[dict]:
+    """묶음 하나의 파일별 layout-result/3 문서(입력 순서). 등록 템플릿 요청(semantic.template_request)과 예금자보호 표시
+    (deposit_insurance_marks)는 묶음 단위 값이라 같은 묶음의 모든 파일에 같은 값이 들어간다."""
     pub = {p["product_id"]: public_product(p) for p in products}
+    semantic = {"profile": profile, "classification_mode": classification_mode, "status": status, "versions": versions}
+    if template_request is not None:
+        semantic["template_request"] = {"template_ids": list(template_request["template_ids"]), "mode": template_request["mode"]}
     docs = []
     for d in sorted(docs_v2, key=lambda d: d["source"]["input_order"]):
         fid = d["source"]["file_id"]
@@ -71,14 +76,17 @@ def build_docs(out_dir: Path, docs_v2: list[dict], paths_v2: dict[str, str], pro
                 "semantic_review": {"required": bool(codes), "codes": codes}})
             used += a["product_ids"]
         prods = [pub[p["product_id"]] for p in products if p["product_id"] in used or fid in p["files"]]
-        docs.append({
+        doc = {
             "contract": CONTRACT, "result_id": result_id(d["result_id"], versions, call_hashes, profile),
             "submission_id": d["submission_id"], "source": d["source"],
             "parse": {"contract": d["contract"], "result_id": d["result_id"], "profile": d["parser_profile"]["name"],
                       "path": _rel(paths_v2[fid], fdir)},
-            "semantic": {"profile": profile, "classification_mode": classification_mode, "status": status, "versions": versions},
-            "pages": pages, "products": prods, "regions": regions, "unassigned_texts": d["unassigned_texts"],
-            "trace_ref": {"parse_result": _rel(paths_v2[fid], fdir), "semantic_trace": _rel(trace_path, fdir)}})
+            "semantic": dict(semantic),
+            "pages": pages, "products": prods, "regions": regions, "unassigned_texts": d["unassigned_texts"]}
+        if deposit_insurance_marks is not None:
+            doc["deposit_insurance_marks"] = deposit_insurance_marks
+        doc["trace_ref"] = {"parse_result": _rel(paths_v2[fid], fdir), "semantic_trace": _rel(trace_path, fdir)}
+        docs.append(doc)
     return docs
 
 

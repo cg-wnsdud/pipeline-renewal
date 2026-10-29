@@ -24,7 +24,9 @@ from collections import Counter
 from PIL import Image, ImageDraw, ImageFont
 
 from . import semantic_assets as A
+from .jsonio import load
 from .read_stage import reading_order
+from .vlm_client import SERVER_PIXEL_BUDGET
 from .vlm_tasks import COLORS, FONT
 
 # observe/2(2026-10-27 E1, docs/14): 상품명은 상품명 부분만, 템플릿마다 핵심 특징을 먼저, 대상 하나뿐인 광고에서도 대상의
@@ -41,6 +43,9 @@ from .vlm_tasks import COLORS, FONT
 # tmp 퇴직연금 ETF 라인업 쪽에서 pension.common 만 냈고, 합성 '마지막 쪽 ETF'·'국채·ELS·RP 만' 사례를 미노출로 냈다).
 # observe/7(E4): '이름·조건을 갖춘 별도 소개 상품은 대상' 과 '퇴직연금 운용상품은 근거' 지시의 충돌을 풀었다: 계좌·제도 광고 안의
 # 편입·운용 상품은 이름·금리가 있어도 독립 대상이 아니다(observe/6 은 tmp 안내장의 GIC·ELB·정기예금 라인업을 별도 대상으로 냈다).
+# (docs/23) 영역 순서 안내·배치(layout) 칸·'놓인 단·구역으로 배정' 지시를 더한 시안 두 개는 mx1306 에서 혼합 응답과 영역 대상
+# 배열 반복(같은 번호를 상한 8개까지)이 늘어 기각했다(관측 12회씩: 혼합 7→8·12, 반복 1→6·10). 지시는 그대로 두고 영역 순서
+# (layout-order/1)·이미지 크기·mixed-check/1 만 바꿨다.
 OBSERVE_VERSION = "observe/7"
 # integrate/2(E3): 서로 다른 파일이 각각 완결된 별도 광고면 따로 두고 한 광고의 탭·이어지는 화면이면 묶으라는 지시와, 대상마다
 # 그 대상 전용 짧은 영역 문구(제목 후보, 60자 이하·최대 3개, 자르지 않음)를 더했다(integrate/1 은 tmp 퇴직연금 광고 5개를 한 상품으로).
@@ -51,7 +56,16 @@ OBSERVE_VERSION = "observe/7"
 INTEGRATE_VERSION = "integrate/4"
 SCOPES = ("specific", "shared", "mixed", "unknown")
 MAX_TARGETS = 8
-IMAGE_MAX_PIXELS = 1_200_000        # 분류 이미지는 배치 확인용(문구는 최종 text 로 준다)
+# 분류 이미지는 배치 확인용(문구는 최종 text 로 준다). 서버가 이미지를 SERVER_PIXEL_BUDGET 으로 맞추므로(작으면 키움) 그보다 줄여
+# 보내면 토큰은 같고 상자 번호·글자만 흐려진다(이전 1,200,000: 1654×2339 쪽이 921×1303 으로 줄었다가 서버에서 1344×1872 로 커짐).
+IMAGE_MAX_PIXELS = SERVER_PIXEL_BUDGET
+# 관측 요청의 영역 순서(layout-order/1, docs/23). 위→아래 정렬(read_stage.reading_order)은 2단 광고의 좌우 단을 번갈아 놓아
+# 한 상품 단의 영역이 다른 상품 단 영역 사이에 끼었다(mx1306: 적금 단의 우대금리표가 통장 단 영역 사이 → 통장으로 배정, 3번 중 2번).
+# OCR 서버(PP-StructureV3)가 주는 블록 순서(parsing_res_list: 단·구역 단위 읽기 순서)를 쓴다. 기존 parser-pipeline 도 엔진 순서를
+# 유지하고 y 정렬을 쓰지 않았다. "position" 은 이전 순서(위→아래).
+REGION_ORDER_VERSION = "layout-order/1"
+SERVER_BLOCK_MIN_IOU = 0.7
+HWP_REGION_MARK = "-h0-H"           # HWP 구조 영역(hwp_structure, <page_id>-h0-H000): 원문(DOM) 순서가 기준
 # 묶음 전체를 한 요청으로 관측하는 상한. 넘으면 페이지별 관측 + 통합.
 SINGLE_UNIT_LIMITS = {"pages": 4, "regions": 80, "chars": 16000, "images": 6}
 READ_PAGE_STATUSES = ("READY", "CANDIDATE_RUN")
@@ -88,17 +102,93 @@ def quote_where(quote: str | None, region: dict) -> dict | None:
 
 # ---- 묶음과 별칭 ----
 
-def build_bundle(docs: list[dict], doc_paths: dict[str, str]) -> dict:
-    """제출 묶음 하나(파일별 layout-result/2 문서들)의 파일·페이지·영역을 입력 순서로 모으고 중립 별칭을 붙인다."""
+# 등록 템플릿 요청(template-request/1, docs/21): 등록 화면에서 고른 템플릿. 없으면 auto(지원 템플릿 전체에서 분류),
+# 하나면 fixed(모든 상품에 그 템플릿), 여럿이면 restricted(상품마다 그 안에서만 고름). 요청은 관측·통합의 템플릿 기준과 응답
+# 스키마 후보를 그 템플릿으로 줄이고, fixed 는 상품 확정에서 모든 상품의 템플릿을 그 하나로 둔다.
+TEMPLATE_REQUEST_VERSION = "template-request/1"
+
+
+def template_request(template_ids: list[str] | None) -> dict:
+    ids = list(dict.fromkeys(template_ids or []))
+    codes = A.request_codes(ids)
+    mode = "auto" if not codes else "fixed" if len(codes) == 1 else "restricted"
+    return {"template_ids": ids, "codes": codes, "mode": mode}
+
+
+def _allowed(b: dict) -> list[str] | None:
+    req = b.get("request") or {}
+    return req["codes"] if req.get("mode") in ("fixed", "restricted") else None
+
+
+def _iou(a: list[float], b: list[float]) -> float:
+    w, h = min(a[2], b[2]) - max(a[0], b[0]), min(a[3], b[3]) - max(a[1], b[1])
+    inter = max(0.0, w) * max(0.0, h)
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def _gap(a: list[float], b: list[float]) -> float:
+    dx, dy = max(0.0, max(a[0], b[0]) - min(a[2], b[2])), max(0.0, max(a[1], b[1]) - min(a[3], b[3]))
+    return (dx * dx + dy * dy) ** 0.5
+
+
+def layout_order(regions: list[dict], blocks: list[dict]) -> tuple[list[dict], str]:
+    """페이지 영역의 관측 순서와 그 기준. blocks: 그 페이지 stage1 기록의 server_blocks(뷰 순서 → 서버 블록 순서).
+
+    기준 영역은 HWP 구조 영역이 있으면 그 원문 순서(H 번호), 없으면 같은 뷰의 서버 블록과 bbox 가 맞는(IoU ≥ SERVER_BLOCK_MIN_IOU)
+    영역의 블록 순서다. 기준이 아닌 영역(놓친 영역 보충, HWP 페이지의 그림 속 글자 영역, 맞는 블록이 없는 영역)은 가장 가까운 기준
+    영역 바로 뒤에 둔다(여럿이면 위→아래). 기준 영역이 없으면 위→아래 순서(position)."""
+    hwp = [r for r in regions if HWP_REGION_MARK in r["region_id"]]
+    if hwp:
+        anchors, basis = sorted(hwp, key=lambda r: r["region_id"]), "hwp_structure"
+    else:
+        keyed = []
+        for r in regions:
+            view = r["region_id"].rsplit("-", 1)[0]
+            hits = [(_iou(r["bbox"], b["bbox"]), i) for i, b in enumerate(blocks) if b.get("view_id") == view]
+            best = max(hits, default=(0.0, -1))
+            if best[0] >= SERVER_BLOCK_MIN_IOU:
+                keyed.append((best[1], r))
+        anchors, basis = [r for _, r in sorted(keyed, key=lambda x: x[0])], "server_blocks"
+    if not anchors:
+        return reading_order(regions), "position"
+    rank = {r["region_id"]: k for k, r in enumerate(anchors)}
+    after: dict[str, list[dict]] = {r["region_id"]: [] for r in anchors}
+    for r in reading_order([r for r in regions if r["region_id"] not in rank]):
+        near = min(anchors, key=lambda a: (_gap(a["bbox"], r["bbox"]), rank[a["region_id"]]))
+        after[near["region_id"]].append(r)
+    return [x for a in anchors for x in [a, *after[a["region_id"]]]], basis
+
+
+def _server_blocks(d: dict, path: str) -> dict[str, list[dict]]:
+    """layout-result/2 의 stage1 기록(trace_ref)에서 페이지별 server_blocks. 기록이 없으면(내보낸 결과만) 빈 값."""
+    out: dict[str, list[dict]] = {}
+    base = os.path.dirname(path)
+    for ref in (d.get("trace_ref") or {}).get("stage1_records") or []:
+        p = os.path.normpath(os.path.join(base, ref))
+        if os.path.isfile(p):
+            rec = load(p)
+            out.setdefault(rec["page"]["page_id"], []).extend(rec.get("server_blocks") or [])
+    return out
+
+
+def build_bundle(docs: list[dict], doc_paths: dict[str, str], template_ids: list[str] | None = None,
+                 region_order: str = REGION_ORDER_VERSION) -> dict:
+    """제출 묶음 하나(파일별 layout-result/2 문서들)의 파일·페이지·영역을 입력 순서로 모으고 중립 별칭을 붙인다.
+    template_ids: 등록 템플릿 요청(없으면 자동 분류). region_order: 페이지 안 영역 순서(layout_order | "position")."""
     files, pages, regions = [], [], {}
     for d in sorted(docs, key=lambda d: d["source"]["input_order"]):
         fa = f"F{len(files) + 1}"
         fdir = os.path.dirname(doc_paths[d["source"]["file_id"]])
+        blocks = _server_blocks(d, doc_paths[d["source"]["file_id"]]) if region_order != "position" else {}
         pas = []
         for p in d["pages"]:
             pa = f"P{len(pages) + 1}"
             ras = []
-            for k, r in enumerate(reading_order([r for r in d["regions"] if r["page_id"] == p["page_id"]]), 1):
+            regs = [r for r in d["regions"] if r["page_id"] == p["page_id"]]
+            ordered, basis = (layout_order(regs, blocks.get(p["page_id"]) or []) if region_order != "position"
+                              else (reading_order(regs), "position"))
+            for k, r in enumerate(ordered, 1):
                 ra = f"{pa}-R{k:02d}"
                 regions[ra] = {"alias": ra, "page": pa, "file": fa, "region_id": r["region_id"], "bbox": r["bbox"],
                                "text": r["text"], "text_status": r["text_status"],
@@ -108,13 +198,14 @@ def build_bundle(docs: list[dict], doc_paths: dict[str, str]) -> dict:
             pages.append({"alias": pa, "file": fa, "file_id": d["source"]["file_id"], "page_id": p["page_id"],
                           "page_no": p["page_no"], "of": len(d["pages"]), "width": p["width"], "height": p["height"],
                           "status": p["execution_status"], "image": os.path.normpath(os.path.join(fdir, p["image"]["path"])),
-                          "segments": tiles or [[0, 0, p["width"], p["height"]]], "regions": ras,
+                          "segments": tiles or [[0, 0, p["width"], p["height"]]], "regions": ras, "order": basis,
                           "unassigned": [u["ocr_text"] for u in d["unassigned_texts"]
                                          if u["page_id"] == p["page_id"] and not u["empty_text"]]})
             pas.append(pa)
         files.append({"alias": fa, "file_id": d["source"]["file_id"], "pages": pas})
     return {"files": files, "pages": {p["alias"]: p for p in pages}, "page_order": [p["alias"] for p in pages],
-            "regions": regions, "alias_of": {r["region_id"]: a for a, r in regions.items()}}
+            "regions": regions, "alias_of": {r["region_id"]: a for a, r in regions.items()},
+            "request": template_request(template_ids)}
 
 
 def plan_units(b: dict) -> list[list[str]]:
@@ -180,10 +271,13 @@ def region_items(b: dict, aliases: list[str], extra: dict[str, dict] | None = No
     return "\n".join(lines)
 
 
-def policy_text() -> str:
+def policy_text(codes: list[str] | None = None) -> str:
+    """템플릿 기준 글. codes 를 주면(등록 템플릿 요청) 그 템플릿만 싣는다."""
     P = A.policy()
     lines = []
     for t in P["templates"]:
+        if codes is not None and t["code"] not in codes:
+            continue
         lines.append(f"- {t['code']} ({t['template_id']})")
         lines += [f"  · {f['id']}: {f['desc']}" for f in t["features"]]
         lines += [f"  판단: {x}" for x in t["rules"]] + [f"  제외: {x}" for x in t["exclusions"]]
@@ -194,6 +288,20 @@ def policy_text() -> str:
 
 def _rules() -> str:
     return "\n".join(f"- {x}" for x in A.policy()["global_rules"])
+
+
+def request_text(b: dict) -> str:
+    """등록 템플릿 요청 안내(auto 면 빈 문자열)."""
+    req = b.get("request") or {}
+    if req.get("mode") == "fixed":
+        c = req["codes"][0]
+        return (f"[등록 템플릿] 등록자가 이 광고의 템플릿을 {c}({A.template(c)['template_id']})로 지정했습니다. 광고 대상의 "
+                f"templates 에는 {c} 를 씁니다. 광고 대상인지와 영역 배정은 그대로 판단합니다.\n")
+    if req.get("mode") == "restricted":
+        names = ", ".join(f"{c}({A.template(c)['template_id']})" for c in req["codes"])
+        return (f"[등록 템플릿] 등록자가 이 광고의 템플릿을 {names} 로 지정했습니다. 광고 대상마다 templates 를 이 안에서 고릅니다. "
+                "어느 것에도 맞지 않으면 undetermined 입니다.\n")
+    return ""
 
 
 # ---- A: 관측 ----
@@ -238,11 +346,11 @@ OBSERVE_RULES = (
 )
 
 
-def observe_schema(region_ids: list[str]) -> dict:
+def observe_schema(region_ids: list[str], allowed: list[str] | None = None) -> dict:
     tids = [f"t{i}" for i in range(1, MAX_TARGETS + 1)]
-    codes = A.template_codes() + list(A.SPECIAL_CODES)
+    codes = (allowed or A.template_codes()) + list(A.SPECIAL_CODES)
     ev = {"type": "object", "additionalProperties": False, "required": ["feature", "region", "quote"],
-          "properties": {"feature": {"type": "string", "enum": A.feature_ids()},
+          "properties": {"feature": {"type": "string", "enum": A.feature_ids(allowed)},
                          "region": {"type": "string", "enum": region_ids}, "quote": {"type": "string"}}}
     target = {"type": "object", "additionalProperties": False, "required": ["tid", "name", "group", "templates", "evidence"],
               "properties": {"tid": {"type": "string", "enum": tids}, "name": {"type": ["string", "null"]},
@@ -289,12 +397,13 @@ def observe_request(b: dict, unit: list[str], whole: bool) -> dict:
                  "보이는 근거로만 씁니다. 다른 페이지와의 연결과 묶음 전체 판단은 다음 단계에서 합니다. 이 페이지에 상품 이름이 "
                  "없어도 광고 대상의 내용이 있으면 이름 없는 대상(name=null)으로 씁니다.")
     head = OBSERVE_RULES.replace("{roles}", ", ".join(f"{k}({v})" for k, v in A.policy()["mention_roles"].items()))
-    text = (head + "[템플릿 기준]\n" + policy_text() + "\n[주의]\n" + _rules()
-            + f"\n[묶음 구성]\n{composition(b)}\n{scope}\n"
+    allowed = _allowed(b)
+    text = (head + "[템플릿 기준]\n" + policy_text(allowed) + "\n[주의]\n" + _rules() + "\n" + request_text(b)
+            + f"[묶음 구성]\n{composition(b)}\n{scope}\n"
             + "[이미지] " + "; ".join(f"{i + 1}: {r}" for i, r in enumerate(roles))
             + f"\n[영역 목록] {len(aliases)}개\n" + region_items(b, aliases))
     return {"version": OBSERVE_VERSION, "pages": unit, "whole": whole, "regions": aliases, "images": images,
-            "image_roles": roles, "text": text, "schema": observe_schema(aliases),
+            "image_roles": roles, "text": text, "schema": observe_schema(aliases, allowed),
             "max_tokens": min(16000, 1500 + 70 * len(aliases))}
 
 
@@ -355,6 +464,11 @@ def validate_observe(call, req: dict, b: dict) -> dict:
         scope, note = item["scope"], None
         if scope == "unknown":
             ts = []
+        elif scope in ("specific", "mixed") and not ts and len(live := [t for t in tids if t not in dropped]) == 1:
+            # 관측 단위에 남은 대상이 하나뿐이면, 상품 전용·혼합인데 대상을 비웠거나 버려진 대상(근거·이름 없음)만 가리킨 영역은 그 대상밖에
+            # 될 수 없다(docs/19, whole-test 대출 광고2 2쪽: 보증료할인 영역을 근거 없는 두 번째 대상에 묶은 응답).
+            scope, ts = "specific", live
+            note = "dropped_target_filled_single_target" if set(item["targets"]) & dropped else "specific_filled_single_target"
         elif scope == "specific" and len(ts) != 1:
             scope, note = ("mixed", "specific_multi") if ts else (
                 "unknown", "dropped_target" if set(item["targets"]) & dropped else "specific_without_target")
@@ -367,13 +481,41 @@ def validate_observe(call, req: dict, b: dict) -> dict:
         if x["target"] in tids:
             out["parts"].append({"region": x["region"], "target": x["target"], "quote": x["quote"],
                                  "valid": quote_where(x["quote"], b["regions"][x["region"]]) is not None})
+    if MIXED_CHECK:
+        mixed_by_neighbors(out, req, b)
     out["ok"] = True
     return out
 
 
+# mixed-check/1(docs/23): mixed 는 대상마다 그 영역 인용(parts)이 있어야 한다. 유효한 인용이 있는 대상이 둘 미만인 mixed 는 레이아웃
+# 순서(layout-order/1)에서 바로 앞·뒤 영역이 같은 한 대상의 specific 이고 그 대상이 이 영역의 대상이면 그 대상의 specific 으로 둔다.
+# mx1306 적금 단 우대금리표: 영역 순서를 바꾼 뒤에도 인용이 '「NH올원e통장」에서 출금하여 신규 시'(통장 몫) 하나뿐인 mixed 가
+# 관측 12번 중 7번(이 규칙으로 12번 모두 적금 specific).
+# 위→아래 순서(position)에서는 앞뒤가 다른 단일 수 있어 쓰지 않는다. 그 밖의 mixed 는 그대로 두고 resolve 가 mixed_parts_missing 을 붙인다.
+MIXED_CHECK_VERSION = "mixed-check/1"
+MIXED_CHECK = True
+
+
+def mixed_by_neighbors(obs: dict, req: dict, b: dict) -> None:
+    order = req["regions"]
+    for i, a in enumerate(order):
+        x = obs["regions"].get(a)
+        if not x or x["scope"] != "mixed" or b["pages"][b["regions"][a]["page"]]["order"] == "position":
+            continue
+        if len({q["target"] for q in obs["parts"] if q["region"] == a and q["valid"]}) >= 2:
+            continue
+        page = b["regions"][a]["page"]
+        side = []
+        for j in (i - 1, i + 1):
+            y = obs["regions"].get(order[j]) if 0 <= j < len(order) and b["regions"][order[j]]["page"] == page else None
+            side.append(y["targets"][0] if y and y["scope"] == "specific" else None)
+        if side[0] and side[0] == side[1] and side[0] in x["targets"]:
+            obs["regions"][a] = {"scope": "specific", "targets": [side[0]], "note": "mixed_unsupported_layout_neighbors"}
+
+
 # observe 모드의 '상품 ID 와 영역 연결 검증' 뒤 정리(docs/16 §6.4·§9). 작은 묶음 legacy 관측 응답 55개 오프라인 평가에서 기대 상품 수와
 # 같은 응답이 45 → 53(남은 오류는 회사명·운용상품을 이름 있는 대상으로 낸 2건).
-TARGET_RULES_VERSION = "unnamed-target-rules/1"
+TARGET_RULES_VERSION = "unnamed-target-rules/2"     # /2: + R3(docs/20)
 
 
 def _tid_no(tid: str) -> int:
@@ -387,6 +529,7 @@ def apply_target_rules(obs: dict) -> dict:
         남은 대상으로 둔다(g01 고정·변동 금리 표 칸, tt05 영역 없는 unsupported 대상).
     R2: 이름 없는 대상의 템플릿 묶음이 같은 관측의 다른 대상과 같으면 같은 상품으로 합친다(이름 있는 대상 우선, 없으면 먼저 나온 이름
         없는 대상). 참고 구현의 '이름이나 종류가 다를 때만 새 상품'. 합친 대상의 근거는 남은 대상에 더한다(t09 같은 퇴직연금 대상 2개).
+    R3: 이름·상품명·유형 근거 없이 영역 하나의 문구만 근거인 대상은 같은 관측의 유일한 이름 있는 대상에 합친다(아래 설명).
     정리 내역은 target_rules 에, R1 로 뺀 대상은 dropped_targets 에 남긴다."""
     if not obs.get("ok"):
         return obs
@@ -409,19 +552,39 @@ def apply_target_rules(obs: dict) -> dict:
             keep["evidence"] += [e for e in t["evidence"] if e not in keep["evidence"]]
         else:
             obs.setdefault("dropped_targets", []).append(t | {"why": "R1_unnamed_without_own_regions"})
-        obs["targets"] = [o for o in obs["targets"] if o["tid"] != tid]
-        for x in obs["regions"].values():
-            if tid not in x["targets"]:
-                continue
-            x["targets"] = list(dict.fromkeys(into if y == tid else y for y in x["targets"] if into or y != tid))
-            if x["scope"] == "mixed" and len(x["targets"]) == 1:
-                x["scope"], x["note"] = "specific", x["note"] or f"{rule}_mixed_single"
-            elif not x["targets"] and x["scope"] in ("specific", "mixed"):
-                x["scope"], x["note"] = "unknown", x["note"] or f"{rule}_without_target"
-        obs["parts"] = [p | {"target": into} if p["target"] == tid and into else p for p in obs["parts"] if into or p["target"] != tid]
+        _drop_target(obs, tid, into, rule)
         actions.append({"rule": rule, "tid": tid, "into": into, "templates": t["templates"]})
+    # R3(docs/20): 이름도 상품명·유형 근거도 없이 영역 하나의 문구만 근거로 생긴 대상은 별도 상품이 아니다. 같은 관측에 이름 있는
+    # 대상이 하나뿐이면 그 대상에 합친다(템플릿은 이름 있는 대상 그대로). whole-test 적립식 광고 2: 적금 유의사항('이 예금은
+    # 예금자보호법에 따라…')을 퇴직연금 유의 특징으로 인용한 이름 없는 대상이 그 유의사항 영역을 가져갔다.
+    named = [o for o in obs["targets"] if o["name"]]
+    for t in [o for o in obs["targets"] if not o["name"]] if len(named) == 1 else []:
+        valid = [e for e in t["evidence"] if e.get("valid")]
+        weak = len({e["region"] for e in valid}) <= 1 and not any(e["feature"].rsplit(".", 1)[-1] in IDENTITY_FEATURES for e in valid)
+        if weak and sorted(set(t["templates"])) != sorted(set(named[0]["templates"])):
+            into = named[0]["tid"]
+            named[0]["evidence"] += [e for e in t["evidence"] if e not in named[0]["evidence"]]
+            _drop_target(obs, t["tid"], into, "R3")
+            actions.append({"rule": "R3", "tid": t["tid"], "into": into, "templates": t["templates"]})
     obs["target_rules"] = actions
     return obs
+
+
+IDENTITY_FEATURES = {"name", "type"}      # R3: 상품을 따로 세우는 근거(상품명·상품 유형) 특징 이름
+
+
+def _drop_target(obs: dict, tid: str, into: str | None, rule: str) -> None:
+    """대상 tid 를 관측에서 빼고 그 대상을 가리키던 영역·부분 인용을 into 로 옮긴다(into 가 없으면 지운다)."""
+    obs["targets"] = [o for o in obs["targets"] if o["tid"] != tid]
+    for x in obs["regions"].values():
+        if tid not in x["targets"]:
+            continue
+        x["targets"] = list(dict.fromkeys(into if y == tid else y for y in x["targets"] if into or y != tid))
+        if x["scope"] == "mixed" and len(x["targets"]) == 1:
+            x["scope"], x["note"] = "specific", x["note"] or f"{rule}_mixed_single"
+        elif not x["targets"] and x["scope"] in ("specific", "mixed"):
+            x["scope"], x["note"] = "unknown", x["note"] or f"{rule}_without_target"
+    obs["parts"] = [p | {"target": into} if p["target"] == tid and into else p for p in obs["parts"] if into or p["target"] != tid]
 
 
 # ---- B: 통합(페이지별 관측이 여럿일 때) ----
@@ -442,9 +605,9 @@ INTEGRATE_RULES = (
 )
 
 
-def integrate_schema(target_ids: list[str]) -> dict:
+def integrate_schema(target_ids: list[str], allowed: list[str] | None = None) -> dict:
     """응답: {"targets": {T번호: {"product": p번호}}, "products": [{product, templates}]}. 대상마다 정확히 한 번(키)."""
-    codes = A.template_codes() + list(A.SPECIAL_CODES)
+    codes = (allowed or A.template_codes()) + list(A.SPECIAL_CODES)
     pids = [f"p{i}" for i in range(1, len(target_ids) + 1)]
     tgt = {"type": "object", "additionalProperties": False, "required": ["product"],
            "properties": {"product": {"type": "string", "enum": pids}}}
@@ -494,11 +657,12 @@ def integrate_request(b: dict, units: list[dict], targets: dict[str, dict]) -> d
         ev = [f"{e['feature']} {e['region']} {json.dumps(e['quote'], ensure_ascii=False)}" for e in t["evidence"] if e["valid"]]
         lines.append("  근거: " + ("; ".join(ev) if ev else "(인용 확인된 근거 없음)"))
         lines.append("  제목 후보: " + json.dumps(titles(b, units[t["unit"]], t["tid"]), ensure_ascii=False))
-    text = (INTEGRATE_RULES + "[템플릿 기준]\n" + policy_text() + "\n[주의]\n" + _rules()
-            + f"\n[묶음 구성]\n{composition(b, observed)}\n[페이지별 광고 대상] {len(targets)}개\n" + "\n".join(lines))
+    allowed = _allowed(b)
+    text = (INTEGRATE_RULES + "[템플릿 기준]\n" + policy_text(allowed) + "\n[주의]\n" + _rules() + "\n" + request_text(b)
+            + f"[묶음 구성]\n{composition(b, observed)}\n[페이지별 광고 대상] {len(targets)}개\n" + "\n".join(lines))
     ids = list(targets)
     return {"version": INTEGRATE_VERSION, "targets": ids, "proposals": {t: targets[t]["templates"] for t in ids}, "text": text,
-            "schema": integrate_schema(ids), "images": [], "max_tokens": min(6000, 400 + 60 * len(ids))}
+            "schema": integrate_schema(ids, allowed), "images": [], "max_tokens": min(6000, 400 + 60 * len(ids))}
 
 
 def validate_integrate(call, req: dict) -> dict:
@@ -547,7 +711,56 @@ def _name(names: list[str | None], b: dict, codes: list[str]) -> str | None:
     return next(n for n in valid if count[canon(n)] == best)
 
 
-def _template_codes(codes: list[str], evidence: list[dict], review: list[str]) -> list[str]:
+# 결정 신호 검사(decisive-signal/1, docs/19): 정책에 '결정 신호:' 특징이 있는 템플릿은 그 특징으로 인용한 문구에 결정 신호 낱말이
+# 실제로 있어야 유지한다. 없으면 그 템플릿을 빼고, 정책의 대체 규칙(DECISIVE_FALLBACK)이 있으면 그 템플릿으로 둔다.
+# whole-test 대출 광고2: 지점 담당자 '강남중앙금융센터 류지선 과장'(보조 신호 상담사 이름)을 결정 신호로 인용해 대출모집인이 붙었다.
+DECISIVE_RULES_VERSION = "decisive-signal/1"
+# 정책 규칙: '대출모집인 결정 신호가 없고 상품명이 있으면 loan_named, 상품명이 없으면 loan_unnamed'(classification-policy/4)
+DECISIVE_FALLBACK = {"loan_broker": ("loan_named", "loan_unnamed")}     # (상품명 있음, 없음)
+# 상품명 노출 여부로 갈리는 템플릿(docs/21): 상품명이 없는 대상에 노출 템플릿, 있는 대상에 미노출 템플릿이면 검토 표시만 한다
+UNNAMED_CODES = {"loan_unnamed", "deposit_unnamed"}
+NAMED_CODES = {"loan_named", "deposit_demand", "deposit_term", "deposit_saving", "deposit_index"}
+
+
+def decisive_terms(code: str) -> list[str]:
+    """템플릿의 '결정 신호:' 특징 설명에 나열된 낱말(비교 열쇠). 그런 특징이 없으면 빈 목록."""
+    t = next((t for t in A.templates() if t["code"] == code), None)
+    for f in (t or {}).get("features") or []:
+        if f["desc"].startswith("결정 신호:"):
+            return [canon(w) for w in f["desc"].split(":", 1)[1].split(",") if canon(w)]
+    return []
+
+
+def _decisive_filter(codes: list[str], evidence: list[dict], review: list[str], named: bool = True,
+                     allowed: list[str] | None = None) -> list[str]:
+    """allowed(등록 템플릿 restricted): 대체 템플릿이 등록 목록 밖이면 빼지 않고 검토 표시만 한다(등록자가 고른 템플릿 유지)."""
+    out = list(codes)
+    for c in [c for c in codes if decisive_terms(c)]:
+        terms = decisive_terms(c)
+        if any(e["valid"] and A.feature_template(e["feature"]) == c and any(t in canon(e["quote"]) for t in terms) for e in evidence):
+            continue
+        review.append("decisive_signal_missing")
+        fb = DECISIVE_FALLBACK.get(c)
+        fb = fb and fb[0 if named else 1]
+        if allowed is not None and fb not in allowed:
+            continue
+        out = [x for x in out if x != c]
+        if fb and fb not in out and not set(out) & set(DECISIVE_FALLBACK[c]):
+            out.append(fb)
+    return out
+
+
+def _name_template_review(codes: list[str], named: bool, review: list[str]) -> None:
+    if UNNAMED_CODES & set(codes) and named:
+        review.append("unnamed_template_with_name")
+    if NAMED_CODES & set(codes) and not named:
+        review.append("named_template_without_name")
+
+
+def _template_codes(codes: list[str], evidence: list[dict], review: list[str], named: bool = True,
+                    allowed: list[str] | None = None) -> list[str]:
+    codes = _decisive_filter(codes, evidence, review, named, allowed)
+    _name_template_review(codes, named, review)
     real = [c for c in codes if c not in A.SPECIAL_CODES]
     supported = {A.feature_template(e["feature"]) for e in evidence if e["valid"]}
     if any(c not in supported for c in real):
@@ -600,6 +813,60 @@ def _pension(product: dict, b: dict, units: list[dict], evidence: list[dict]) ->
     return {"investment_products": exposure, "plans": plans, "components": comps}, codes
 
 
+FIRST_INPUT_VERSION = "first-input/1"
+
+
+def first_input_rules(b: dict, targets: dict[str, dict], groups: list[dict]) -> tuple[list[dict], list[dict]]:
+    """first-input/1(docs/20): 상품 그룹(관측·통합 결과)을 묶음 단위로 정리한다. 모델을 부르지 않는다.
+
+    M1 같은 이름: 이름(canon: 공백·표기 통일)이 같은 그룹은 한 상품이다(띄어쓰기만 다른 '…동행예금'/'…동행 예금').
+    M2 첫 입력 기준(파일이 둘 이상): 한 상품의 여러 입력은 첫 입력에서 상품·템플릿이 정해지고 뒤 입력은 이어지는 화면이다.
+       - 첫 파일에 나온 대상이 있는 그룹의 템플릿은 첫 파일 대상들의 템플릿을 쓴다(뒤 화면만 보고 다르게 판단해도 바꾸지 않음).
+       - 뒤 입력에만 있는 이름 없는 대상 그룹은 첫 입력의 상품(이름 있는 첫 그룹)에 잇는다. 이름 있는 다른 상품은 그대로 둔다.
+    정리 내역(merge_rules)을 남기고 해당 상품 검토 코드(merged_same_name·template_from_first_input·unnamed_attached)를 붙인다."""
+    rules: list[dict] = []
+    order = {pa: i for i, pa in enumerate(b["page_order"])}
+    first = lambda g: min(order.get(pa, 1 << 30) for m in g["members"] for pa in targets[m]["pages"])  # noqa: E731
+    names = lambda g: {canon(targets[m]["name"]) for m in g["members"] if targets[m]["name"]}  # noqa: E731
+    groups = sorted((dict(g, members=list(g["members"]), codes=list(g["codes"])) for g in groups), key=first)
+    merged: list[dict] = []
+    for g in groups:                                   # M1(입력 순서로: 앞 그룹이 남는다)
+        into = next((k for k in merged if names(k) & names(g)), None)
+        if into is None:
+            merged.append(g)
+            continue
+        into["members"] += g["members"]
+        into["codes"] = list(dict.fromkeys(into["codes"] + g["codes"] + ["merged_same_name"]))
+        rules.append({"rule": "M1", "members": g["members"], "into": into["members"][0], "templates": g["templates"],
+                      "kept": into["templates"]})
+    if len(b["files"]) < 2:
+        return merged, rules
+    first_pages = set(b["files"][0]["pages"])
+    in_first = lambda m: bool(set(targets[m]["pages"]) & first_pages)  # noqa: E731
+    anchors = [g for g in merged if any(in_first(m) for m in g["members"])]
+    if not anchors:
+        return merged, rules
+    for g in anchors:                                  # M2 템플릿: 첫 파일 대상들의 템플릿
+        tpl = list(dict.fromkeys(c for m in g["members"] if in_first(m) for c in targets[m]["templates"] if c not in A.SPECIAL_CODES))
+        if tpl and sorted(tpl) != sorted(c for c in g["templates"] if c not in A.SPECIAL_CODES):
+            rules.append({"rule": "M2_template", "group": g["members"][0], "templates": g["templates"], "kept": tpl})
+            g["templates"] = tpl
+            g["codes"] = list(dict.fromkeys(g["codes"] + ["template_from_first_input"]))
+        elif tpl:
+            g["templates"] = tpl
+    main = next((g for g in anchors if names(g)), anchors[0])
+    out = []
+    for g in merged:                                   # M2 이름 없는 뒤 입력 대상 → 첫 입력 상품
+        if any(g is a for a in anchors) or names(g):
+            out.append(g)
+            continue
+        main["members"] += g["members"]
+        main["codes"] = list(dict.fromkeys(main["codes"] + g["codes"] + ["unnamed_attached"]))
+        rules.append({"rule": "M2_unnamed", "members": g["members"], "into": main["members"][0], "templates": g["templates"],
+                      "kept": main["templates"]})
+    return out, rules
+
+
 def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
     """관측(+통합) 결과 → 상품 목록과 영역별 배정. 상품 ID 는 묶음 안 첫 등장 순서(product_001…)."""
     targets = global_targets(units)
@@ -611,6 +878,7 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
                    for t in integ.get("missing", [])]
     else:                                   # 통합 실패: 관측 대상을 그대로 두고 검토 표시(잇지 못했을 수 있음)
         groups = [{"members": [t], "templates": targets[t]["templates"], "codes": ["integration_failed"]} for t in targets]
+    groups, merge_rules = first_input_rules(b, targets, groups)
     owner = {}                              # (단위 번호, t번호) → 그룹 번호
     for gi, g in enumerate(groups):
         for m in g["members"]:
@@ -631,6 +899,8 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
                 scope = "specific"
             codes = [] if scope != "unknown" or not item["note"] else [
                 "target_without_evidence" if item["note"] == "dropped_target" else "assignment_invalid"]
+            if item["note"] == "dropped_target_filled_single_target":
+                codes.append("target_without_evidence")      # 남은 대상 하나로 채웠지만 원래 응답은 근거 없는 대상을 가리켰다(검토 표시 유지)
             if scope == "unknown":
                 codes.append("assignment_unknown")
             assign[a] = {"status": "partial" if scope == "unknown" else "completed", "scope": scope, "groups": gs,
@@ -668,8 +938,17 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
         members = [targets[m] for m in g["members"]]
         evidence = [e for m in members for e in m["evidence"]]
         review = list(g["codes"])
-        codes = _template_codes(g["templates"], evidence, review)
         name = _name([m["name"] for m in members], b, review)
+        req = b.get("request") or {}
+        if req.get("mode") == "fixed":
+            # 등록 템플릿이 하나면 모든 상품에 그 템플릿을 쓴다(사용자 지정, 결정 신호 필터도 적용하지 않음).
+            # 모델 판단(trace 의 groups[].templates)과 다르면 표시한다.
+            codes = list(req["codes"])
+            if sorted({c for c in g["templates"] if c not in A.SPECIAL_CODES}) != sorted(codes):
+                review.append("template_from_request")
+            _name_template_review(codes, name is not None, review)
+        else:
+            codes = _template_codes(g["templates"], evidence, review, named=name is not None, allowed=_allowed(b))
         regions = [a for a, x in assign.items() if gi in x["groups"]]
         spanned = {b["regions"][a]["page"] for a in regions} | {pa for m in members for pa in m["pages"]}
         files = [f["file_id"] for f in b["files"] if set(f["pages"]) & spanned]
@@ -716,7 +995,7 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
         assignments[b["regions"][a]["region_id"]] = {"status": x["status"], "scope": x["scope"], "product_ids": pids,
                                                      "basis": "model" if x["status"] in ("completed", "partial") else None,
                                                      "codes": list(dict.fromkeys(codes)), "alias": a, "parts": parts}
-    return {"products": products, "assignments": assignments, "targets": targets,
+    return {"products": products, "assignments": assignments, "targets": targets, "merge_rules": merge_rules,
             "groups": [{"members": g["members"], "templates": g["templates"], "product_id": pid[gi]} for gi, g in enumerate(groups)]}
 
 

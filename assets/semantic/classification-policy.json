@@ -1,5 +1,5 @@
 {
- "version": "classification-policy/3",
+ "version": "classification-policy/4",
  "basis": "2026-10-27 작업 지시 7절의 사용자 제공 식별 기준. 수치는 분류 예시이며 현행 금융·법률 기준을 검증한 것이 아니다.",
  "mention_roles": {
   "comparison": "상품 비교(한 상품·계좌의 가입 유형·운용 방식 비교(예: ISA 신탁형·일임형, 고정금리·변동금리) — 유형마다 이름·조건·금리가 적혀 있어도 그 상품 하나의 내용 —, 광고 대상이 아닌 다른 상품과의 비교). 서로 다른 상품을 각자의 상품명·가입 조건과 함께 나란히 소개한 광고에서는 그 상품들이 각각 광고 대상",
@@ -22,8 +22,19 @@
     {"id": "loan_named.rate_range", "desc": "최저 연 ○% ~ 최고 연 ○%"},
     {"id": "loan_named.menu", "desc": "해당 광고의 앱 상단/메뉴 경로가 대출"}
    ],
-   "rules": ["대출모집인 결정 신호가 없으면 이 템플릿으로 판단한다.",
+   "rules": ["대출모집인 결정 신호가 없고 광고 대상의 상품명이 광고 문구에 있으면 이 템플릿으로 판단한다. 상품명이 없으면 loan_unnamed 다.",
              "잔금대출·중도금대출·분양·입주라는 표현만으로 모집인 유형을 선택하지 않는다."],
+   "exclusions": [],
+   "mixed": []
+  },
+  {
+   "code": "loan_unnamed", "template_id": "대출성상품-상품명 미노출", "label_schema": "loan-unnamed", "product_group": "대출성",
+   "features": [
+    {"id": "loan_unnamed.general", "desc": "특정 대출 상품명 없이 대출 일반·대출 서비스를 알림(예: 대출 상담·신청 안내, 대출 금리 인하·대출 이벤트 안내)"},
+    {"id": "loan_unnamed.notices", "desc": "상품별 대출대상·한도·금리 조건 없이 대출 일반 유의사항(대출 제한, 조건 변경, 신용평점 하락, 연체이자)만 있음"}
+   ],
+   "rules": ["광고 대상의 대출 상품명이 광고 문구에 없을 때(name=null) 이 템플릿으로 판단한다. 상품명이 있으면 loan_named 다.",
+             "대출모집인 결정 신호가 있으면 loan_broker 로 판단한다."],
    "exclusions": [],
    "mixed": []
   },
@@ -101,6 +112,16 @@
    "mixed": []
   },
   {
+   "code": "deposit_unnamed", "template_id": "예금성상품-상품명 미노출", "label_schema": "deposit-unnamed", "product_group": "예금성",
+   "features": [
+    {"id": "deposit_unnamed.general", "desc": "특정 예금·적금 상품명 없이 예금 일반을 알림(예: 예·적금 가입 이벤트, 예금 금리·서비스 안내)"},
+    {"id": "deposit_unnamed.notices", "desc": "상품별 가입기간·금리·이자지급 조건 없이 예금자보호·일반 유의사항만 있음"}
+   ],
+   "rules": ["광고 대상의 예금·적금 상품명이 광고 문구에 없을 때(name=null) 이 템플릿으로 판단한다. 상품명이 있으면 그 상품의 유형 템플릿(입출식·거치식·적립식·지수연동예금)이다."],
+   "exclusions": [],
+   "mixed": []
+  },
+  {
    "code": "isa_general", "template_id": "투자성상품-개인종합자산관리계좌(ISA) 일반", "label_schema": "investment-isa-general", "product_group": "투자성",
    "features": [
     {"id": "isa_general.unspecified", "desc": "ISA가 메인 광고 대상이고 신탁형·일임형 어느 쪽도 특정되지 않음"},
@@ -165,7 +186,7 @@
   "context_source": "product-contexts-v1.json(RETIREMENT): 기본 템플릿 + 실제 소개된 운용상품 템플릿. 운용상품 템플릿은 라벨 스키마가 없으면 기본 스키마로 라벨링한다."
  },
  "special_codes": {
-  "unsupported": "지원 범위 밖 유형(카드, 독립 펀드·ETF·ELS 광고, 보험, 상품명 미노출 대출·예금 광고, 그 밖의 상품)",
+  "unsupported": "지원 범위 밖 유형(카드, 독립 펀드·ETF·ELS 광고, 보험, 그 밖의 상품)",
   "undetermined": "템플릿을 판단할 근거가 부족함"
  },
  "other_features": [
@@ -180,6 +201,7 @@
   "한 상품이 여러 파일·페이지에 이어지면 같은 대상이다.",
   "같은 이름이라는 이유만으로 서로 다른 상품을 합치지 않는다.",
   "이름이 없는 광고 대상에 임의의 고유 상품명을 만들지 않는다.",
+  "대출·예금 광고 대상의 상품명이 광고 문구에 없으면(name=null) 상품명 미노출 템플릿(loan_unnamed·deposit_unnamed)을 쓴다.",
   "지원 범위 밖 유형을 억지로 가까운 템플릿에 넣지 않는다."
  ],
  "review_signals": {
