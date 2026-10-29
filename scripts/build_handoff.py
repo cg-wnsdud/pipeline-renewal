@@ -1,4 +1,4 @@
-"""저장된 의미 단계 결과(layout-result/3)로 심의 단계 입력(review-input/1)만 다시 만든다(모델 호출 없음, 기존 결과 파일은 읽기만).
+"""저장된 의미 단계 결과(layout-result/3)로 심의 단계 입력(review-input/2)만 다시 만든다(모델 호출 없음, 기존 결과 파일은 읽기만).
 
 예:
   .venv/Scripts/python.exe scripts/build_handoff.py --semantic work/pipeline/<실행 폴더>/semantic

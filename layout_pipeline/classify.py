@@ -88,8 +88,27 @@ def quote_where(quote: str | None, region: dict) -> dict | None:
 
 # ---- 묶음과 별칭 ----
 
-def build_bundle(docs: list[dict], doc_paths: dict[str, str]) -> dict:
-    """제출 묶음 하나(파일별 layout-result/2 문서들)의 파일·페이지·영역을 입력 순서로 모으고 중립 별칭을 붙인다."""
+# 등록 템플릿 요청(template-request/1, docs/21): 등록 화면에서 고른 템플릿. 없으면 auto(지원 템플릿 전체에서 분류),
+# 하나면 fixed(모든 상품에 그 템플릿), 여럿이면 restricted(상품마다 그 안에서만 고름). 요청은 관측·통합의 템플릿 기준과 응답
+# 스키마 후보를 그 템플릿으로 줄이고, fixed 는 상품 확정에서 모든 상품의 템플릿을 그 하나로 둔다.
+TEMPLATE_REQUEST_VERSION = "template-request/1"
+
+
+def template_request(template_ids: list[str] | None) -> dict:
+    ids = list(dict.fromkeys(template_ids or []))
+    codes = A.request_codes(ids)
+    mode = "auto" if not codes else "fixed" if len(codes) == 1 else "restricted"
+    return {"template_ids": ids, "codes": codes, "mode": mode}
+
+
+def _allowed(b: dict) -> list[str] | None:
+    req = b.get("request") or {}
+    return req["codes"] if req.get("mode") in ("fixed", "restricted") else None
+
+
+def build_bundle(docs: list[dict], doc_paths: dict[str, str], template_ids: list[str] | None = None) -> dict:
+    """제출 묶음 하나(파일별 layout-result/2 문서들)의 파일·페이지·영역을 입력 순서로 모으고 중립 별칭을 붙인다.
+    template_ids: 등록 템플릿 요청(없으면 자동 분류)."""
     files, pages, regions = [], [], {}
     for d in sorted(docs, key=lambda d: d["source"]["input_order"]):
         fa = f"F{len(files) + 1}"
@@ -114,7 +133,8 @@ def build_bundle(docs: list[dict], doc_paths: dict[str, str]) -> dict:
             pas.append(pa)
         files.append({"alias": fa, "file_id": d["source"]["file_id"], "pages": pas})
     return {"files": files, "pages": {p["alias"]: p for p in pages}, "page_order": [p["alias"] for p in pages],
-            "regions": regions, "alias_of": {r["region_id"]: a for a, r in regions.items()}}
+            "regions": regions, "alias_of": {r["region_id"]: a for a, r in regions.items()},
+            "request": template_request(template_ids)}
 
 
 def plan_units(b: dict) -> list[list[str]]:
@@ -180,10 +200,13 @@ def region_items(b: dict, aliases: list[str], extra: dict[str, dict] | None = No
     return "\n".join(lines)
 
 
-def policy_text() -> str:
+def policy_text(codes: list[str] | None = None) -> str:
+    """템플릿 기준 글. codes 를 주면(등록 템플릿 요청) 그 템플릿만 싣는다."""
     P = A.policy()
     lines = []
     for t in P["templates"]:
+        if codes is not None and t["code"] not in codes:
+            continue
         lines.append(f"- {t['code']} ({t['template_id']})")
         lines += [f"  · {f['id']}: {f['desc']}" for f in t["features"]]
         lines += [f"  판단: {x}" for x in t["rules"]] + [f"  제외: {x}" for x in t["exclusions"]]
@@ -194,6 +217,20 @@ def policy_text() -> str:
 
 def _rules() -> str:
     return "\n".join(f"- {x}" for x in A.policy()["global_rules"])
+
+
+def request_text(b: dict) -> str:
+    """등록 템플릿 요청 안내(auto 면 빈 문자열)."""
+    req = b.get("request") or {}
+    if req.get("mode") == "fixed":
+        c = req["codes"][0]
+        return (f"[등록 템플릿] 등록자가 이 광고의 템플릿을 {c}({A.template(c)['template_id']})로 지정했습니다. 광고 대상의 "
+                f"templates 에는 {c} 를 씁니다. 광고 대상인지와 영역 배정은 그대로 판단합니다.\n")
+    if req.get("mode") == "restricted":
+        names = ", ".join(f"{c}({A.template(c)['template_id']})" for c in req["codes"])
+        return (f"[등록 템플릿] 등록자가 이 광고의 템플릿을 {names} 로 지정했습니다. 광고 대상마다 templates 를 이 안에서 고릅니다. "
+                "어느 것에도 맞지 않으면 undetermined 입니다.\n")
+    return ""
 
 
 # ---- A: 관측 ----
@@ -238,11 +275,11 @@ OBSERVE_RULES = (
 )
 
 
-def observe_schema(region_ids: list[str]) -> dict:
+def observe_schema(region_ids: list[str], allowed: list[str] | None = None) -> dict:
     tids = [f"t{i}" for i in range(1, MAX_TARGETS + 1)]
-    codes = A.template_codes() + list(A.SPECIAL_CODES)
+    codes = (allowed or A.template_codes()) + list(A.SPECIAL_CODES)
     ev = {"type": "object", "additionalProperties": False, "required": ["feature", "region", "quote"],
-          "properties": {"feature": {"type": "string", "enum": A.feature_ids()},
+          "properties": {"feature": {"type": "string", "enum": A.feature_ids(allowed)},
                          "region": {"type": "string", "enum": region_ids}, "quote": {"type": "string"}}}
     target = {"type": "object", "additionalProperties": False, "required": ["tid", "name", "group", "templates", "evidence"],
               "properties": {"tid": {"type": "string", "enum": tids}, "name": {"type": ["string", "null"]},
@@ -289,12 +326,13 @@ def observe_request(b: dict, unit: list[str], whole: bool) -> dict:
                  "보이는 근거로만 씁니다. 다른 페이지와의 연결과 묶음 전체 판단은 다음 단계에서 합니다. 이 페이지에 상품 이름이 "
                  "없어도 광고 대상의 내용이 있으면 이름 없는 대상(name=null)으로 씁니다.")
     head = OBSERVE_RULES.replace("{roles}", ", ".join(f"{k}({v})" for k, v in A.policy()["mention_roles"].items()))
-    text = (head + "[템플릿 기준]\n" + policy_text() + "\n[주의]\n" + _rules()
-            + f"\n[묶음 구성]\n{composition(b)}\n{scope}\n"
+    allowed = _allowed(b)
+    text = (head + "[템플릿 기준]\n" + policy_text(allowed) + "\n[주의]\n" + _rules() + "\n" + request_text(b)
+            + f"[묶음 구성]\n{composition(b)}\n{scope}\n"
             + "[이미지] " + "; ".join(f"{i + 1}: {r}" for i, r in enumerate(roles))
             + f"\n[영역 목록] {len(aliases)}개\n" + region_items(b, aliases))
     return {"version": OBSERVE_VERSION, "pages": unit, "whole": whole, "regions": aliases, "images": images,
-            "image_roles": roles, "text": text, "schema": observe_schema(aliases),
+            "image_roles": roles, "text": text, "schema": observe_schema(aliases, allowed),
             "max_tokens": min(16000, 1500 + 70 * len(aliases))}
 
 
@@ -468,9 +506,9 @@ INTEGRATE_RULES = (
 )
 
 
-def integrate_schema(target_ids: list[str]) -> dict:
+def integrate_schema(target_ids: list[str], allowed: list[str] | None = None) -> dict:
     """응답: {"targets": {T번호: {"product": p번호}}, "products": [{product, templates}]}. 대상마다 정확히 한 번(키)."""
-    codes = A.template_codes() + list(A.SPECIAL_CODES)
+    codes = (allowed or A.template_codes()) + list(A.SPECIAL_CODES)
     pids = [f"p{i}" for i in range(1, len(target_ids) + 1)]
     tgt = {"type": "object", "additionalProperties": False, "required": ["product"],
            "properties": {"product": {"type": "string", "enum": pids}}}
@@ -520,11 +558,12 @@ def integrate_request(b: dict, units: list[dict], targets: dict[str, dict]) -> d
         ev = [f"{e['feature']} {e['region']} {json.dumps(e['quote'], ensure_ascii=False)}" for e in t["evidence"] if e["valid"]]
         lines.append("  근거: " + ("; ".join(ev) if ev else "(인용 확인된 근거 없음)"))
         lines.append("  제목 후보: " + json.dumps(titles(b, units[t["unit"]], t["tid"]), ensure_ascii=False))
-    text = (INTEGRATE_RULES + "[템플릿 기준]\n" + policy_text() + "\n[주의]\n" + _rules()
-            + f"\n[묶음 구성]\n{composition(b, observed)}\n[페이지별 광고 대상] {len(targets)}개\n" + "\n".join(lines))
+    allowed = _allowed(b)
+    text = (INTEGRATE_RULES + "[템플릿 기준]\n" + policy_text(allowed) + "\n[주의]\n" + _rules() + "\n" + request_text(b)
+            + f"[묶음 구성]\n{composition(b, observed)}\n[페이지별 광고 대상] {len(targets)}개\n" + "\n".join(lines))
     ids = list(targets)
     return {"version": INTEGRATE_VERSION, "targets": ids, "proposals": {t: targets[t]["templates"] for t in ids}, "text": text,
-            "schema": integrate_schema(ids), "images": [], "max_tokens": min(6000, 400 + 60 * len(ids))}
+            "schema": integrate_schema(ids, allowed), "images": [], "max_tokens": min(6000, 400 + 60 * len(ids))}
 
 
 def validate_integrate(call, req: dict) -> dict:
@@ -577,7 +616,11 @@ def _name(names: list[str | None], b: dict, codes: list[str]) -> str | None:
 # 실제로 있어야 유지한다. 없으면 그 템플릿을 빼고, 정책의 대체 규칙(DECISIVE_FALLBACK)이 있으면 그 템플릿으로 둔다.
 # whole-test 대출 광고2: 지점 담당자 '강남중앙금융센터 류지선 과장'(보조 신호 상담사 이름)을 결정 신호로 인용해 대출모집인이 붙었다.
 DECISIVE_RULES_VERSION = "decisive-signal/1"
-DECISIVE_FALLBACK = {"loan_broker": "loan_named"}     # loan_named 규칙: '대출모집인 결정 신호가 없으면 이 템플릿으로 판단한다'
+# 정책 규칙: '대출모집인 결정 신호가 없고 상품명이 있으면 loan_named, 상품명이 없으면 loan_unnamed'(classification-policy/4)
+DECISIVE_FALLBACK = {"loan_broker": ("loan_named", "loan_unnamed")}     # (상품명 있음, 없음)
+# 상품명 노출 여부로 갈리는 템플릿(docs/21): 상품명이 없는 대상에 노출 템플릿, 있는 대상에 미노출 템플릿이면 검토 표시만 한다
+UNNAMED_CODES = {"loan_unnamed", "deposit_unnamed"}
+NAMED_CODES = {"loan_named", "deposit_demand", "deposit_term", "deposit_saving", "deposit_index"}
 
 
 def decisive_terms(code: str) -> list[str]:
@@ -589,22 +632,36 @@ def decisive_terms(code: str) -> list[str]:
     return []
 
 
-def _decisive_filter(codes: list[str], evidence: list[dict], review: list[str]) -> list[str]:
+def _decisive_filter(codes: list[str], evidence: list[dict], review: list[str], named: bool = True,
+                     allowed: list[str] | None = None) -> list[str]:
+    """allowed(등록 템플릿 restricted): 대체 템플릿이 등록 목록 밖이면 빼지 않고 검토 표시만 한다(등록자가 고른 템플릿 유지)."""
     out = list(codes)
     for c in [c for c in codes if decisive_terms(c)]:
         terms = decisive_terms(c)
         if any(e["valid"] and A.feature_template(e["feature"]) == c and any(t in canon(e["quote"]) for t in terms) for e in evidence):
             continue
-        out = [x for x in out if x != c]
         review.append("decisive_signal_missing")
         fb = DECISIVE_FALLBACK.get(c)
-        if fb and fb not in out:
+        fb = fb and fb[0 if named else 1]
+        if allowed is not None and fb not in allowed:
+            continue
+        out = [x for x in out if x != c]
+        if fb and fb not in out and not set(out) & set(DECISIVE_FALLBACK[c]):
             out.append(fb)
     return out
 
 
-def _template_codes(codes: list[str], evidence: list[dict], review: list[str]) -> list[str]:
-    codes = _decisive_filter(codes, evidence, review)
+def _name_template_review(codes: list[str], named: bool, review: list[str]) -> None:
+    if UNNAMED_CODES & set(codes) and named:
+        review.append("unnamed_template_with_name")
+    if NAMED_CODES & set(codes) and not named:
+        review.append("named_template_without_name")
+
+
+def _template_codes(codes: list[str], evidence: list[dict], review: list[str], named: bool = True,
+                    allowed: list[str] | None = None) -> list[str]:
+    codes = _decisive_filter(codes, evidence, review, named, allowed)
+    _name_template_review(codes, named, review)
     real = [c for c in codes if c not in A.SPECIAL_CODES]
     supported = {A.feature_template(e["feature"]) for e in evidence if e["valid"]}
     if any(c not in supported for c in real):
@@ -782,8 +839,17 @@ def resolve(b: dict, units: list[dict], integ: dict | None) -> dict:
         members = [targets[m] for m in g["members"]]
         evidence = [e for m in members for e in m["evidence"]]
         review = list(g["codes"])
-        codes = _template_codes(g["templates"], evidence, review)
         name = _name([m["name"] for m in members], b, review)
+        req = b.get("request") or {}
+        if req.get("mode") == "fixed":
+            # 등록 템플릿이 하나면 모든 상품에 그 템플릿을 쓴다(사용자 지정, 결정 신호 필터도 적용하지 않음).
+            # 모델 판단(trace 의 groups[].templates)과 다르면 표시한다.
+            codes = list(req["codes"])
+            if sorted({c for c in g["templates"] if c not in A.SPECIAL_CODES}) != sorted(codes):
+                review.append("template_from_request")
+            _name_template_review(codes, name is not None, review)
+        else:
+            codes = _template_codes(g["templates"], evidence, review, named=name is not None, allowed=_allowed(b))
         regions = [a for a, x in assign.items() if gi in x["groups"]]
         spanned = {b["regions"][a]["page"] for a in regions} | {pa for m in members for pa in m["pages"]}
         files = [f["file_id"] for f in b["files"] if set(f["pages"]) & spanned]

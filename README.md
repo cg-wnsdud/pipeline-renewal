@@ -18,25 +18,31 @@ layout_pipeline/            파이프라인 코드
   supplement.py               4 놓친 영역 보충
   final_output.py, file_result.py, contract_v2.py, final_viewer.py, viewer.py
                               파싱 결과(layout-result/2)·계약 검사·확인 화면
-  semantic.py, classify.py    5 상품·템플릿·영역 소속 결정(observe)
+  semantic.py, classify.py    5 상품·템플릿·영역 소속 결정(observe, 등록 템플릿 요청 반영)
+  deposit_marks.py            예금자보호 보호·비보호 표시(로고) 확인(docs/21)
   labeling.py                 6 영역별 라벨링
   file_result_v3.py, contract_v3.py, report_html.py, semantic_assets.py
                               7 최종 결과(layout-result/3)·계약 검사·입력 검토 화면·분류 자산
+  handoff.py                  심의 단계 입력(review-input/2)
+  service.py, preview.py      파서 서비스 실행(요청 → 실행 폴더 + service.json)·원본 미리보기(파싱과 같은 렌더, docs/21)
   config.py, geometry.py, jsonio.py, text_eval.py, gold_eval.py, report.py
                               공통 도구(설정·좌표·JSON·문구 비교·정답 대조·Stage 1 보고)
 scripts/
   run_pipeline.py             전체 실행(입력 → 파싱 → 보충 → 의미 단계 → 결과·화면). --rebuild 는 저장 응답으로 재구성
   run_semantic.py             저장된 파싱 결과로 의미 단계만 실행·재구성
+  run_service.py              파서 서비스 실행(요청 JSON 하나 → 실행 폴더 + service.json, 종료 코드로 상태, docs/21)
+  build_handoff.py            저장된 최종 결과로 심의 단계 입력만 다시 만들기
   make_pipeline_report.py     입력별 실행 여러 개를 입력 검토 화면 하나로 합침
   import_semantic_assets.py   분류·라벨 자산 확인(--check)·정책 해시 갱신
 config/                     레이아웃 옵션, 긴 이미지 분기·자동 경계 정책
 assets/semantic/            템플릿 카탈로그·라벨 스키마·분류 정책(manifest 로 해시 고정)
-schemas/                    layout-result-2(파싱)·layout-result-3(최종) JSON 스키마
+schemas/                    layout-result-2(파싱)·layout-result-3(최종)·review-input-2(심의 입력) JSON 스키마
 fixtures/                   승인된 긴 이미지 경계, 정답 대조용 페이지 정답, 계약 테스트 모의 입력
 tests/                      단위 테스트(모델 호출 없음, `pytest`)
 docs/                       설계·실험 기록
 work/                       실행 산출물(git 제외)
 .env.example                OCR·VLM 서버 등 환경 변수 견본(.env 로 복사)
+pyproject.toml, uv.lock     의존성(Python 3.11 이상, pypdfium2 고정). HWP 변환용 document-processor 는 별도 설치
 ```
 
 ## 파이프라인 흐름
@@ -49,6 +55,9 @@ work/                       실행 산출물(git 제외)
 ```
 
 실행: `python scripts/run_pipeline.py --manifest <입력 정의 json> --out work/pipeline/<새 폴더>`
+
+manifest 묶음에 `"template_request": {"template_ids": ["예금성상품-적립식"]}` 를 두면 등록 템플릿 요청이다(없음: 자동 분류, 1개: 모든 상품에
+그 템플릿, 여러 개: 상품마다 그 안에서만, docs/21). 파서 서비스(nh-ad-compliance)는 `scripts/run_service.py --request <요청> --out <폴더>` 로 실행한다.
 
 출력: `<out>/files/<file_id>/result.json`(파싱), `<out>/semantic/files/<file_id>/result.json`(최종), `<out>/semantic/report.html`(입력 검토 화면), `<out>/trace/`(판단 근거·원시 응답·시간). 최종 JSON 의 필드는 아래 "최종 산출물 JSON 구조"에 정리했다.
 
@@ -73,7 +82,7 @@ VLM 호출은 `--vlm-concurrency`(기본 2) 상한 안에서 동시에 보낸다
 | `<out>/semantic/files/<file_id>/result.json` | **최종 산출물**(layout-result/3). 파싱 값에 상품·영역 소속·라벨을 더한 것. `run_semantic.py` 단독 실행이면 `<out>/files/<file_id>/result.json` |
 | `<out>/files/<file_id>/result.json` | 파싱 결과(layout-result/2). 상품·라벨은 `not_run`. 최종 문서의 파싱 값(bbox·text·table·review)은 이것과 같고 계약 검사가 보존을 확인한다 |
 | `files/index.json` | 파일 목록과 요약(쪽·영역 수, 상태 분포). 최종 쪽 목록은 상품과 `parse_review`·`semantic_review` 수도 담는다 |
-| `<out>/semantic/handoff/<submission_id>.json` | **심의 단계 입력**(review-input/1). 묶음 하나에 파일 → 페이지 → 영역(읽기 순서)으로 심의에 필요한 값만 담는다(아래 "심의 단계 입력"). `handoff/check.json` 은 영역 보존·참조 검사. 저장 결과로 다시 만들기: `scripts/build_handoff.py --semantic <의미 단계 폴더>` |
+| `<out>/semantic/handoff/<submission_id>.json` | **심의 단계 입력**(review-input/2). 묶음 하나에 파일 → 페이지 → 영역(읽기 순서)으로 심의에 필요한 값만 담는다(아래 "심의 단계 입력"). `handoff/check.json` 은 영역 보존·참조 검사. 저장 결과로 다시 만들기: `scripts/build_handoff.py --semantic <의미 단계 폴더>` |
 | `files/contract-check.json` | 스키마·참조·보존·라벨 인용 위치 검사 결과 |
 | `semantic/report.html`, `trace/` | 검토 화면, 근거(프롬프트·원시 응답·인용·시간). 최종 JSON 에는 넣지 않는다 |
 
@@ -90,8 +99,12 @@ VLM 호출은 `--vlm-concurrency`(기본 2) 상한 안에서 동시에 보낸다
             "path": "../../../files/tp03/result.json"},                 // 근거 파싱 결과(result.json 기준 상대 경로)
   "semantic": {"profile": "semantic-observe/1", "classification_mode": "observe",
                "status": "completed",                                    // completed|partial|failed(묶음 단위)
-               "versions": {"observe": "observe/7", "integrate": "integrate/4", "label": "label/3", "…": "…"}},
+               "versions": {"observe": "observe/7", "integrate": "integrate/4", "label": "label/3", "…": "…"},
+               "template_request": {"template_ids": [], "mode": "auto"}},  // 등록 템플릿 요청(docs/21, 묶음 단위)
   "pages": [],  "products": [],  "regions": [],  "unassigned_texts": [],
+  "deposit_insurance_marks": {"version": "deposit-marks/1",          // 예금자보호 보호·비보호 표시(docs/21, 묶음 단위)
+                              "protected": {"status": "PRESENT", "code": null, "region_ids": ["tp03_p02-v0-L009"]},
+                              "non_protected": {"status": "ABSENT", "code": null, "region_ids": []}},
   "trace_ref": {"parse_result": "…", "semantic_trace": "../../trace/semantic/tp03.json"}
 }
 ```
@@ -176,29 +189,35 @@ VLM 호출은 `--vlm-concurrency`(기본 2) 상한 안에서 동시에 보낸다
 }
 ```
 
-### 심의 단계 입력(review-input/1)
+### 심의 단계 입력(review-input/2)
 
-최종 결과(layout-result/3)에서 심의에 필요한 값만 추린 묶음 단위 JSON 이다. 값은 layout-result/3 그대로이며(영역 ID·bbox·text·표 셀), 원래 결과는 그대로 둔다.
+최종 결과(layout-result/3)에서 심의에 필요한 값만 추린 묶음 단위 JSON 이다. 값은 layout-result/3 그대로이며(영역 ID·bbox·text·표 셀), 원래 결과는 그대로 둔다. 스키마 `schemas/review-input-2.schema.json`(handoff check 가 검사). /1 과 다른 점은 docs/21 §4.
 
 ```jsonc
 {
-  "contract": "review-input/1", "submission_id": "tp03",
-  "files": [{"file_id", "file_name", "file_type", "input_order", "page_count"}],
+  "contract": "review-input/2", "submission_id": "tp03",
+  "template_request": {"template_ids": [], "mode": "auto"},             // 등록 템플릿 요청 그대로(auto | fixed | restricted)
+  "files": [{"file_id", "file_name", "file_type", "input_order", "page_count",
+             "hwp_review_html"}],                                       // HWP·HWPX 원문 재구성 검토 HTML(이 파일 기준 상대 경로), 아니면 null
   "products": [{"product_id", "name", "product_group", "status", "pension", "files", "pages",
                 "templates": [{"template_id", "role", "label_schema", "labels": ["회사명", "…"]}]}],   // labels = 그 템플릿에서 쓸 수 있는 라벨
-  "pages": [{"page_id", "file_id", "page_no", "width", "height", "image": {"path", "sha256"}, "processed",
-             "regions": [{"region_id", "bbox", "text", "text_status",
+  "deposit_insurance_marks": {"version", "protected": {"status", "code", "region_ids"}, "non_protected": {…}},   // PRESENT | ABSENT | UNKNOWN
+  "pages": [{"page_id", "file_id", "page_no", "seq",                     // seq = 묶음 안 쪽 연번(1부터), page_no = 파일 안 번호
+             "width", "height", "image": {"path", "sha256"}, "processed",
+             "regions": [{"region_id", "bbox", "text", "text_status", "text_source",   // vlm | hwp(HWP 원문) | null(문구 없음)
                           "is_table",                                   // true | false | null(표 판정 불가)
                           "table": {"n_rows", "n_cols", "cells": [{"row", "col", "rowspan", "colspan", "text"}]},   // 표가 아니거나 셀 구조가 없으면 null
                           "product": {"scope", "product_ids"},          // specific | shared | mixed | unknown | null(미실행)
                           "labels": [{"product_id", "label_ids"}],      // 상품별 라벨
-                          "needs_review", "review_reasons"}]}],         // 판독 품질·의미 단계 사유(경계·보충 같은 맥락 사유 제외)
+                          "quality_reasons",                            // 판독 품질 사유(판정의 판독 가능 여부는 이것만)
+                          "semantic_codes",                             // 소속·라벨 단계 코드
+                          "needs_review"}]}],                           // 둘 중 하나라도 있으면 true(경계·보충 같은 맥락 사유 제외)
   "source": {"<file_id>": "<layout-result/3 result_id>"}
 }
 ```
 
 - 영역은 페이지 안에서 읽기 순서(위→아래, 같은 줄은 왼쪽→오른쪽)다. `bbox` 는 그 페이지 이미지(`width`×`height`) 픽셀 좌표다.
-- 셀 구조를 얻지 못한 표는 `is_table=true`, `table=null`, `needs_review=true` 다. `text` 에는 판독 문구가 있다.
+- 셀 구조를 얻지 못한 표는 `is_table=true`, `table=null`, `quality_reasons` 에 `table_structure_missing`(또는 `table_structure_failed`) 이다. `text` 에는 판독 문구가 있다.
 - 넣지 않는 것: 실행·버전 정보, 경계·진단·이슈, 맥락 검토 사유, 미배정 OCR, 판단 근거. 필요하면 `source` 의 result_id 로 layout-result/3 을 찾는다.
 
 ### 읽을 때 주의

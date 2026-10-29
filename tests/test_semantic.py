@@ -319,10 +319,13 @@ def test_paged_flow_links_same_product_across_files(tmp_path, monkeypatch):
                                                       "basis": "model"}
     assert "x.png" not in seen[0] and "b01" not in seen[0] and "T1" in seen[0] and "T2" in seen[0]
     assert sorted(k.split(":")[0] for k in fake.keys).count("integrate") == 1
-    # 심의 단계 입력(review-input/1): 묶음 하나에 두 파일의 페이지·영역이 입력 순서로 들어가고 값은 원래 결과 그대로
+    # 심의 단계 입력(review-input/2): 묶음 하나에 두 파일의 페이지·영역이 입력 순서로 들어가고 값은 원래 결과 그대로
     h = load(out / "handoff" / f"{d1['submission_id']}.json")
-    assert rep["handoff"]["passed"] and h["contract"] == "review-input/1"
+    assert rep["handoff"]["passed"] and h["contract"] == "review-input/2"
     assert [f["file_id"] for f in h["files"]] == ["b01", "b02"] and [p["file_id"] for p in h["pages"]] == ["b01", "b02"]
+    assert [p["seq"] for p in h["pages"]] == [1, 2] and [p["page_no"] for p in h["pages"]] == [1, 1]   # 묶음 연번과 파일 안 번호
+    assert h["template_request"] == {"template_ids": [], "mode": "auto"} and h["files"][0]["hwp_review_html"] is None
+    assert {h["deposit_insurance_marks"][k]["status"] for k in ("protected", "non_protected")} == {"ABSENT"}
     assert [p["product_id"] for p in h["products"]] == ["product_001"] and h["products"][0]["templates"][0]["labels"]
     src = {r["region_id"]: r for d in (d1, d2) for r in d["regions"]}
     got = {r["region_id"]: r for p in h["pages"] for r in p["regions"]}
@@ -348,9 +351,26 @@ def test_handoff_keeps_table_cells_and_marks_missing_structure():
     assert ok["is_table"] and ok["table"] == {"n_rows": 2, "n_cols": 2, "cells": cells} and not ok["needs_review"]
     bad = handoff._region(region("r2", {"status": "table", "rows": [["기간", "12개월"]], "structure": "rows/legacy"},
                                  quality=["table_structure_failed"]))
-    assert bad["is_table"] and bad["table"] is None and bad["needs_review"] and bad["review_reasons"] == ["table_structure_failed"]
+    assert bad["is_table"] and bad["table"] is None and bad["needs_review"] and bad["quality_reasons"] == ["table_structure_failed"]
     plain = handoff._region(region("r3", {"status": "not_table", "rows": [], "structure": "table-cells/1"}))
-    assert plain["is_table"] is False and plain["table"] is None
+    assert plain["is_table"] is False and plain["table"] is None and plain["text_source"] == "vlm"
+
+
+def test_handoff_separates_quality_from_semantic_codes_and_marks_hwp_text():
+    """review-input/2(docs/21): 의미 단계 사유만 있는 영역은 판독 품질 사유가 비어 있다(판정이 판독 불가로 보지 않게).
+    HWP 구조 영역(-h0-H)은 문구 출처가 hwp, 문구가 없으면 null."""
+    from layout_pipeline import handoff
+    base = {"page_id": "a_p01", "bbox": [0, 0, 10, 10], "table": None,
+            "review": {"required": False, "quality_reasons": [], "context_reasons": ["region_overlap"]},
+            "product_assignment": {"status": "partial", "scope": "unknown", "product_ids": [], "basis": "model"},
+            "labeling": {"status": "not_run", "items": []},
+            "semantic_review": {"required": True, "codes": ["assignment_unknown"]}}
+    r = handoff._region(base | {"region_id": "a_p01-v0-L000", "text": "공통 안내", "text_status": "read"})
+    assert r["quality_reasons"] == [] and r["semantic_codes"] == ["assignment_unknown"] and r["needs_review"]
+    hwp = handoff._region(base | {"region_id": "a_p01-h0-H003", "text": "가입기간 12개월", "text_status": "read"})
+    assert hwp["text_source"] == "hwp"
+    failed = handoff._region(base | {"region_id": "a_p01-v0-L001", "text": None, "text_status": "read_failed"})
+    assert failed["text_source"] is None and failed["quality_reasons"] == ["read_failed"]
 
 
 def test_integration_failure_keeps_targets_separate_with_review(tmp_path, monkeypatch):
@@ -661,13 +681,17 @@ def test_integration_product_without_templates_uses_member_proposals_with_review
 
 
 def test_broker_template_needs_decisive_word_in_its_quote(tmp_path):
-    """decisive-signal/1(docs/19): 대출모집인 결정 신호로 인용한 문구에 결정 신호 낱말이 없으면 템플릿을 빼고 상품명 노출로 둔다."""
+    """decisive-signal/1(docs/19): 대출모집인 결정 신호로 인용한 문구에 결정 신호 낱말이 없으면 템플릿을 뺀다. 대신 두는 템플릿은
+    상품명이 있으면 상품명 노출, 없으면 상품명 미노출(classification-policy/4, docs/21)."""
     b = _bundle(tmp_path, [[R("검단 중도금대출 강남중앙금융센터 류지선 과장 대출금리 연 3.87%")]])
     ev = [("loan_named.name", "P1-R01", "검단 중도금대출"), ("loan_broker.decisive", "P1-R01", "강남중앙금융센터 류지선 과장")]
     p = classify.resolve(b, _units(b, {"P1": [_t(None, ["loan_named", "loan_broker"], ev, "대출성")]}), None)["products"][0]
     assert p["codes"] == ["loan_named"] and "decisive_signal_missing" in p["review"]
+    assert "named_template_without_name" in p["review"]          # 모델이 고른 노출 템플릿은 그대로 두고 표시만
     only = classify.resolve(b, _units(b, {"P1": [_t(None, ["loan_broker"], ev[1:], "대출성")]}), None)["products"][0]
-    assert only["codes"] == ["loan_named"] and only["status"] == "classified"
+    assert only["codes"] == ["loan_unnamed"] and only["status"] == "classified"
+    named = classify.resolve(b, _units(b, {"P1": [_t("검단 중도금대출", ["loan_broker"], ev[1:], "대출성")]}), None)["products"][0]
+    assert named["codes"] == ["loan_named"] and named["name"] == "검단 중도금대출"
     b2 = _bundle(tmp_path / "b", [[R("대출상담사 홍길동 NH주택담보대출")]])
     ok = classify.resolve(b2, _units(b2, {"P1": [_t(None, ["loan_broker"], [("loan_broker.decisive", "P1-R01", "대출상담사 홍길동")], "대출성")]}),
                           None)["products"][0]
@@ -728,3 +752,104 @@ def test_r3_weak_unnamed_target_merges_into_only_named_target():
     strong = weak + [{"feature": "pension.plan_irp", "region": "P1-R03", "quote": "IRP", "valid": True}]
     assert len(classify.apply_target_rules(obs(strong))["targets"]) == 2
     assert len(classify.apply_target_rules(obs(weak, named2=True))["targets"]) == 3
+
+
+# ---- 등록 템플릿 요청·상품명 미노출·예금자보호 표시(docs/21) ----
+
+def test_template_request_modes_and_unknown_template():
+    assert classify.template_request(None) == {"template_ids": [], "codes": [], "mode": "auto"}
+    assert classify.template_request(["예금성상품-적립식"])["codes"] == ["deposit_saving"]
+    assert classify.template_request(["예금성상품-적립식"])["mode"] == "fixed"
+    assert classify.template_request(["예금성상품-입출식", "예금성상품-적립식"])["mode"] == "restricted"
+    assert A.request_codes(["대출성상품-상품명 미노출", "예금성상품-상품명 미노출"]) == ["loan_unnamed", "deposit_unnamed"]
+    with pytest.raises(ValueError):
+        classify.template_request(["카드상품-상품명 미노출"])           # 이 파이프라인이 분류하지 않는 템플릿
+
+
+def test_fixed_request_puts_the_registered_template_on_every_product(tmp_path):
+    """등록 템플릿이 하나면 모델이 고른 템플릿(범위 밖 포함)과 상관없이 모든 상품에 그 템플릿을 쓰고 다르면 표시한다."""
+    b = _bundle(tmp_path, [[R("NH올원e통장 입출금이 자유로운"), R("NH튼튼적금 월 10만원")]])
+    b["request"] = classify.template_request(["예금성상품-적립식"])
+    t1 = _t("NH올원e통장", ["deposit_demand"], [("deposit_demand.name", "P1-R01", "NH올원e통장")], "예금성")
+    t2 = _t("NH튼튼적금", ["deposit_saving"], [("deposit_saving.name", "P1-R02", "NH튼튼적금")], "예금성") | {"tid": "t2"}
+    units = _units(b, {"P1": [t1, t2]})
+    units[0]["obs"]["regions"]["P1-R02"]["targets"] = ["t2"]
+    prods = classify.resolve(b, units, None)["products"]
+    assert [p["codes"] for p in prods] == [["deposit_saving"], ["deposit_saving"]] and all(p["status"] == "classified" for p in prods)
+    assert "template_from_request" in prods[0]["review"] and "template_from_request" not in prods[1]["review"]
+    broker = _bundle(tmp_path / "b", [[R("검단 중도금대출 강남중앙금융센터 류지선 과장")]])
+    broker["request"] = classify.template_request(["대출성상품-대출모집인(잔금대출)"])
+    ev = [("loan_broker.decisive", "P1-R01", "강남중앙금융센터 류지선 과장")]
+    p = classify.resolve(broker, _units(broker, {"P1": [_t(None, ["loan_broker"], ev, "대출성")]}), None)["products"][0]
+    assert p["codes"] == ["loan_broker"] and "decisive_signal_missing" not in p["review"]     # 사용자 지정은 결정 신호 필터 밖
+
+
+def test_restricted_request_limits_prompt_schema_and_keeps_registered_choice(tmp_path):
+    b = _bundle(tmp_path, [[R("검단 중도금대출 강남중앙금융센터 류지선 과장"), R("NH튼튼적금")]])
+    b["request"] = classify.template_request(["대출성상품-대출모집인(잔금대출)", "예금성상품-적립식"])
+    req = classify.observe_request(b, b["page_order"], True)
+    enum = req["schema"]["properties"]["targets"]["items"]["properties"]["templates"]["items"]["enum"]
+    assert enum == ["loan_broker", "deposit_saving", "unsupported", "undetermined"]
+    assert "[등록 템플릿]" in req["text"] and "- loan_broker (" in req["text"] and "- deposit_term (" not in req["text"]
+    feats = req["schema"]["properties"]["targets"]["items"]["properties"]["evidence"]["items"]["properties"]["feature"]["enum"]
+    assert all(f.split(".")[0] in ("loan_broker", "deposit_saving", "other") for f in feats)
+    auto = classify.observe_request(_bundle(tmp_path / "a", [[R("NH튼튼적금")]]), ["P1"], True)
+    assert "[등록 템플릿]" not in auto["text"] and "deposit_term" in json.dumps(auto["schema"])
+    # 결정 신호가 없어도 대체 템플릿(loan_named·loan_unnamed)이 등록 목록 밖이면 등록 템플릿을 그대로 두고 표시만 한다
+    ev = [("loan_broker.decisive", "P1-R01", "강남중앙금융센터 류지선 과장")]
+    p = classify.resolve(b, _units(b, {"P1": [_t(None, ["loan_broker"], ev, "대출성")]}), None)["products"][0]
+    assert p["codes"] == ["loan_broker"] and "decisive_signal_missing" in p["review"]
+
+
+def test_unnamed_templates_are_classified_and_labeled_with_their_schema(tmp_path):
+    def observe(meta, schema, text):
+        out = observe_one(meta, schema, text)
+        out["targets"][0] |= {"name": None, "templates": ["deposit_unnamed"],
+                              "evidence": [{"feature": "deposit_unnamed.general", "region": "P1-R03", "quote": "가입기간 12개월"}]}
+        return out
+    rep, out = run_fake(tmp_path, DEPOSIT, Fake(observe=observe, label=EMPTY_LABELS))
+    p = load(out / "files" / "a01" / "result.json")["products"][0]
+    assert rep["checks"]["passed"] and p["status"] == "classified" and p["name"] is None
+    assert p["templates"] == [{"template_id": "예금성상품-상품명 미노출", "role": "product", "label_schema": "deposit-unnamed"}]
+    h = load(out / "handoff" / "s1.json")
+    assert h["products"][0]["templates"][0]["labels"] == ["회사명", "예금자보호", "유의사항", "심의번호"]
+
+
+MARKS = [{"sub": "m1", "fid": "k01", "name": "k.png", "kind": "image", "pages": [
+    [R("NH튼튼적금"), R("예금보험공사 보호금융상품 1인당 최고 1억원"), R("보안센터 | 보호금융상품등록부"),
+     R("이 예금은 예금자보호법에 따라 보호됩니다. 예금보험공사")]]}]
+
+
+def test_deposit_marks_checks_logo_candidates_and_keeps_text_in_trace(tmp_path):
+    asked = []
+
+    def marks(meta, schema, text):
+        asked.append(meta["region_id"])
+        return {"protected": "YES" if meta["region_id"].endswith("L001") else "NO", "non_protected": "NO",
+                "mark_text": "예금보험공사 보호금융상품 1인당 최고 1억원"}
+    rep, out = run_fake(tmp_path, MARKS, Fake(observe=observe_one, label=EMPTY_LABELS, marks=marks))
+    d = load(out / "files" / "k01" / "result.json")
+    m = d["deposit_insurance_marks"]
+    assert rep["checks"]["passed"] and m["version"] == "deposit-marks/1"
+    assert m["protected"] == {"status": "PRESENT", "code": None, "region_ids": ["k01_p01-v0-L001"]}
+    assert m["non_protected"] == {"status": "ABSENT", "code": None, "region_ids": []}
+    # 메뉴 이름('보호금융상품등록부')만 있는 영역은 후보가 아니고, 글자가 짧은(로고에 가까운) 영역부터 확인한다
+    assert sorted(asked) == ["k01_p01-v0-L001", "k01_p01-v0-L003"] and "mark_text" not in json.dumps(d, ensure_ascii=False)
+    trace = load(out / "trace" / "semantic" / "m1.json")["deposit_marks"]
+    assert trace["candidates"][0]["region_id"] == "k01_p01-v0-L001" and trace["checked"][0]["mark_text"]
+    h = load(out / "handoff" / "m1.json")
+    assert h["deposit_insurance_marks"] == m
+
+
+def test_deposit_marks_status_rules():
+    from layout_pipeline import deposit_marks as M
+    c = {"region_id": "r1", "page_id": "p", "bbox": [0, 0, 1, 1]}
+    assert M.summarize([c | {"error": "x"}], 0, True)["protected"]["code"] == "CHECK_FAILED"
+    assert M.summarize([c | {"protected": "UNSURE", "non_protected": "NO"}], 0, True)["protected"]["code"] == "MARK_UNCLEAR"
+    assert M.summarize([c | {"protected": "NO", "non_protected": "NO"}], 3, True)["protected"]["code"] == "TOO_MANY_CANDIDATES"
+    assert M.summarize([], 0, False)["non_protected"] == {"status": "UNKNOWN", "code": "PAGES_INCOMPLETE", "region_ids": []}
+    assert M.summarize([], 0, True)["protected"]["status"] == "ABSENT"
+    assert M.not_checked("DISABLED")["protected"] == {"status": "UNKNOWN", "code": "DISABLED", "region_ids": []}
+    img = Image.new("RGB", (100, 40), "white")
+    assert M.crop(img, [10, 10, 30, 20]).size == (168, 128)          # 여백 12px 포함 42×32 → 짧은 변 320 을 향해 최대 4배
+    assert M.crop(img, [10, 10, 10, 10]) is None

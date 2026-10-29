@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import threading
 import time
 from collections import Counter
@@ -20,7 +21,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 
-from . import classify, contract_v3, handoff, labeling
+from . import classify, contract_v3, deposit_marks, handoff, labeling
 from . import semantic_assets as A
 from .file_result_v3 import CONTRACT, SEMANTIC_PROFILE, build_docs, write_docs
 from .jsonio import dump, load
@@ -104,6 +105,7 @@ def semantic_versions(classification_mode: str = "legacy") -> dict:
     rules = {"target_rules": classify.TARGET_RULES_VERSION} if classification_mode == "observe" else {}
     return {"observe": classify.OBSERVE_VERSION, **rules, "decisive": classify.DECISIVE_RULES_VERSION, "first_input": classify.FIRST_INPUT_VERSION,
             "integrate": classify.INTEGRATE_VERSION, "label": labeling.LABEL_VERSION,
+            "template_request": classify.TEMPLATE_REQUEST_VERSION, "deposit_marks": deposit_marks.VERSION,
             **A.versions()}
 
 
@@ -171,19 +173,57 @@ def _usage(calls: list[VlmCall]) -> dict:
             **dict(u)}
 
 
+def _ocr_texts(docs: list[dict], paths: dict[str, str]) -> dict[str, list[str]]:
+    """stage1 기록(layout-result/2 trace_ref)의 영역별 배정 OCR 글자. 예금자보호 표시 후보를 찾는 데만 쓴다(모델 입력 아님).
+    기록이 없으면(내보낸 파싱 결과만 있는 경우) 빈 값이고 후보는 최종 문구로만 찾는다."""
+    out: dict[str, list[str]] = {}
+    for d in docs:
+        base = os.path.dirname(paths[d["source"]["file_id"]])
+        for ref in (d.get("trace_ref") or {}).get("stage1_records") or []:
+            path = Path(os.path.normpath(os.path.join(base, ref)))
+            if not path.is_file():
+                continue
+            for a in load(path).get("assignments") or []:
+                if a.get("region_id") and a.get("ocr_text"):
+                    out.setdefault(a["region_id"], []).append(a["ocr_text"])
+    return out
+
+
+# 예금자보호 표시 확인 방식: run(확인) | disabled(LP_DEPOSIT_MARKS=off) | not_checked(이 기능 이전 실행의 재구성)
+MARKS_MODES = ("run", "disabled", "not_checked")
+
+
 def run_submission(sub: str, docs: list[dict], paths: dict[str, str], runner: _Runner,
-                   classification_mode: str = "legacy") -> dict:
+                   classification_mode: str = "legacy", template_ids: list[str] | None = None, marks: str = "run") -> dict:
     out_dir = runner.out_dir
     t0 = time.perf_counter()
     timing = {}
-    b = classify.build_bundle(docs, paths)
+    b = classify.build_bundle(docs, paths, template_ids)
     plan = classify.plan_units(b)
     whole = len(plan) == 1
     units = [{"unit": f"U{i + 1}", "pages": pages} for i, pages in enumerate(plan)]
     reqs = [classify.observe_request(b, u["pages"], whole) for u in units]
-    calls = runner.parallel([(r, {"kind": "observe", "key": f"observe:{sub}:{u['unit']}", "submission_id": sub, "pages": u["pages"]})
-                             for u, r in zip(units, reqs)])
-    keyed = [(f"observe:{sub}:{u['unit']}", c) for u, c in zip(units, calls)]
+    # 예금자보호 표시 확인은 관측과 무관해 같은 동시 상한 안에서 관측과 함께 보낸다
+    cands, mreqs = [], []
+    if marks == "run":
+        cands = deposit_marks.candidates(b, _ocr_texts(docs, paths))
+        images: dict = {}
+        mreqs = [(c, deposit_marks.request(b, c, images)) for c in cands[:deposit_marks.MAX_CANDIDATES]]
+        images.clear()
+    mitems = [(r, {"kind": "marks", "key": f"marks:{sub}:{c['region_id']}", "submission_id": sub, "region_id": c["region_id"]})
+              for c, r in mreqs if r is not None]
+    sent = runner.parallel([(r, {"kind": "observe", "key": f"observe:{sub}:{u['unit']}", "submission_id": sub, "pages": u["pages"]})
+                            for u, r in zip(units, reqs)] + mitems)
+    calls, mcalls = sent[:len(units)], sent[len(units):]
+    keyed = [(f"observe:{sub}:{u['unit']}", c) for u, c in zip(units, calls)] + [(m["key"], c) for (_, m), c in zip(mitems, mcalls)]
+    if marks == "run":
+        it = iter(mcalls)
+        mchecks = [{k: c[k] for k in ("region_id", "page_id", "bbox")} | deposit_marks.check(next(it) if r is not None else None)
+                   for c, r in mreqs]
+        marks_out = deposit_marks.summarize(mchecks, max(0, len(cands) - deposit_marks.MAX_CANDIDATES), deposit_marks.pages_complete(b))
+    else:
+        mchecks, marks_out = [], deposit_marks.not_checked("DISABLED" if marks == "disabled" else "NOT_CHECKED")
+    timing["deposit_marks"] = {"candidates": len(cands), **_usage(mcalls)}
     for u, r, c in zip(units, reqs, calls):
         u["obs"] = classify.validate_observe(c, r, b)
         if classification_mode == "observe":       # 상품 ID·영역 연결 검증 뒤 이름 없는 대상 정리(R1·R2)
@@ -222,10 +262,13 @@ def run_submission(sub: str, docs: list[dict], paths: dict[str, str], runner: _R
     profile = OBSERVE_PROFILE if classification_mode == "observe" else SEMANTIC_PROFILE
     trace_path = out_dir / "trace" / "semantic" / f"{sub}.json"
     docs3 = build_docs(out_dir, docs, paths, res["products"], res["assignments"], labels, status, semantic_versions(classification_mode),
-                       [[k, _content_hash(c)] for k, c in keyed], trace_path, profile, classification_mode)
+                       [[k, _content_hash(c)] for k, c in keyed], trace_path, profile, classification_mode,
+                       template_request=b["request"], deposit_insurance_marks=marks_out)
     timing["total_wall_seconds"] = round(time.perf_counter() - t0, 3)
     trace = {
         "submission_id": sub, "mode": "single" if whole else "paged", "status": status,
+        "template_request": b["request"],
+        "deposit_marks": {"mode": marks, "candidates": cands, "checked": mchecks, "result": marks_out},
         "aliases": {"files": {f["alias"]: f["file_id"] for f in b["files"]},
                     "pages": {pa: b["pages"][pa]["page_id"] for pa in b["page_order"]},
                     "regions": {a: r["region_id"] for a, r in b["regions"].items()}},
@@ -285,12 +328,20 @@ def check_all(results: list[dict], docs2: dict[str, dict], paths2: dict[str, str
 
 
 def run(parse_dir: Path, out_dir: Path, client, concurrency: int, submissions: set[str] | None = None,
-        replay: bool = False, classification_mode: str = "observe") -> dict:
-    """의미 단계 전체 실행(또는 replay=True 이면 저장 응답으로 재구성). 결과 요약을 돌려준다."""
+        replay: bool = False, classification_mode: str = "observe", template_requests: dict[str, list[str]] | None = None,
+        marks: str | None = None) -> dict:
+    """의미 단계 전체 실행(또는 replay=True 이면 저장 응답으로 재구성). 결과 요약을 돌려준다.
+    template_requests: 묶음별 등록 템플릿 ID(없는 묶음은 자동 분류). marks: 예금자보호 표시 확인(MARKS_MODES, 기본 LP_DEPOSIT_MARKS)."""
     from .final_viewer import build_semantic_viewer
     from .report_html import build_report
     if classification_mode not in CLASSIFICATION_MODES:
         raise ValueError(f"알 수 없는 상품 분류 모드: {classification_mode}")
+    marks = marks or ("run" if deposit_marks.enabled() else "disabled")
+    if marks not in MARKS_MODES:
+        raise ValueError(f"알 수 없는 예금자보호 표시 확인 방식: {marks}")
+    requests = {k: list(v) for k, v in (template_requests or {}).items() if v}
+    for ids in requests.values():
+        classify.template_request(ids)          # 모르는 템플릿이면 호출 전에 멈춘다
     profile = OBSERVE_PROFILE if classification_mode == "observe" else SEMANTIC_PROFILE
     t0 = time.perf_counter()
     docs, paths = load_parse(parse_dir)
@@ -301,14 +352,15 @@ def run(parse_dir: Path, out_dir: Path, client, concurrency: int, submissions: s
     gate = Gate(client, concurrency)
     runner = _Runner(gate, out_dir, record=not replay, limit=concurrency)
     with ThreadPoolExecutor(max_workers=max(1, min(concurrency, len(subs)))) as pool:
-        results = list(pool.map(lambda s: run_submission(s, by_sub[s], paths, runner, classification_mode), subs))
+        results = list(pool.map(lambda s: run_submission(s, by_sub[s], paths, runner, classification_mode,
+                                                         requests.get(s), marks), subs))
     docs2 = {d["source"]["file_id"]: d for d in docs}
     checks = check_all(results, docs2, paths, out_dir)
     all_docs = [d for r in results for d in r["docs"]]
     index = write_docs(out_dir, all_docs)
     dump(out_dir / "files" / "index.json", {"contract": CONTRACT + "/index", "files": index})
     dump(out_dir / "files" / "contract-check.json", checks)
-    # 심의 단계 입력(review-input/1): 묶음마다 필요한 값만 추린 JSON(<out>/handoff/<submission_id>.json)
+    # 심의 단계 입력(review-input/2, docs/21): 묶음마다 필요한 값만 추린 JSON(<out>/handoff/<submission_id>.json)
     hand = handoff.write_all(out_dir)
     viewer = build_semantic_viewer(out_dir, all_docs, [r["trace"] for r in results], checks)
     timing = {"wall_seconds": round(time.perf_counter() - t0, 3), "concurrency_limit": concurrency, "peak_concurrency": gate.peak,
@@ -327,7 +379,8 @@ def run(parse_dir: Path, out_dir: Path, client, concurrency: int, submissions: s
     if not replay:
         dump(out_dir / "run.json", {"parse_dir": str(parse_dir), "submissions": subs, "concurrency": concurrency,
                                     "semantic_profile": profile, "versions": semantic_versions(classification_mode),
-                                    "classification_mode": classification_mode, "started_at": time.strftime("%Y-%m-%dT%H:%M:%S%z")})
+                                    "classification_mode": classification_mode, "template_requests": requests,
+                                    "deposit_marks": marks, "started_at": time.strftime("%Y-%m-%dT%H:%M:%S%z")})
     report["report_html"] = str(build_report(out_dir))     # 시간은 원본 report.json 에서 읽는다(재구성도 그 파일을 덮어쓰지 않음)
     return report
 
@@ -361,5 +414,7 @@ def rebuild(out_dir: Path) -> dict:
     """저장된 의미 단계 응답으로 결과·화면·보고서를 다시 만든다(모델 호출 없음)."""
     info = load(out_dir / "run.json")
     client = ReplayClient(out_dir / "trace" / "semantic" / "calls")
+    marks = info.get("deposit_marks")          # 이 기능 이전 실행은 기록이 없다(확인하지 않은 것으로 재구성)
     return run(Path(info["parse_dir"]), out_dir, client, info["concurrency"], set(info["submissions"]), replay=True,
-               classification_mode=info.get("classification_mode", "legacy"))
+               classification_mode=info.get("classification_mode", "legacy"), template_requests=info.get("template_requests"),
+               marks=marks if marks in MARKS_MODES else "not_checked")

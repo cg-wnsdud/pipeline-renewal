@@ -1,0 +1,114 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "review-input/2",
+ "title": "심의 단계 입력(제출 묶음 하나)",
+ "description": "docs/18·docs/21. 묶음의 파일별 layout-result/3 에서 심의에 필요한 값만 추린 JSON. 값(region_id·bbox·text·표 셀·상품 소속·라벨)은 layout-result/3 그대로이며 새로 판단하지 않는다. 경로는 이 파일 위치 기준 상대 경로. 좌표는 그 페이지 이미지(width×height) 픽셀 [x0, y0, x1, y1].",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["contract", "submission_id", "template_request", "files", "products", "deposit_insurance_marks", "pages", "source"],
+ "properties": {
+  "contract": {"const": "review-input/2"},
+  "submission_id": {"type": "string", "minLength": 1},
+  "template_request": {
+   "type": "object", "additionalProperties": false, "required": ["template_ids", "mode"],
+   "description": "등록 화면에서 고른 템플릿(입력 그대로). auto: 고르지 않음(파이프라인이 자동 배정) | fixed: 하나를 모든 상품에 | restricted: 상품마다 이 안에서만",
+   "properties": {"template_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+                  "mode": {"enum": ["auto", "fixed", "restricted"]}}
+  },
+  "files": {
+   "type": "array", "minItems": 1,
+   "items": {
+    "type": "object", "additionalProperties": false,
+    "required": ["file_id", "file_name", "file_type", "input_order", "page_count", "hwp_review_html"],
+    "properties": {"file_id": {"type": "string", "minLength": 1}, "file_name": {"type": "string"},
+                   "file_type": {"enum": ["image", "pdf", "hwp", "hwpx"]}, "input_order": {"type": "integer", "minimum": 1},
+                   "page_count": {"type": "integer", "minimum": 0},
+                   "hwp_review_html": {"type": ["string", "null"], "description": "HWP·HWPX 원문 재구성 검토 HTML(기존 변환기 출력). 그 밖의 형식이나 변환 기록이 없으면 null"}}
+   }
+  },
+  "products": {"type": "array", "items": {"$ref": "#/$defs/product"}},
+  "deposit_insurance_marks": {
+   "type": "object", "additionalProperties": false, "required": ["version", "protected", "non_protected"],
+   "description": "예금보험공사 보호·비보호 표시(로고)가 광고에 보이는지(묶음 단위). 있어야 하는지는 심의가 판단한다",
+   "properties": {"version": {"type": "string"}, "protected": {"$ref": "#/$defs/deposit_mark"},
+                  "non_protected": {"$ref": "#/$defs/deposit_mark"}}
+  },
+  "pages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/page"}},
+  "source": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string", "pattern": "^lr3-[0-9a-f]{20}$"},
+             "description": "file_id → 근거 layout-result/3 result_id"}
+ },
+ "$defs": {
+  "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+  "codes": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+  "deposit_mark": {
+   "type": "object", "additionalProperties": false, "required": ["status", "code", "region_ids"],
+   "description": "PRESENT(region_ids = 표시가 보인 영역) | ABSENT | UNKNOWN(code: CHECK_FAILED·MARK_UNCLEAR·TOO_MANY_CANDIDATES·PAGES_INCOMPLETE·DISABLED·NOT_CHECKED)",
+   "properties": {"status": {"enum": ["PRESENT", "ABSENT", "UNKNOWN"]}, "code": {"type": ["string", "null"]},
+                  "region_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}
+  },
+  "product": {
+   "type": "object", "additionalProperties": false,
+   "required": ["product_id", "name", "product_group", "status", "templates", "pension", "files", "pages"],
+   "properties": {
+    "product_id": {"type": "string", "pattern": "^product_[0-9]{3}$"},
+    "name": {"type": ["string", "null"], "description": "광고 문구에 그대로 있는 상품명. 없으면 null"},
+    "product_group": {"type": ["string", "null"]},
+    "status": {"enum": ["classified", "undetermined", "unsupported"], "description": "classified 가 아니면 templates 가 비고 라벨이 없다"},
+    "templates": {"type": "array", "items": {
+     "type": "object", "additionalProperties": false, "required": ["template_id", "role", "label_schema", "labels"],
+     "properties": {"template_id": {"type": "string"}, "role": {"enum": ["product", "component"]},
+                    "label_schema": {"type": ["string", "null"]},
+                    "labels": {"type": "array", "items": {"type": "string"}, "description": "그 템플릿에서 쓸 수 있는 라벨(구분값)"}}}},
+    "pension": {"type": ["object", "null"]},
+    "files": {"type": "array", "items": {"type": "string"}},
+    "pages": {"type": "array", "items": {"type": "string"}}
+   }
+  },
+  "page": {
+   "type": "object", "additionalProperties": false,
+   "required": ["page_id", "file_id", "page_no", "seq", "width", "height", "image", "processed", "regions"],
+   "properties": {
+    "page_id": {"type": "string"}, "file_id": {"type": "string"},
+    "page_no": {"type": "integer", "minimum": 1, "description": "파일 안 쪽 번호"},
+    "seq": {"type": "integer", "minimum": 1, "description": "묶음 안 쪽 연번(입력 파일 순서 → 쪽 순서, 1부터)"},
+    "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1},
+    "image": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+              "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+    "processed": {"type": "boolean", "description": "false 면 이 쪽은 판독되지 않았다(영역이 없거나 일부만)"},
+    "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}, "description": "읽기 순서(위→아래, 같은 줄은 왼쪽→오른쪽)"}
+   }
+  },
+  "region": {
+   "type": "object", "additionalProperties": false,
+   "required": ["region_id", "bbox", "text", "text_status", "text_source", "is_table", "table", "product", "labels",
+                "quality_reasons", "semantic_codes", "needs_review"],
+   "properties": {
+    "region_id": {"type": "string", "minLength": 1},
+    "bbox": {"$ref": "#/$defs/bbox"},
+    "text": {"type": ["string", "null"], "description": "최종 문구. 표도 판독 문구 그대로이며 셀 구조는 table"},
+    "text_status": {"enum": ["read", "no_text", "read_failed", "not_read"]},
+    "text_source": {"enum": ["vlm", "hwp", null], "description": "vlm: 이미지 판독 | hwp: HWP 원문 | null: 문구 없음"},
+    "is_table": {"type": ["boolean", "null"], "description": "null: 표인지 판정 불가"},
+    "table": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/table"}]},
+    "product": {"type": "object", "additionalProperties": false, "required": ["scope", "product_ids"],
+                "properties": {"scope": {"enum": ["specific", "shared", "mixed", "unknown", null]},
+                               "product_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}},
+    "labels": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["product_id", "label_ids"],
+                                           "properties": {"product_id": {"type": "string"}, "label_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}}},
+    "quality_reasons": {"$ref": "#/$defs/codes", "description": "판독 품질 사유(문구를 믿기 어려운 이유). 판정의 판독 가능 여부는 이것만 본다"},
+    "semantic_codes": {"$ref": "#/$defs/codes", "description": "상품 소속·라벨 단계 검토 코드"},
+    "needs_review": {"type": "boolean", "description": "quality_reasons 나 semantic_codes 가 있으면 true"}
+   }
+  },
+  "table": {
+   "type": "object", "additionalProperties": false, "required": ["n_rows", "n_cols", "cells"],
+   "properties": {"n_rows": {"type": "integer", "minimum": 1}, "n_cols": {"type": "integer", "minimum": 1},
+                  "cells": {"type": "array", "minItems": 1, "items": {
+                   "type": "object", "additionalProperties": false, "required": ["row", "col", "rowspan", "colspan", "text"],
+                   "properties": {"row": {"type": "integer", "minimum": 0}, "col": {"type": "integer", "minimum": 0},
+                                  "rowspan": {"type": "integer", "minimum": 1}, "colspan": {"type": "integer", "minimum": 1},
+                                  "text": {"type": "string"}}}}},
+   "description": "table-cells/1 원본 셀 구조. 병합 문구는 시작 칸에 한 번"
+  }
+ }
+}

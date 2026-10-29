@@ -1,0 +1,22 @@
+[project]
+name = "layout-pipeline"
+version = "1.0.0"
+description = "금융 광고 입력(이미지·PDF·HWP) → 영역·최종 문구·상품·템플릿·라벨(layout-result/3)·심의 입력(review-input/2)"
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.23",
+    "pillow>=10.0",
+    # 정확한 버전으로 고정한다. pdfium 은 마이너 버전 사이에서도 같은 PDF 를 다른 픽셀로 그리고(기존 parser-pipeline 실측
+    # 2026-08-24), 그러면 OCR·판독 결과가 달라진다. 기존 parser-pipeline 과 같은 5.12.0.
+    "pypdfium2==5.12.0",
+    "requests>=2.32",
+]
+
+# HWP/HWPX 변환은 사내 document-processor(JPype/JVM)와 Chromium 이 필요하다. 사설 패키지라 여기 넣지 않는다.
+# 같은 인터프리터나 별도 가상환경에 설치하고 PN_HWP_PYTHON·PN_HWP_PROJECT 로 지정한다(hwp_bridge, docs/21).
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.uv]
+package = false

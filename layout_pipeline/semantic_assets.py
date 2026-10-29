@@ -16,9 +16,10 @@ from pathlib import Path
 from .jsonio import load, sha256_file
 
 ASSET_DIR = Path(__file__).resolve().parent.parent / "assets" / "semantic"
-# 이번 범위의 템플릿 스키마(원본 라벨 스키마 19개 중 10개). 운용상품 ETF·ELB 전용 스키마는 원본에도 없다.
-LABEL_SCHEMA_KEYS = ("loan-named", "loan-broker-balance", "deposit-demand", "deposit-term", "deposit-saving",
-                     "deposit-index-linked", "investment-isa-general", "investment-isa-trust",
+# 이번 범위의 템플릿 스키마(원본 라벨 스키마 19개 중 12개 = nh-ad-compliance 운영 등록 화면의 대출·예금·투자 템플릿, docs/21).
+# 운용상품 ETF·ELB 전용 스키마는 원본에도 없다.
+LABEL_SCHEMA_KEYS = ("loan-named", "loan-unnamed", "loan-broker-balance", "deposit-demand", "deposit-term", "deposit-saving",
+                     "deposit-index-linked", "deposit-unnamed", "investment-isa-general", "investment-isa-trust",
                      "investment-isa-discretionary", "investment-pension-general")
 SPECIAL_CODES = ("unsupported", "undetermined")
 
@@ -91,9 +92,19 @@ def template_codes() -> list[str]:
     return [t["code"] for t in templates()]
 
 
-def feature_ids() -> list[str]:
-    """템플릿 특징 ID + 범위 밖·미확정 대상의 근거 ID(other.*)."""
-    return [f["id"] for t in templates() for f in t["features"]] + [f["id"] for f in policy().get("other_features", [])]
+def feature_ids(codes: list[str] | None = None) -> list[str]:
+    """템플릿 특징 ID(codes 를 주면 그 템플릿만) + 범위 밖·미확정 대상의 근거 ID(other.*)."""
+    return ([f["id"] for t in templates() if codes is None or t["code"] in codes for f in t["features"]]
+            + [f["id"] for f in policy().get("other_features", [])])
+
+
+def request_codes(template_ids: list[str]) -> list[str]:
+    """등록 화면에서 고른 템플릿 ID → 분류 정책 코드(입력 순서). 이 파이프라인이 분류하지 않는 템플릿이면 ValueError."""
+    by_id = {t["template_id"]: t["code"] for t in templates()}
+    unknown = [t for t in template_ids if t not in by_id]
+    if unknown:
+        raise ValueError(f"분류할 수 없는 등록 템플릿: {unknown}")
+    return list(dict.fromkeys(by_id[t] for t in template_ids))
 
 
 def feature_template(feature_id: str) -> str:

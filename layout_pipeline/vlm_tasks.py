@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 
 from PIL import Image
@@ -19,8 +20,21 @@ MISMATCH_MIN_COVER = 0.85   # OCR↔VLM 상호 덮임 비율 하한(잠정). 미
 SPECIAL_TOKEN_RE = re.compile(r"<\|[^|<>]{1,40}\|>")
 # 응답 구조 잔여물이 문구에 섞인 흔적(기준선·v3 표 후보에서 관측: '"}<be_thoughtful>{', '"}lot}ᄂ]{', '```json').
 OUTPUT_ARTIFACT_RE = re.compile(r'"\}|\{"|```|<[A-Za-z_]{3,40}>|</?(?:br|p|td|tr|th|table|div|span)\s*/?>', re.I)
-FONT = "C:/Windows/Fonts/malgun.ttf"
-COLORS = [(214, 39, 40), (31, 119, 180), (44, 160, 44), (148, 103, 189), (255, 127, 14), (23, 190, 207),
+# 영역 상자 번호(R01·L003 같은 ASCII)를 그리는 글꼴. Windows 는 이전 결과와 같은 이미지가 나오게 맑은 고딕을 먼저 쓴다.
+# Linux 컨테이너는 LP_FONT_PATH(모듈을 불러올 때 읽으므로 .env 가 아니라 실제 환경 변수) 또는 설치된 Noto CJK·DejaVu.
+FONT_CANDIDATES = ("C:/Windows/Fonts/malgun.ttf", "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+                   "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+
+
+def _font_path() -> str:
+    configured = os.environ.get("LP_FONT_PATH", "").strip()
+    if configured:
+        return configured
+    return next((p for p in FONT_CANDIDATES if os.path.isfile(p)), FONT_CANDIDATES[0])
+
+
+FONT = _font_path()
+COLORS =[(214, 39, 40), (31, 119, 180), (44, 160, 44), (148, 103, 189), (255, 127, 14), (23, 190, 207),
           (188, 189, 34), (227, 119, 194), (140, 86, 75)]
 
 

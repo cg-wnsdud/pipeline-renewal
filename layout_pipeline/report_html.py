@@ -399,9 +399,10 @@ def _pane(out: Path, fdir: Path, d: dict, siblings: list[str], timing: dict | No
                 pen = (f"<div class='note'>퇴직연금 금융투자상품 {PENSION.get(q['investment_products'], '')} · 제도 {esc('/'.join(q['plans']) or '-')}"
                        f" · 운용상품 {esc('/'.join(q['components']) or '-')}</div>")
             cntp = sum(p["product_id"] in r["product_assignment"]["product_ids"] for r in d["regions"])
+            pcodes = "".join(f"<span class='code s'>{esc(c)}</span>" for c in p["review"]["codes"]) or "<span class=mute>-</span>"
             ptab += (f"<tr><td>{_chip(p['product_id'], style='background:' + color[p['product_id']])}</td><td>{esc(p['name'] or '(이름 없음)')}</td>"
                      f"<td>{PSTATUS.get(p['status'], '')}</td><td>{esc(p['product_group'] or '')}</td><td>{tpl}{pen}</td>"
-                     f"<td>{cntp}개</td><td>{''.join(f'<span class=\"code s\">{esc(c)}</span>' for c in p['review']['codes']) or '<span class=mute>-</span>'}</td></tr>")
+                     f"<td>{cntp}개</td><td>{pcodes}</td></tr>")
         ptab += "</table>"
     issues = [(p["page_id"], i) for p in d["pages"] for i in p.get("issues", [])]
     itab = ("<details class='table-checks'><summary>페이지 이슈 %d</summary><ol>%s</ol></details>" % (

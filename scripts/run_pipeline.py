@@ -37,6 +37,8 @@ from layout_pipeline import contract_v2  # noqa: E402
 from layout_pipeline.file_result import build_file_results, write_file_results  # noqa: E402
 from layout_pipeline.final_viewer import build_file_viewer, build_final_viewer  # noqa: E402
 from layout_pipeline.jsonio import dump, load  # noqa: E402
+from layout_pipeline import classify  # noqa: E402
+from layout_pipeline.pages import template_requests  # noqa: E402
 from layout_pipeline.read_stage import Reader  # noqa: E402
 from layout_pipeline import vlm_tasks  # noqa: E402
 from layout_pipeline.vlm_client import VlmClient  # noqa: E402
@@ -44,7 +46,7 @@ from layout_pipeline.vlm_tasks import (GENERAL_REQUEST_VERSIONS, MARGIN_RULE, TA
                                        TABLE_REQUEST_VERSIONS)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", action="append", type=Path, default=[])
     ap.add_argument("--from-stage1", type=Path, default=None, help="기존 Stage 1 실행 폴더 재사용(OCR 호출 없음)")
@@ -96,7 +98,7 @@ def main() -> int:
     ap.add_argument("--semantic", action=argparse.BooleanOptionalAction, default=True,
                     help="(기본 켬) 파싱 snapshot 저장 뒤 상품·템플릿 분류·영역 배정·라벨링(docs/14, <out>/semantic). "
                          "같은 --vlm-concurrency 상한을 쓴다. 끄면 파싱까지만")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     if args.rebuild:
         return rebuild(args.out)
     if args.out.exists() and any(args.out.iterdir()) and not args.resume:
@@ -107,9 +109,16 @@ def main() -> int:
     if args.from_stage1:
         stage1_dir = args.from_stage1
         timing["stage1"] = {"reused": str(stage1_dir), "ocr_wall_seconds": load(stage1_dir / "run.json").get("wall_seconds")}
+        manifests = [Path(m) for m in load(stage1_dir / "run.json").get("manifests") or [] if Path(m).is_file()]
     else:
         if not args.manifest:
             ap.error("--manifest 또는 --from-stage1 이 필요합니다")
+        manifests = args.manifest
+    # 등록 템플릿 요청(docs/21): 모르는 템플릿이면 OCR·모델 호출 전에 멈춘다
+    requests = template_requests(manifests)
+    for ids in requests.values():
+        classify.template_request(ids)
+    if not args.from_stage1:
         stage1_dir = args.out / "stage1"
         layout_options = {}
         if args.layout_config != "none":
@@ -203,7 +212,7 @@ def main() -> int:
                "timing": timing, "viewer": str(viewer)}
     if args.semantic:
         t2 = time.perf_counter()
-        summary["semantic"] = run_semantic_stage(args.out, args.vlm_concurrency)
+        summary["semantic"] = run_semantic_stage(args.out, args.vlm_concurrency, requests)
         timing["semantic"] = summary["semantic"].get("timing")
         timing["semantic_stage_wall_seconds"] = round(time.perf_counter() - t2, 3)
     # 입력 → 파싱 → 결과 저장·화면 → 의미 단계까지 한 실행의 전체 경과(total_wall_seconds 는 파싱까지)
@@ -216,7 +225,7 @@ def main() -> int:
     return 0
 
 
-def run_semantic_stage(out: Path, concurrency: int) -> dict:
+def run_semantic_stage(out: Path, concurrency: int, template_requests: dict[str, list[str]] | None = None) -> dict:
     """파싱 snapshot(<out>/files) 저장 뒤 의미 단계(docs/14). 기존 <out>/semantic 이 있으면 덮어쓰지 않고 건너뛴다."""
     from layout_pipeline import semantic
     sem_dir = out / "semantic"
@@ -224,7 +233,7 @@ def run_semantic_stage(out: Path, concurrency: int) -> dict:
         return {"skipped": f"{sem_dir} 가 이미 있음(덮어쓰지 않음). scripts/run_semantic.py --parse {out} --out <새 폴더> 로 실행"}
     client = VlmClient(os.environ["PN_VLM_URL"], os.environ["PN_VLM_MODEL"], float(os.environ.get("PN_VLM_TIMEOUT_S", "320")),
                        prefix="sem")
-    report = semantic.run(out, sem_dir, client, concurrency)
+    report = semantic.run(out, sem_dir, client, concurrency, template_requests=template_requests)
     return {"checks": report["checks"], "timing": report["timing"], "viewer": report["viewer"],
             "products": {s["submission_id"]: s["products"] for s in report["submissions"]}}
 

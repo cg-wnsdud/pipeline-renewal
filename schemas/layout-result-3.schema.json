@@ -32,17 +32,34 @@
    "type": "object", "additionalProperties": false, "required": ["profile", "classification_mode", "status", "versions"],
    "description": "classification_mode: observe(고정 경로, docs/16 §9: 관측 한 호출에서 상품·템플릿·모든 영역 소속을 함께 결정 + 이름 없는 대상 정리, 큰 묶음은 페이지별 관측 + 통합) | legacy(정리 규칙 없는 이전 관측·통합, 이전 실행 재구성용)",
    "properties": {"profile": {"type": "string"}, "classification_mode": {"enum": ["observe", "legacy"]},
-                  "status": {"enum": ["completed", "partial", "failed"]}, "versions": {"type": "object"}}
+                  "status": {"enum": ["completed", "partial", "failed"]}, "versions": {"type": "object"},
+                  "template_request": {
+                   "type": "object", "additionalProperties": false, "required": ["template_ids", "mode"],
+                   "description": "docs/21 등록 템플릿 요청(묶음 단위). auto: 요청 없음(자동 분류) | fixed: 템플릿 하나를 모든 상품에 | restricted: 상품마다 등록 템플릿 안에서만. 2026-10-29 추가(이전 결과에는 없음)",
+                   "properties": {"template_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+                                  "mode": {"enum": ["auto", "fixed", "restricted"]}}}}
   },
   "pages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/page"}},
   "products": {"type": "array", "items": {"$ref": "#/$defs/product"}},
   "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}},
   "unassigned_texts": {"type": "array", "items": {"$ref": "#/$defs/unassigned"}},
-  "trace_ref": {"type": "object", "additionalProperties": false, "required": ["parse_result", "semantic_trace"],
+  "deposit_insurance_marks": {
+   "type": "object", "additionalProperties": false, "required": ["version", "protected", "non_protected"],
+   "description": "docs/21 예금보험공사 보호·비보호 표시(로고) 확인(묶음 단위, 같은 묶음의 모든 파일에 같은 값). 있어야 하는지는 판단하지 않는다. 2026-10-29 추가(이전 결과에는 없음)",
+   "properties": {"version": {"type": "string"}, "protected": {"$ref": "#/$defs/deposit_mark"},
+                  "non_protected": {"$ref": "#/$defs/deposit_mark"}}
+  },
+  "trace_ref":{"type": "object", "additionalProperties": false, "required": ["parse_result", "semantic_trace"],
                 "properties": {"parse_result": {"type": "string"}, "semantic_trace": {"type": "string"}}}
  },
  "$defs": {
   "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+  "deposit_mark": {
+   "type": "object", "additionalProperties": false, "required": ["status", "code", "region_ids"],
+   "description": "PRESENT(region_ids = 표시가 보인 영역, 1개 이상) | ABSENT | UNKNOWN(code: CHECK_FAILED·MARK_UNCLEAR·TOO_MANY_CANDIDATES·PAGES_INCOMPLETE·DISABLED·NOT_CHECKED). 표시 안 글자·후보별 응답은 trace/semantic",
+   "properties": {"status": {"enum": ["PRESENT", "ABSENT", "UNKNOWN"]}, "code": {"type": ["string", "null"]},
+                  "region_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}
+  },
   "review_codes": {"type": "object", "additionalProperties": false, "required": ["required", "codes"],
                    "properties": {"required": {"type": "boolean"}, "codes": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}}},
   "page": {
