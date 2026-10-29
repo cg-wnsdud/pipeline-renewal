@@ -196,3 +196,28 @@ def test_table_text_fallback_uses_cells_read_text_without_rows():
         cells = {"request_meta": {"kind": "table_cells", "text_fallback": flag}, "call_id": "vlm-0002", "finish_reason": "stop"}
         out = merge_entries([(page, first), (cells, parsed)])[rid]
         assert out["text"] == want_text and out["rows"] == want_rows and out["table_structure_failed"]
+
+
+def test_cells_read_that_is_not_a_table_keeps_the_first_read_line_breaks():
+    """셀 재판독이 '표 아님'이면 문구 글자는 재판독 그대로 쓰고 줄바꿈 위치는 1차 판독에서 옮긴다(2026-10-29 dm05 유의사항)."""
+    from types import SimpleNamespace
+    from layout_pipeline.read_stage import merge_entries
+    from layout_pipeline.text_eval import norm
+    rid = "p-v0-L003"
+    page = {"request_meta": {"kind": "page"}, "call_id": "vlm-0001", "finish_reason": "stop"}
+    first = {rid: {"region_id": rid, "text": "거래중지계좌 다음에 해당하는 계좌\n1. 잔액 1만원 미만인 계좌\n2. 잔액 5만원 미만인 계좌\n"
+                                               "확인 후 가능합니다\n※ 약관을 읽어보시기 바랍니다",
+                   "uncertain": False, "is_table": True, "rows": [], "contract_ok": True, "contract_errors": []}}
+    joined = ("거래중지계좌 다음에 해당하는 계좌 · 1. 잔액 1만원 미만인 계좌 · 2. 잔액 5만원 미만인 계좌 "
+              "확인 후 가능합니다. ※ 약관을 읽어보시기 바랍니다.")
+    cells = {"request_meta": {"kind": "table_cells"}, "call_id": "vlm-0002", "finish_reason": "stop"}
+    for is_table, want in ((False, "거래중지계좌 다음에 해당하는 계좌\n· 1. 잔액 1만원 미만인 계좌\n· 2. 잔액 5만원 미만인 계좌\n"
+                                   "확인 후 가능합니다.\n※ 약관을 읽어보시기 바랍니다."), (True, joined)):
+        resp = {"region_id": rid, "is_table": is_table, "text": joined, "uncertain": False,
+                "n_rows": 1 if is_table else 0, "n_cols": 1 if is_table else 0,
+                "cells": [_cell(0, 0, joined)] if is_table else []}
+        parsed = table_cells.validate(SimpleNamespace(error=None, parsed=resp), {"region_ids": [rid]})
+        out = merge_entries([(page, first), (cells, parsed)])[rid]
+        assert out["text"] == want and norm(out["text"]) == norm(joined)        # 글자는 재판독 그대로
+        assert out["trace"].get("line_breaks_from_first_read") == (4 if is_table is False else None)
+    assert table_cells.with_line_breaks("가나다라\n마바사아", "가나다라마바사아") == ("가나다라마바사아", 0)   # 공백 없는 자리

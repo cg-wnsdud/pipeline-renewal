@@ -17,7 +17,7 @@ import statistics
 from PIL import Image, ImageDraw, ImageFont
 
 from . import vlm_tasks
-from .text_eval import digits, norm
+from .text_eval import digit_groups, norm
 from .vlm_client import server_resize
 
 PAGE_VERSION = "page/2"
@@ -354,7 +354,7 @@ def verify_reasons(record: dict, region: dict, view: dict, res: dict) -> list[st
             ocr_in_vlm, _ = vlm_tasks.ocr_vlm_agreement(lines, text)
             if ocr_in_vlm < MISSING_OCR_COVER:
                 reasons.append("ocr_text_missing_in_page_read")
-            missing_digits = set(digits("\n".join(lines))) - set(digits(text))
+            missing_digits = set(digit_groups("\n".join(lines))) - set(digit_groups(text))
             if missing_digits:
                 reasons.append("ocr_digits_missing_in_page_read")
     if region["table_candidate"] and res.get("contract_ok"):

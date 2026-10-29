@@ -346,6 +346,32 @@ def test_review_not_decided_by_uncertain_only(tmp_path):
     assert "read_failed" in rv["quality_reasons"]
 
 
+def test_digit_check_ignores_separator_spacing_and_hwp_text_digits_are_context():
+    """숫자 비교는 천 단위 쉼표만 붙이고 그 밖의 쉼표·점은 구분자로 본다(2026-10-29 mx1306: OCR '3000,1522').
+    HWP 원문 문구의 숫자 불일치는 렌더 OCR 쪽 차이라 품질 사유가 아니라 맥락 사유다(td01: OCR '☎' → '8')."""
+    from layout_pipeline import hwp_structure, vlm_tasks
+    from layout_pipeline.read_stage import integrate_region
+    from layout_pipeline.text_eval import digit_groups
+    assert set(digit_groups("문의(1661-3000,1522-3000)")) == set(digit_groups("문의(1661-3000, 1522-3000)"))
+    assert digit_groups("3,000원 2026.10.29") == digit_groups("3000원 2026. 10. 29")
+    assert set(digit_groups("0.10%p")) != set(digit_groups("0.01%p"))
+    region = {"region_id": "a", "page_id": "p", "bbox": [0, 0, 10, 10], "source": "s", "source_index": 0,
+              "table_candidate": False, "crossing_ocr_ids": [], "ambiguous_ocr_ids": []}
+    record = {"assignments": [{"region_id": "a", "ocr_text": "기타 문의(1661-3000,1522-3000)", "ocr_id": "t1",
+                               "ocr_bbox": [0, 0, 10, 5]}],
+              "unassigned_texts": [], "diagnostics": {"region_overlaps": []}}
+    rv = vlm_tasks.review_reasons(record, region, {"text": "기타 문의(1661-3000, 1522-3000)", "uncertain": False,
+                                                   "contract_errors": []})
+    assert "digit_mismatch" not in rv["quality_reasons"]
+    record["assignments"][0]["ocr_text"] = "NH농협은행(81661-3000)"
+    res = {"text": "NH농협은행 (☎1661-3000)", "uncertain": False, "contract_ok": True, "contract_errors": [],
+           "trace": {"kinds": ["hwp_structure"]}}
+    review = integrate_region(record, region | {"text_source": hwp_structure.VERSION}, res)["review"]
+    assert "digit_mismatch" not in review["quality"] and "ocr_hwp_digit_mismatch" in review["context"]
+    review = integrate_region(record, region, res | {"trace": {"kinds": ["page"]}})["review"]
+    assert "digit_mismatch" in review["quality"]                                          # VLM 문구는 그대로 품질 사유
+
+
 def test_vlm_validate_rejects_missing_duplicate_and_string_bool():
     from types import SimpleNamespace
     from layout_pipeline import vlm_tasks

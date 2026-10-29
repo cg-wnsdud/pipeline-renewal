@@ -324,12 +324,14 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
                 tr |= {"table_read": meta.get("version") or table_cells.VERSION, "table_cells_errors": res.get("contract_errors") or None,
                        "table_notes": res.get("notes"), "context_view": (meta.get("context_view") or {}).get("view_id")}
                 if res.get("contract_ok"):
-                    out[rid] = {k: v for k, v in res.items() if k != "notes"} | {"trace": tr}
+                    text = first_read_breaks(prev, res["text"], res["is_table"], tr)
+                    out[rid] = {k: v for k, v in res.items() if k != "notes"} | {"text": text, "trace": tr}
                 elif meta.get("text_fallback") and res.get("text_only"):
                     # text_fallback(docs/18): 셀 구조만 실패하고 문구는 온전하면 이 응답의 문구를 쓰고 표 구조는 없음으로 둔다.
                     # 1차 판독의 rows 와 섞지 않는다(rows·cells 모두 비움).
                     t = res["text_only"]
-                    out[rid] = {"region_id": rid, "text": t["text"], "uncertain": t["uncertain"], "is_table": t["is_table"],
+                    text = first_read_breaks(prev, t["text"], t["is_table"], tr)
+                    out[rid] = {"region_id": rid, "text": text, "uncertain": t["uncertain"], "is_table": t["is_table"],
                                 "rows": None, "cells": None, "contract_ok": True, "contract_errors": [],
                                 "table_structure_failed": True, "table_text_only": True,
                                 "trace": tr | {"table_text_fallback": True}}
@@ -363,6 +365,18 @@ def merge_entries(entries: list, index: dict[str, tuple] | None = None) -> dict[
     for rid, (_, region) in (index or {}).items():
         if region.get("text_source") == hwp_structure.VERSION:
             out[rid] = hwp_structure.read_result(region)     # HWP 구조 Region: DOM 행 문구(VLM 호출 없음, docs/20)
+    return out
+
+
+def first_read_breaks(prev: dict | None, text: str | None, is_table, tr: dict) -> str | None:
+    """셀 재판독이 '표 아님'(is_table=false)으로 답하면 그 문구의 글자는 쓰고 줄바꿈 위치는 1차 판독에서 옮긴다.
+    셀 재판독은 행 단위로 한 줄에 이어 쓰는 경향이 있어(dm05 유의사항 '· 항목' 줄이 한 줄로 합쳐짐, 2026-10-29) 줄 구분이
+    판정(유의사항 줄바꿈)에 쓰이는 문구에서 사라진다. 옮긴 수는 trace 에 남긴다."""
+    if is_table is not False or prev is None:
+        return text
+    out, moved = table_cells.with_line_breaks(prev.get("text"), text)
+    if moved:
+        tr["line_breaks_from_first_read"] = moved
     return out
 
 
@@ -450,6 +464,11 @@ def integrate_region(record: dict, region: dict, res: dict | None) -> dict:
         # HWP 구조 Region(docs/20): 문구는 VLM 이 아니라 HWP 원문이다. OCR 대조 불일치는 원문과 렌더 OCR 의 차이로 표시한다.
         review["quality_reasons"] = ["ocr_hwp_mismatch" if x == "ocr_vlm_mismatch" else x for x in review["quality_reasons"]]
         review["context_reasons"].append("hwp_structure_text")
+        if "digit_mismatch" in review["quality_reasons"]:
+            # 숫자는 HWP 원문이 정답이고 다른 쪽은 렌더 OCR 이다(td01 에서 '☎1661' 을 OCR 이 '81661' 로 읽음, 2026-10-29).
+            # 판독 품질 사유가 아니라 맥락 사유로 남긴다.
+            review["quality_reasons"].remove("digit_mismatch")
+            review["context_reasons"].append("ocr_hwp_digit_mismatch")
     if res.get("patch_not_applied"):
         review["quality_reasons"].append("patch_not_applied")
     review["quality_reasons"] += [x for x in (res.get("reread_review") or []) if x not in review["quality_reasons"]]

@@ -14,7 +14,7 @@ import re
 
 from PIL import Image
 
-from .text_eval import digits, norm, semiglobal, similarity_cover
+from .text_eval import digit_groups, norm, semiglobal, similarity_cover
 
 MISMATCH_MIN_COVER = 0.85   # OCR↔VLM 상호 덮임 비율 하한(잠정). 미만이면 ocr_vlm_mismatch
 SPECIAL_TOKEN_RE = re.compile(r"<\|[^|<>]{1,40}\|>")
@@ -413,9 +413,10 @@ def review_reasons(record: dict, region: dict, result: dict) -> dict:
             measures.update(ocr_lines_in_vlm=round(ocr_in_vlm, 3), vlm_chars_supported_by_ocr=round(vlm_in_ocr, 3))
             if min(ocr_in_vlm, vlm_in_ocr) < MISMATCH_MIN_COVER:
                 quality.append("ocr_vlm_mismatch")
-            if sorted(set(digits(reference))) != sorted(set(digits(text))):
+            ocr_digits, vlm_digits = sorted(set(digit_groups(reference))), sorted(set(digit_groups(text)))
+            if ocr_digits != vlm_digits:
                 quality.append("digit_mismatch")
-                measures.update(ocr_digits=sorted(set(digits(reference))), vlm_digits=sorted(set(digits(text))))
+                measures.update(ocr_digits=ocr_digits, vlm_digits=vlm_digits)
         elif norm(text):
             context.append("no_ocr_reference")
     if result.get("is_table") is False:
